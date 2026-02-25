@@ -11,6 +11,7 @@ export const homepageSettings = defineType({
     { name: 'hero', title: 'Hero' },
     { name: 'buttons', title: 'Buttons' },
     { name: 'more', title: 'More' },
+    { name: 'readOnline', title: 'Read Online' },
   ],
   fields: [
     // ─── Site ────────────────────────────────────────────────────────────────
@@ -63,6 +64,13 @@ export const homepageSettings = defineType({
       group: 'buttons',
       initialValue: 'More',
     }),
+    defineField({
+      name: 'readOnlineButtonText',
+      title: 'Read Online Button Text',
+      type: 'string',
+      group: 'buttons',
+      initialValue: 'Read Online',
+    }),
 
     // ─── More ─────────────────────────────────────────────────────────────────
     defineField({
@@ -80,6 +88,24 @@ export const homepageSettings = defineType({
       group: 'more',
       rows: 6,
       description: 'Text shown in the Description accordion on the /more page',
+    }),
+
+    // ─── Read Online ──────────────────────────────────────────────────────────
+    defineField({
+      name: 'readOnlineTitle',
+      title: 'Page Title',
+      type: 'string',
+      group: 'readOnline',
+      initialValue: 'Read Online',
+      description: 'Title shown at the top of the Read Online page',
+    }),
+    defineField({
+      name: 'readOnlinePdf',
+      title: 'Book PDF',
+      type: 'file',
+      group: 'readOnline',
+      description: 'Upload the PDF of the book here',
+      options: { accept: 'application/pdf' },
     }),
   ],
   preview: {

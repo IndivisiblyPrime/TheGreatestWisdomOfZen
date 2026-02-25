@@ -7,6 +7,13 @@ export interface SiteSettings {
   buyButtonText?: string;
   buyButtonUrl?: string;
   moreButtonText?: string;
+  readOnlineButtonText?: string;
   exploreHeading?: string;
   bookDescription?: string;
+  readOnlineTitle?: string;
+  readOnlinePdf?: {
+    asset?: {
+      url: string;
+    };
+  };
 }

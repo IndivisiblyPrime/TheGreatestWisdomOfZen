@@ -6,6 +6,7 @@ interface BookHeroProps {
   buyButtonText?: string
   buyButtonUrl?: string
   moreButtonText?: string
+  readOnlineButtonText?: string
 }
 
 export function BookHero({
@@ -13,12 +14,17 @@ export function BookHero({
   buyButtonText,
   buyButtonUrl,
   moreButtonText,
+  readOnlineButtonText,
 }: BookHeroProps) {
   const buyText = buyButtonText || "Buy"
   const moreText = moreButtonText || "More"
+  const readOnlineText = readOnlineButtonText || "Read Online"
+
+  const buttonClass =
+    "bg-white border border-black py-3 text-sm text-center transition-colors hover:bg-black hover:text-white"
 
   return (
-    <div>
+    <div className="relative">
       {bookCoverImage ? (
         <img
           src={urlFor(bookCoverImage).width(2000).url()}
@@ -31,26 +37,25 @@ export function BookHero({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 px-8 py-10 md:px-16">
+      {/* Buttons overlaid at the very bottom of the image */}
+      <div className="absolute bottom-0 left-0 right-0 grid grid-cols-3">
         {buyButtonUrl ? (
           <a
             href={buyButtonUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="border border-black py-10 text-xl text-center transition-colors hover:bg-black hover:text-white"
+            className={buttonClass}
           >
             {buyText}
           </a>
         ) : (
-          <span className="border border-black py-10 text-xl text-center">
-            {buyText}
-          </span>
+          <span className={buttonClass}>{buyText}</span>
         )}
-        <a
-          href="/more"
-          className="border border-black py-10 text-xl text-center transition-colors hover:bg-black hover:text-white"
-        >
+        <a href="/more" className={buttonClass}>
           {moreText}
+        </a>
+        <a href="/read-online" className={buttonClass}>
+          {readOnlineText}
         </a>
       </div>
     </div>

@@ -4,21 +4,18 @@ import { Metadata } from "next"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { SiteSettings } from "@/lib/types"
-import { BookHero } from "@/components/sections/BookHero"
+import { ReadOnlineSection } from "@/components/sections/ReadOnlineSection"
 
-const SETTINGS_QUERY = `*[_type == "homepageSettings"][0]{
+const READ_ONLINE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  bookCoverImage,
-  buyButtonText,
-  buyButtonUrl,
-  moreButtonText,
-  readOnlineButtonText
+  readOnlineTitle,
+  readOnlinePdf { asset-> { url } }
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
   try {
-    return await client.fetch(SETTINGS_QUERY)
+    return await client.fetch(READ_ONLINE_QUERY)
   } catch {
     return null
   }
@@ -26,27 +23,25 @@ async function getSettings(): Promise<SiteSettings | null> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
-  const title = settings?.siteTitle || "The Greatest Wisdom of Zen"
+  const title = settings?.readOnlineTitle
+    ? `${settings.readOnlineTitle}${settings.siteTitle ? ` — ${settings.siteTitle}` : ""}`
+    : "Read Online"
   return {
     title,
-    description: title,
     icons: settings?.siteFavicon
       ? { icon: urlFor(settings.siteFavicon).width(64).height(64).url() }
       : undefined,
   }
 }
 
-export default async function Home() {
+export default async function ReadOnlinePage() {
   const settings = await getSettings()
 
   return (
     <main>
-      <BookHero
-        bookCoverImage={settings?.bookCoverImage}
-        buyButtonText={settings?.buyButtonText}
-        buyButtonUrl={settings?.buyButtonUrl}
-        moreButtonText={settings?.moreButtonText}
-        readOnlineButtonText={settings?.readOnlineButtonText}
+      <ReadOnlineSection
+        title={settings?.readOnlineTitle}
+        pdfUrl={settings?.readOnlinePdf?.asset?.url}
       />
     </main>
   )
