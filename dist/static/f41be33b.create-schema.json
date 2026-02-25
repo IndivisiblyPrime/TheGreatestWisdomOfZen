@@ -1,0 +1,753 @@
+[
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "headline",
+        "type": "string"
+      },
+      {
+        "name": "subtitle",
+        "type": "string"
+      }
+    ],
+    "name": "heroSection",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": "Jack Harvey",
+        "description": "Text shown in the browser tab (e.g. \"Jack Harvey\")",
+        "name": "siteTitle",
+        "type": "string",
+        "title": "Browser Tab Title"
+      },
+      {
+        "options": {
+          "hotspot": false
+        },
+        "description": "Icon shown in the browser tab. Use a square image (e.g. 32×32 or 64×64 px).",
+        "name": "siteFavicon",
+        "type": "image",
+        "title": "Favicon"
+      },
+      {
+        "description": "Customize the navigation menu items",
+        "of": [
+          {
+            "fields": [
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "options": {
+                  "list": [
+                    {
+                      "title": "Home (Hero)",
+                      "value": "hero"
+                    },
+                    {
+                      "title": "Book",
+                      "value": "book"
+                    },
+                    {
+                      "title": "NFTs",
+                      "value": "nfts"
+                    },
+                    {
+                      "title": "About Me",
+                      "value": "about"
+                    },
+                    {
+                      "title": "Coming Soon (Footer)",
+                      "value": "coming-soon"
+                    }
+                  ]
+                },
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "valid",
+                        "constraint": [
+                          "hero",
+                          "book",
+                          "nfts",
+                          "about",
+                          "coming-soon"
+                        ]
+                      },
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "target",
+                "type": "string",
+                "title": "Target Section"
+              }
+            ],
+            "type": "object",
+            "name": "navItem"
+          }
+        ],
+        "name": "navItems",
+        "type": "array",
+        "title": "Navigation Items"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "description": "Background image for the hero section (used if no video is set)",
+        "name": "heroImage",
+        "type": "image",
+        "title": "Hero Background Image"
+      },
+      {
+        "options": {
+          "accept": "video/*"
+        },
+        "description": "Background video for the hero section (MP4 recommended). Takes priority over image.",
+        "name": "heroVideo",
+        "type": "file",
+        "title": "Hero Background Video"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "External video URL (e.g., from a CDN). Used if no uploaded video.",
+        "name": "heroVideoUrl",
+        "type": "url",
+        "title": "Hero Video URL (External)"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Title displayed above the book (e.g., \"The Greatest Wisdom of Zen\")",
+        "name": "bookTitle",
+        "type": "string",
+        "title": "Book Section Title"
+      },
+      {
+        "rows": 4,
+        "description": "Description text for the Book section",
+        "name": "bookDescription",
+        "type": "text",
+        "title": "Book Section Description"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "description": "Book cover image (will preserve aspect ratio)",
+        "name": "bookImage",
+        "type": "image",
+        "title": "Book Cover Image"
+      },
+      {
+        "initialValue": "Buy / View More Details",
+        "description": "Text for the button below the book image",
+        "name": "bookButtonText",
+        "type": "string"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Link for the book button (optional)",
+        "name": "bookButtonUrl",
+        "type": "url",
+        "title": "Book Button URL"
+      },
+      {
+        "initialValue": "NFTs",
+        "description": "Large heading at the top of this section (e.g. \"NFTs\" or \"Art\")",
+        "name": "nftSectionTitle",
+        "type": "string",
+        "title": "Section Heading"
+      },
+      {
+        "description": "Smaller line below the heading (e.g. \"Highlights from XYZ collection\")",
+        "name": "nftSectionSubtitle",
+        "type": "string",
+        "title": "Section Subtitle"
+      },
+      {
+        "description": "Wide/landscape images shown above the portrait grid. Use for paintings wider than they are tall.",
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "image",
+                "type": "image"
+              },
+              {
+                "name": "alt",
+                "type": "string",
+                "title": "Alt Text"
+              },
+              {
+                "initialValue": "2025",
+                "name": "year",
+                "type": "string"
+              },
+              {
+                "name": "collection",
+                "type": "string",
+                "title": "Collection / Portfolio Name"
+              }
+            ],
+            "type": "object",
+            "name": "landscapeItem"
+          }
+        ],
+        "name": "landscapeGallery",
+        "type": "array",
+        "title": "Landscape Paintings"
+      },
+      {
+        "description": "Portrait/square images shown in the 2-column grid.",
+        "of": [
+          {
+            "fields": [
+              {
+                "description": "NFT name (bottom left)",
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "image",
+                "type": "image"
+              },
+              {
+                "description": "Alternative text for accessibility",
+                "name": "alt",
+                "type": "string",
+                "title": "Alt Text"
+              },
+              {
+                "initialValue": "2025",
+                "description": "Year of the NFT (bottom left, below title)",
+                "name": "year",
+                "type": "string"
+              },
+              {
+                "description": "Collection name (bottom right)",
+                "name": "collection",
+                "type": "string",
+                "title": "Collection / Portfolio Name"
+              }
+            ],
+            "type": "object",
+            "name": "nftItem",
+            "title": "NFT Item"
+          }
+        ],
+        "name": "nftGallery",
+        "type": "array",
+        "title": "Portrait Gallery"
+      },
+      {
+        "initialValue": "Learn More",
+        "description": "Text for the gradient button",
+        "name": "ctaButtonText",
+        "type": "string",
+        "title": "CTA Button Text"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "External link for the CTA button",
+        "name": "ctaButtonUrl",
+        "type": "url",
+        "title": "CTA Button URL"
+      },
+      {
+        "initialValue": "Welcome to the Matrix, Neo.",
+        "description": "Text that decrypts when you hover over it",
+        "name": "encryptedText",
+        "type": "string"
+      },
+      {
+        "description": "Accordion sections for the About Me page.",
+        "of": [
+          {
+            "fields": [
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "initialValue": "text",
+                "options": {
+                  "list": [
+                    {
+                      "title": "Text (plain content)",
+                      "value": "text"
+                    },
+                    {
+                      "title": "Experience (job cards with timeline)",
+                      "value": "experience"
+                    },
+                    {
+                      "title": "Logo + Freeform (cards without timeline)",
+                      "value": "logoFreeform"
+                    },
+                    {
+                      "title": "Contact Form",
+                      "value": "contact"
+                    }
+                  ],
+                  "layout": "radio"
+                },
+                "description": "Choose how this accordion item renders when expanded.",
+                "name": "itemType",
+                "type": "string"
+              },
+              {
+                "rows": 4,
+                "description": "Text content shown when expanded (for \"Text\" type only).",
+                "hidden": "conditional",
+                "name": "content",
+                "type": "text"
+              },
+              {
+                "initialValue": false,
+                "description": "Display social links below the content",
+                "hidden": true,
+                "name": "showSocialLinks",
+                "type": "boolean"
+              },
+              {
+                "description": "Add one entry per job role.",
+                "of": [
+                  {
+                    "fields": [
+                      {
+                        "options": {
+                          "hotspot": true
+                        },
+                        "description": "Square company logo/icon",
+                        "name": "logo",
+                        "type": "image",
+                        "title": "Company Logo"
+                      },
+                      {
+                        "validation": [
+                          {
+                            "rules": [
+                              {
+                                "flag": "presence",
+                                "constraint": "required"
+                              }
+                            ],
+                            "level": "error"
+                          }
+                        ],
+                        "description": "e.g. \"Full Stack Software Engineer – (Machine Learning)\"",
+                        "name": "jobTitle",
+                        "type": "string"
+                      },
+                      {
+                        "description": "e.g. \"Mar 2023 – now\"",
+                        "name": "dateRange",
+                        "type": "string"
+                      },
+                      {
+                        "name": "company",
+                        "type": "string",
+                        "title": "Company Name"
+                      },
+                      {
+                        "rows": 4,
+                        "description": "Freeform text shown below the job title. Use newlines however you like.",
+                        "name": "description",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "object",
+                    "name": "experienceEntry"
+                  }
+                ],
+                "hidden": "conditional",
+                "name": "experienceEntries",
+                "type": "array"
+              },
+              {
+                "description": "Each entry shows an optional logo next to freeform text. No timeline line.",
+                "of": [
+                  {
+                    "fields": [
+                      {
+                        "options": {
+                          "hotspot": true
+                        },
+                        "description": "Optional square logo/icon",
+                        "name": "logo",
+                        "type": "image",
+                        "title": "Logo (optional)"
+                      },
+                      {
+                        "validation": [
+                          {
+                            "rules": [
+                              {
+                                "flag": "presence",
+                                "constraint": "required"
+                              }
+                            ],
+                            "level": "error"
+                          }
+                        ],
+                        "name": "title",
+                        "type": "string"
+                      },
+                      {
+                        "description": "e.g. \"2020 – present\"",
+                        "name": "dateRange",
+                        "type": "string"
+                      },
+                      {
+                        "description": "Optional subtitle line below the title",
+                        "name": "subtitle",
+                        "type": "string"
+                      },
+                      {
+                        "rows": 4,
+                        "description": "Freeform text — write however you like.",
+                        "name": "description",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "object",
+                    "name": "logoFreeformEntry",
+                    "title": "Entry"
+                  }
+                ],
+                "hidden": "conditional",
+                "name": "logoFreeformEntries",
+                "type": "array",
+                "title": "Logo + Freeform Entries"
+              }
+            ],
+            "type": "object",
+            "name": "accordionItem"
+          }
+        ],
+        "name": "aboutAccordion",
+        "type": "array",
+        "title": "About Me Accordion Items"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Direct Instagram profile URL (used as a fallback if not set in Social Links)",
+        "name": "instagramUrl",
+        "type": "url",
+        "title": "Instagram URL"
+      },
+      {
+        "rows": 3,
+        "description": "Short text shown below the social media icons in the About panel",
+        "name": "aboutIntroText",
+        "type": "text",
+        "title": "About Me Introduction Text"
+      },
+      {
+        "description": "Social media links (shown in accordion items with \"Show Social Links\" enabled)",
+        "of": [
+          {
+            "fields": [
+              {
+                "options": {
+                  "list": [
+                    {
+                      "title": "Twitter/X",
+                      "value": "twitter"
+                    },
+                    {
+                      "title": "LinkedIn",
+                      "value": "linkedin"
+                    },
+                    {
+                      "title": "GitHub",
+                      "value": "github"
+                    },
+                    {
+                      "title": "Instagram",
+                      "value": "instagram"
+                    },
+                    {
+                      "title": "YouTube",
+                      "value": "youtube"
+                    },
+                    {
+                      "title": "Email",
+                      "value": "email"
+                    },
+                    {
+                      "title": "Website",
+                      "value": "website"
+                    }
+                  ]
+                },
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "valid",
+                        "constraint": [
+                          "twitter",
+                          "linkedin",
+                          "github",
+                          "instagram",
+                          "youtube",
+                          "email",
+                          "website"
+                        ]
+                      },
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "platform",
+                "type": "string"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      },
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/",
+                              "/^mailto$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "url",
+                "type": "url",
+                "title": "URL"
+              }
+            ],
+            "type": "object",
+            "name": "socialLink"
+          }
+        ],
+        "name": "socialLinks",
+        "type": "array"
+      },
+      {
+        "description": "Items for the scrolling footer marquee with optional icons",
+        "of": [
+          {
+            "fields": [
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "text",
+                "type": "string"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "description": "Optional icon to display alongside the text",
+                "name": "icon",
+                "type": "image"
+              }
+            ],
+            "type": "object",
+            "name": "marqueeItem"
+          }
+        ],
+        "name": "footerMarqueeItems",
+        "type": "array"
+      }
+    ],
+    "name": "homepageSettings",
+    "type": "document"
+  }
+]

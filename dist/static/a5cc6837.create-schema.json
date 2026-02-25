@@ -1,0 +1,282 @@
+[
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "headline",
+        "type": "string"
+      },
+      {
+        "name": "subtitle",
+        "type": "string"
+      }
+    ],
+    "name": "heroSection",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "options": {
+          "hotspot": true
+        },
+        "description": "Background image for the hero section (will be flipped upside down)",
+        "name": "heroImage",
+        "type": "image",
+        "title": "Hero Background Image"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Title for the Book section (e.g., \"My Book\")",
+        "name": "bookTitle",
+        "type": "string",
+        "title": "Book Section Title"
+      },
+      {
+        "rows": 4,
+        "description": "Description text for the Book section",
+        "name": "bookDescription",
+        "type": "text",
+        "title": "Book Section Description"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "description": "Book cover image",
+        "name": "bookImage",
+        "type": "image",
+        "title": "Book Cover Image"
+      },
+      {
+        "description": "Images for the NFT grid gallery",
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "image",
+                "type": "image"
+              },
+              {
+                "description": "Alternative text for accessibility",
+                "name": "alt",
+                "type": "string",
+                "title": "Alt Text"
+              },
+              {
+                "initialValue": "2025",
+                "description": "Year of the NFT (e.g., \"2025\")",
+                "name": "year",
+                "type": "string"
+              }
+            ],
+            "type": "object",
+            "name": "nftItem",
+            "title": "NFT Item"
+          }
+        ],
+        "name": "nftGallery",
+        "type": "array",
+        "title": "NFT Gallery"
+      },
+      {
+        "description": "Accordion sections for the About Me page",
+        "of": [
+          {
+            "fields": [
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "rows": 4,
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "content",
+                "type": "text"
+              }
+            ],
+            "type": "object",
+            "name": "accordionItem"
+          }
+        ],
+        "name": "aboutAccordion",
+        "type": "array",
+        "title": "About Me Accordion Items"
+      },
+      {
+        "description": "Your social media links (displayed in About section)",
+        "of": [
+          {
+            "fields": [
+              {
+                "options": {
+                  "list": [
+                    {
+                      "title": "Twitter/X",
+                      "value": "twitter"
+                    },
+                    {
+                      "title": "LinkedIn",
+                      "value": "linkedin"
+                    },
+                    {
+                      "title": "GitHub",
+                      "value": "github"
+                    },
+                    {
+                      "title": "Instagram",
+                      "value": "instagram"
+                    },
+                    {
+                      "title": "YouTube",
+                      "value": "youtube"
+                    },
+                    {
+                      "title": "Email",
+                      "value": "email"
+                    },
+                    {
+                      "title": "Website",
+                      "value": "website"
+                    }
+                  ]
+                },
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "valid",
+                        "constraint": [
+                          "twitter",
+                          "linkedin",
+                          "github",
+                          "instagram",
+                          "youtube",
+                          "email",
+                          "website"
+                        ]
+                      },
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "platform",
+                "type": "string"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      },
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/",
+                              "/^mailto$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "url",
+                "type": "url",
+                "title": "URL"
+              }
+            ],
+            "type": "object",
+            "name": "socialLink"
+          }
+        ],
+        "name": "socialLinks",
+        "type": "array"
+      },
+      {
+        "description": "Text items for the scrolling footer marquee",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "footerMarqueeItems",
+        "type": "array"
+      }
+    ],
+    "name": "homepageSettings",
+    "type": "document"
+  }
+]
