@@ -211,60 +211,75 @@ export function MoreSection({ exploreHeading, bookDescription }: MoreSectionProp
   const isOpen = (id: string) => open.has(id)
 
   return (
-    <section className="w-full bg-white px-8 py-16 md:px-16">
-      <h2 className="mb-4 text-[80px] font-bold leading-none tracking-tight md:text-[120px]">
-        {exploreHeading || "Explore"}
-      </h2>
-      <hr className="border-black/20" />
+    <>
+      {/* Minimal top nav */}
+      <nav className="flex justify-end px-8 py-4 md:px-16">
+        <a href="/" className="text-sm text-black hover:opacity-60 transition-opacity">
+          Home
+        </a>
+      </nav>
 
-      {PANELS.map((panel) => (
-        <div key={panel.id}>
-          <hr className="border-black" />
-          <button
-            onClick={() => toggle(panel.id)}
-            className="flex w-full items-center gap-3 py-5 text-left"
-          >
-            <span
-              className="shrink-0 transition-transform duration-300"
-              style={{
-                display: "inline-block",
-                transform: isOpen(panel.id) ? "rotate(90deg)" : "rotate(0deg)",
-                width: 0,
-                height: 0,
-                borderTop: "6px solid transparent",
-                borderBottom: "6px solid transparent",
-                borderLeft: "12px solid black",
-              }}
-            />
-            <span className="text-3xl font-medium">{panel.title}</span>
-          </button>
+      <section className="w-full bg-white px-8 pb-16 md:px-16">
+        <h2 className="mb-4 text-[80px] font-bold leading-none tracking-tight md:text-[120px]">
+          {exploreHeading || "Explore"}
+        </h2>
+        <hr className="border-black/20" />
 
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-in-out ${
-              isOpen(panel.id) ? "max-h-[500vh] opacity-100" : "max-h-0 opacity-0"
-            }`}
-          >
-            <div className="pb-10">
-              {panel.id === "description" && (
-                <p className="whitespace-pre-wrap leading-relaxed text-neutral-700">
-                  {bookDescription || ""}
-                </p>
-              )}
-              {panel.id === "contact" && (
-                <div>
-                  <ContactForm />
-                  <hr className="my-6 border-neutral-200" />
-                  <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">
-                    Join the mailing list
+        {PANELS.map((panel) => (
+          <div key={panel.id}>
+            <hr className="border-black" />
+            <button
+              onClick={() => toggle(panel.id)}
+              className="flex w-full items-center gap-3 py-5 text-left"
+            >
+              <span
+                className="shrink-0 transition-transform duration-300"
+                style={{
+                  display: "inline-block",
+                  transform: isOpen(panel.id) ? "rotate(90deg)" : "rotate(0deg)",
+                  width: 0,
+                  height: 0,
+                  borderTop: "6px solid transparent",
+                  borderBottom: "6px solid transparent",
+                  borderLeft: "12px solid black",
+                }}
+              />
+              <span className="text-3xl font-medium">{panel.title}</span>
+            </button>
+
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                isOpen(panel.id) ? "max-h-[500vh] opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="pb-10">
+                {panel.id === "description" && (
+                  <p className="whitespace-pre-wrap leading-relaxed text-neutral-700">
+                    {bookDescription || ""}
                   </p>
-                  <SubscribeForm />
-                </div>
-              )}
+                )}
+                {panel.id === "contact" && (
+                  <div>
+                    {/* Subscribe first */}
+                    <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">
+                      Join the mailing list
+                    </p>
+                    <SubscribeForm />
+
+                    {/* Divider + label */}
+                    <hr className="my-8 border-neutral-200" />
+                    <p className="mb-6 text-sm text-black">Or contact directly</p>
+
+                    {/* Contact form */}
+                    <ContactForm />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-      <hr className="border-black" />
-    </section>
+        ))}
+        <hr className="border-black" />
+      </section>
+    </>
   )
 }
