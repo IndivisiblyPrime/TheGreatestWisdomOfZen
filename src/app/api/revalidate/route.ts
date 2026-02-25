@@ -32,13 +32,13 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     })
 
-    // Revalidate the home page (adjust paths as needed)
     revalidatePath('/')
+    revalidatePath('/more')
 
     return NextResponse.json(
       {
         revalidated: true,
-        message: 'Homepage revalidated successfully',
+        message: 'Pages revalidated successfully',
         timestamp: new Date().toISOString(),
       },
       { status: 200 }
