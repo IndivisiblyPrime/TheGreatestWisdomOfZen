@@ -9,6 +9,29 @@ interface BookHeroProps {
   readOnlineButtonText?: string
 }
 
+function FancyButton({
+  href,
+  label,
+  external,
+}: {
+  href: string
+  label: string
+  external?: boolean
+}) {
+  return (
+    <a
+      href={href}
+      className="btn-fancy"
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    >
+      <span className="top-key" />
+      <span className="text">{label}</span>
+      <span className="bottom-key-1" />
+      <span className="bottom-key-2" />
+    </a>
+  )
+}
+
 export function BookHero({
   bookCoverImage,
   buyButtonText,
@@ -19,9 +42,6 @@ export function BookHero({
   const buyText = buyButtonText || "Buy"
   const moreText = moreButtonText || "More"
   const readOnlineText = readOnlineButtonText || "Read Online"
-
-  const buttonClass =
-    "bg-white border border-black py-2 px-4 text-sm text-center transition-colors hover:bg-black hover:text-white"
 
   return (
     <div className="relative">
@@ -37,26 +57,15 @@ export function BookHero({
         </div>
       )}
 
-      {/* Buttons inset and floating near the bottom of the image */}
-      <div className="absolute bottom-6 left-8 right-8 grid grid-cols-3 gap-4 md:left-16 md:right-16">
+      {/* Fancy buttons — auto-width, centered, floating above bottom of image */}
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-6 px-8">
         {buyButtonUrl ? (
-          <a
-            href={buyButtonUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={buttonClass}
-          >
-            {buyText}
-          </a>
+          <FancyButton href={buyButtonUrl} label={buyText} external />
         ) : (
-          <span className={buttonClass}>{buyText}</span>
+          <FancyButton href="#" label={buyText} />
         )}
-        <a href="/more" className={buttonClass}>
-          {moreText}
-        </a>
-        <a href="/read-online" className={buttonClass}>
-          {readOnlineText}
-        </a>
+        <FancyButton href="/more" label={moreText} />
+        <FancyButton href="/read-online" label={readOnlineText} />
       </div>
     </div>
   )
