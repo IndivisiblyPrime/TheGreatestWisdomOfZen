@@ -213,10 +213,10 @@ export function MoreSection({ exploreHeading, bookDescription }: MoreSectionProp
   return (
     <>
       {/* Minimal top nav */}
-      <nav className="flex justify-end px-8 py-4 md:px-16">
-        <a href="/" className="text-sm text-black hover:opacity-60 transition-opacity">
-          Home
-        </a>
+      <nav className="flex items-center gap-6 px-8 py-4 md:px-16">
+        <a href="/" className="text-sm text-black hover:opacity-60 transition-opacity">Home</a>
+        <a href="/more" className="text-sm text-black hover:opacity-60 transition-opacity">More</a>
+        <a href="/read-online" className="text-sm text-black hover:opacity-60 transition-opacity">Read Online</a>
       </nav>
 
       <section className="w-full bg-white px-8 pb-16 md:px-16">

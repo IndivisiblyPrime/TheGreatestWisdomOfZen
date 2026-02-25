@@ -21,7 +21,7 @@ export function BookHero({
   const readOnlineText = readOnlineButtonText || "Read Online"
 
   const buttonClass =
-    "bg-white border border-black py-3 text-sm text-center transition-colors hover:bg-black hover:text-white"
+    "bg-white border border-black py-2 px-4 text-sm text-center transition-colors hover:bg-black hover:text-white"
 
   return (
     <div className="relative">
@@ -37,8 +37,8 @@ export function BookHero({
         </div>
       )}
 
-      {/* Buttons overlaid at the very bottom of the image */}
-      <div className="absolute bottom-0 left-0 right-0 grid grid-cols-3">
+      {/* Buttons inset and floating near the bottom of the image */}
+      <div className="absolute bottom-6 left-8 right-8 grid grid-cols-3 gap-4 md:left-16 md:right-16">
         {buyButtonUrl ? (
           <a
             href={buyButtonUrl}
