@@ -1,178 +1,153 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this repository.
+This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**Indivisibly Prime** - Jack Harvey's personal website built with Next.js + Sanity CMS.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer. Just a full-width scrollable book cover image with two CTA buttons, plus a hidden `/more` page.
 
 ## Commands
 
-- `npm run dev` - Dev server at http://localhost:3000
-- `npm run build` - Production build
-- `npm run lint` - ESLint
-- Sanity Studio is embedded at `/studio`
+- `npm run dev` — Dev server at http://localhost:3000
+- `npm run build` — Production build (verify before deploying)
+- `npm run lint` — ESLint
+- `npx sanity@latest schema deploy` — Push schema changes to Sanity project `00tez3yv`
+- Sanity Studio embedded at `/studio`
 
 ## Stack
 
-- **Next.js 16** (App Router, TypeScript, React 19)
-- **Tailwind CSS v4** + **shadcn/ui** components
-- **Sanity v4** headless CMS (embedded studio)
-- **Aceternity UI** effects (encrypted-text — shooting-stars/stars-background are installed but no longer used in the main page)
-- **Lucide React** icons
-- **Radix UI** (via shadcn accordion)
+- **Next.js** (App Router, TypeScript, React 19)
+- **Tailwind CSS v4**
+- **Sanity v4** headless CMS (embedded studio, project ID: `00tez3yv`, dataset: `production`)
+- **Resend** for email (contact form + subscribe)
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                    # Homepage - server component with ISR (60s)
-│   ├── layout.tsx                  # Root layout (Geist font)
-│   ├── globals.css                 # Global styles + animations (marquee, title-draw, line-draw)
-│   └── studio/[[...tool]]/page.tsx # Sanity Studio mount
+│   ├── page.tsx                       # Homepage — fetches settings, renders BookHero
+│   ├── layout.tsx                     # Root layout (Geist font only)
+│   ├── globals.css                    # Global styles (no animations)
+│   ├── more/
+│   │   └── page.tsx                   # /more route — fetches settings, renders MoreSection
+│   ├── api/
+│   │   ├── contact/route.ts           # POST — contact form → Resend email
+│   │   ├── subscribe/route.ts         # POST — email subscribe → Resend notification
+│   │   └── revalidate/route.ts        # ISR revalidation webhook
+│   └── studio/[[...tool]]/page.tsx    # Sanity Studio
 ├── components/
-│   ├── Navbar.tsx                  # Fixed navbar: transparent at top, white/blur when scrolled
-│   ├── sections/
-│   │   ├── HeroSection.tsx         # Full-screen hero with video/image background
-│   │   ├── ExploreSection.tsx      # Main content area — 3-panel accordion (Book, NFTs, About Me)
-│   │   ├── Footer.tsx              # Minimal B&W scrolling marquee
-│   │   ├── BookSection.tsx         # (legacy — unused, keep in place)
-│   │   ├── NFTSection.tsx          # (legacy — unused, keep in place)
-│   │   ├── CTASection.tsx          # (legacy — unused, keep in place)
-│   │   └── AboutSection.tsx        # (legacy — unused, keep in place)
-│   └── ui/                         # shadcn + Aceternity components
-│       ├── accordion.tsx           # Radix accordion (used inside ExploreSection About panel)
-│       ├── button.tsx
-│       ├── encrypted-text.tsx      # Character reveal animation (used in NFT panel)
-│       ├── shooting-stars.tsx      # (installed, not currently used)
-│       └── stars-background.tsx    # (installed, not currently used)
+│   └── sections/
+│       ├── BookHero.tsx               # Homepage: book cover image + Buy/More buttons
+│       └── MoreSection.tsx            # /more page: heading + Description + Contact accordions
 ├── sanity/
-│   ├── env.ts                      # Environment variables
+│   ├── env.ts
 │   ├── lib/
-│   │   ├── client.ts               # Sanity client
-│   │   ├── image.ts                # Image URL builder (urlFor)
-│   │   └── live.ts                 # Live preview
+│   │   ├── client.ts
+│   │   ├── image.ts
+│   │   └── live.ts
 │   └── schemaTypes/
-│       ├── index.ts                # Schema exports
-│       ├── homepageSettings.ts     # Main document schema (all sections)
-│       └── heroSection.ts          # Legacy hero schema
+│       ├── index.ts                   # Exports: homepageSettings only
+│       ├── homepageSettings.ts        # Minimal TGWOZ schema (4 groups)
+│       └── heroSection.ts             # Legacy — not used, can be removed later
 └── lib/
-    ├── types.ts                    # All TypeScript interfaces
-    └── utils.ts                    # cn() utility from shadcn
+    ├── types.ts                       # SiteSettings interface only
+    └── utils.ts                       # cn() utility
 ```
 
-## Page Layout (current)
+## Page Layout
 
 ```
-Navbar (fixed, transparent → white on scroll)
-  └── HeroSection        (full-screen video/image)
-  └── ExploreSection     (white bg, accordion — the main content area)
-        ├── Book panel   (two-col: animated title + description + button | tall book cover image)
-        ├── NFTs panel   (3-col portrait/landscape/portrait grid + CTA + encrypted text)
-        └── About Me panel (LinkedIn/Instagram icons + Radix accordion with bio/experience/contact)
-  └── Footer             (minimal B&W marquee, id="coming-soon")
+/ (Homepage)
+  └── BookHero
+        ├── <img> book cover (full width, natural height, scrollable)
+        └── [Buy] [More] buttons (2-col grid, large outlined boxes)
+
+/more (hidden — no link back except browser back)
+  └── MoreSection
+        ├── Large "Explore" heading (80–120px)
+        ├── HR divider
+        ├── Description accordion (bookDescription text)
+        └── Contact accordion
+              ├── ContactForm (name/email/phone/subject/message → /api/contact)
+              ├── HR divider
+              └── Subscribe form (email only → /api/subscribe)
 ```
 
-Old section order (pre-revamp): Hero → BookSection → NFTSection → CTASection → AboutSection → Footer.
-The four old sections are replaced by `ExploreSection`. Do not delete the old files — they may be referenced elsewhere or revived later.
+## Sanity Schema (`homepageSettings.ts`)
 
-## ExploreSection Architecture
+Four groups:
 
-**File**: `src/components/sections/ExploreSection.tsx`
+| Group   | Fields |
+|---------|--------|
+| Site    | `siteTitle` (string), `siteFavicon` (image) |
+| Hero    | `bookCoverImage` (image, required) |
+| Buttons | `buyButtonText` (string, default "Buy"), `buyButtonUrl` (url), `moreButtonText` (string, default "More") |
+| More    | `exploreHeading` (string, default "Explore"), `bookDescription` (text, rows 6) |
 
-- Top-level state: `open: Set<string>` (allows multiple panels open simultaneously), `bookAnimKey: number` (increments on each book panel open to retrigger title animation)
-- Three panels defined as `PANELS = [{id, title}]`
-- Panel expand/collapse uses `max-h-0` → `max-h-[500vh]` + `opacity` CSS transition
+## TypeScript Types (`types.ts`)
 
-### Book Panel
-- Two-column grid (`grid-cols-[1fr_1fr]`)
-- Title uses `clip-path` draw animation (`animate-title-draw`) + underline draw (`animate-line-draw`) — triggered via `useEffect` + forced reflow when `isOpen` changes
-- Book cover image: `h-[85vh] object-cover`
+Single interface:
 
-### NFT Panel
-- `grid-cols-1` on mobile (stacked), `grid-cols-[1fr_1.5fr_1fr]` on `sm:` desktop with `items-end` (bottom-aligned)
-- Images use natural aspect ratios (`w-auto h-auto max-h-[50vh] object-contain`) — no cropping, no fixed row height
-- `nftGallery[0]` | `landscapeGallery[0]` | `nftGallery[1]`
-- CTA button (outlined) + `<EncryptedText triggerOnHover>` below
-- Fields come from CTA group in schema (`ctaButtonText`, `ctaButtonUrl`, `encryptedText`)
-
-### About Panel
-- LinkedIn + Instagram icon buttons (44px black squares) sourced from `socialLinks[]` (falls back to `instagramUrl` field)
-- Radix accordion restyled minimal (no dark bg, no numbered circles)
-- Supports four accordion item types:
-  - `text` — plain text (whitespace-pre-wrap)
-  - `experience` — job cards with logo/title/company/dateRange/description + vertical timeline line connecting entries
-  - `logoFreeform` — same card structure as experience but **no** vertical connecting line; logo is optional
-  - `contact` — inline form POSTing to `/api/contact`
-
-## Design System
-
-- **Theme**: Minimal black & white — white backgrounds, black text/borders, no dark sections
-- **Typography**: Geist Sans; "Explore" heading 80–120px; section titles 3xl–4xl italic
-- **Animations**: `title-draw` (clip-path reveal LTR), `line-draw` (scaleX underline), `marquee` (25s infinite)
-- **Buttons**: Outlined `border border-black px-6 py-2`, invert on hover (`hover:bg-black hover:text-white`)
-- **Navbar**: Black text at all times; `bg-white/95 backdrop-blur-sm shadow-sm` when scrolled past 50px
-- **Responsive**: Mobile-first, grids collapse to single column at `md:` breakpoint
-
-## Sanity Schema (homepageSettings)
-
-The schema is organized into groups:
-
-| Group | Fields |
-|-------|--------|
-| Site | `siteTitle`, `siteFavicon` |
-| Navigation | `navItems[]` (label + target section ID) |
-| Hero | `heroImage`, `heroVideo` (file), `heroVideoUrl` (external) |
-| Book | `bookTitle`, `bookDescription`, `bookImage`, `bookButtonText`, `bookButtonUrl` |
-| NFT Gallery | `nftSectionTitle`, `nftSectionSubtitle`, `nftGallery[]` (portrait images), `landscapeGallery[]` (landscape images) |
-| CTA | `ctaButtonText`, `ctaButtonUrl`, `encryptedText` |
-| About | `aboutAccordion[]` (itemType: text/experience/logoFreeform/contact), `socialLinks[]` (platform + url), `instagramUrl` (fallback URL field) |
-| Footer | `footerMarqueeItems[]` (text, optional icon) |
-
-### NFT grid image slots
-- `nftGallery[0]` → left portrait column
-- `landscapeGallery[0]` → centre landscape column
-- `nftGallery[1]` → right portrait column
-
-## TypeScript Types (src/lib/types.ts)
-
-Key interfaces: `HomepageSettings`, `NFTItem`, `AccordionItem`, `ExperienceEntry`, `LogoFreeformEntry`, `SocialLink`, `MarqueeItem`, `NavItem`
-
-`ExperienceEntry.description` — freeform text (replaces the old `bullets: string[]` array)
-`LogoFreeformEntry` — logo/title/subtitle/dateRange/description; rendered without timeline line
-
-`HomepageSettings.instagramUrl` — optional standalone Instagram URL (fallback if not in `socialLinks[]`)
-
-## CSS Animations (globals.css)
-
-| Class | Keyframes | Use |
-|-------|-----------|-----|
-| `animate-ticker` | translateX(0→-50%) 30s | Footer scrolling text (RAF-driven, delta clamped to 50ms, while-loop reset) |
-| `animate-title-draw` | clip-path inset reveal 1.4s | Book panel title |
-| `animate-line-draw` | scaleX(0→1) 1.4s | Book panel underline |
+```typescript
+export interface SiteSettings {
+  siteTitle?: string
+  siteFavicon?: SanityImageSource
+  bookCoverImage?: SanityImageSource
+  buyButtonText?: string
+  buyButtonUrl?: string
+  moreButtonText?: string
+  exploreHeading?: string
+  bookDescription?: string
+}
+```
 
 ## Environment Variables
 
 ```
-NEXT_PUBLIC_SANITY_PROJECT_ID=<project-id>
-NEXT_PUBLIC_SANITY_DATASET=<dataset-name>
+NEXT_PUBLIC_SANITY_PROJECT_ID=00tez3yv
+NEXT_PUBLIC_SANITY_DATASET=production
+RESEND_API_KEY=<from resend.com>
+CONTACT_EMAIL=<where notifications go>
+CONTACT_FROM_EMAIL=<verified sender, optional — defaults to onboarding@resend.dev>
+```
+
+Set in `.env.local` for local dev and in Vercel project settings for production.
+
+## Design System
+
+- **Theme**: Minimal black & white — white background, black text/borders
+- **No navbar, no footer** on any page
+- **Book cover**: `<img className="block w-full h-auto">` — full width, natural scrollable height
+- **Buttons**: `border border-black py-10 text-xl text-center`, inverts on hover
+- **Accordion**: CSS border triangle rotates 90° when open; `max-h-0 opacity-0` → `max-h-[500vh] opacity-100`
+- **More page heading**: `text-[80px] font-bold leading-none` (120px on md+)
+
+## GROQ Queries
+
+Homepage (`page.tsx`):
+```groq
+*[_type == "homepageSettings"][0]{
+  siteTitle, siteFavicon, bookCoverImage,
+  buyButtonText, buyButtonUrl, moreButtonText
+}
+```
+
+More page (`more/page.tsx`):
+```groq
+*[_type == "homepageSettings"][0]{
+  siteTitle, siteFavicon, exploreHeading, bookDescription
+}
 ```
 
 ## Common Tasks
 
-- **Edit content**: Go to `/studio` → Homepage Settings. All text, images, links are CMS-driven.
-- **Add a new explore panel**: Add a new entry to `PANELS` in `ExploreSection.tsx`, add a new render block in the panel body, and add corresponding fields to `homepageSettings.ts` schema + `types.ts`.
-- **Modify Sanity schema**: Edit `src/sanity/schemaTypes/homepageSettings.ts`, then deploy with `npx sanity@latest schema deploy`
-- **Add UI component**: `npx shadcn@latest add <component>` or install from Aceternity
-- **Deploy**: Push to main branch (auto-deploys via Vercel)
-- **Re-enable dark sections**: The legacy section files (BookSection, NFTSection, CTASection, AboutSection) are untouched. To restore them, re-import and add to page.tsx.
+- **Edit content**: `/studio` → Homepage Settings
+- **Modify schema**: Edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`
+- **Deploy**: Push to `main` → Vercel auto-deploys
 
-## Git Workflow
+## Git
 
 - Main branch: `main`
-- Remote: `https://github.com/IndivisiblyPrime/indivisibly-prime.git`
-- Push to main triggers Vercel deployment
-
-## Final Task
-- Always update this file "Claude.md" with any edits
+- Remote: GitHub (the-greatest-wisdom-of-zen repo)
+- Push to `main` triggers Vercel deployment

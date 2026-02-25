@@ -4,20 +4,18 @@ import { Metadata } from "next"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { SiteSettings } from "@/lib/types"
-import { BookHero } from "@/components/sections/BookHero"
+import { MoreSection } from "@/components/sections/MoreSection"
 
-const SETTINGS_QUERY = `*[_type == "homepageSettings"][0]{
+const MORE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  bookCoverImage,
-  buyButtonText,
-  buyButtonUrl,
-  moreButtonText
+  exploreHeading,
+  bookDescription
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
   try {
-    return await client.fetch(SETTINGS_QUERY)
+    return await client.fetch(MORE_QUERY)
   } catch {
     return null
   }
@@ -25,26 +23,25 @@ async function getSettings(): Promise<SiteSettings | null> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
-  const title = settings?.siteTitle || "The Greatest Wisdom of Zen"
+  const title = settings?.siteTitle
+    ? `More — ${settings.siteTitle}`
+    : "More — The Greatest Wisdom of Zen"
   return {
     title,
-    description: title,
     icons: settings?.siteFavicon
       ? { icon: urlFor(settings.siteFavicon).width(64).height(64).url() }
       : undefined,
   }
 }
 
-export default async function Home() {
+export default async function MorePage() {
   const settings = await getSettings()
 
   return (
     <main>
-      <BookHero
-        bookCoverImage={settings?.bookCoverImage}
-        buyButtonText={settings?.buyButtonText}
-        buyButtonUrl={settings?.buyButtonUrl}
-        moreButtonText={settings?.moreButtonText}
+      <MoreSection
+        exploreHeading={settings?.exploreHeading}
+        bookDescription={settings?.bookDescription}
       />
     </main>
   )

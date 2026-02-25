@@ -1,0 +1,91 @@
+[
+  {
+    "fields": [
+      {
+        "description": "Text shown in the browser tab",
+        "name": "siteTitle",
+        "type": "string",
+        "title": "Browser Tab Title"
+      },
+      {
+        "options": {
+          "hotspot": false
+        },
+        "description": "Icon shown in the browser tab. Use a square image (e.g. 32×32 or 64×64 px).",
+        "name": "siteFavicon",
+        "type": "image",
+        "title": "Favicon"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "The tall full-width scrollable book photo shown on the homepage.",
+        "name": "bookCoverImage",
+        "type": "image"
+      },
+      {
+        "initialValue": "Buy",
+        "name": "buyButtonText",
+        "type": "string"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Link to the book purchase page",
+        "name": "buyButtonUrl",
+        "type": "url",
+        "title": "Buy Button URL"
+      },
+      {
+        "initialValue": "More",
+        "name": "moreButtonText",
+        "type": "string"
+      },
+      {
+        "initialValue": "Explore",
+        "description": "Large heading on the /more page",
+        "name": "exploreHeading",
+        "type": "string"
+      },
+      {
+        "rows": 6,
+        "description": "Text shown in the Description accordion on the /more page",
+        "name": "bookDescription",
+        "type": "text"
+      }
+    ],
+    "name": "homepageSettings",
+    "type": "document"
+  }
+]
