@@ -259,19 +259,20 @@ export function MoreSection({ exploreHeading, bookDescription }: MoreSectionProp
                   </p>
                 )}
                 {panel.id === "contact" && (
-                  <div>
-                    {/* Subscribe first */}
-                    <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">
-                      Join the mailing list
-                    </p>
-                    <SubscribeForm />
-
-                    {/* Divider + label */}
-                    <hr className="my-8 border-neutral-200" />
-                    <p className="mb-6 text-sm text-black">Or contact directly</p>
+                  <div className="space-y-4">
+                    {/* Subscribe */}
+                    <div className="bg-[#faf8f5] px-6 py-6">
+                      <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">
+                        Join the mailing list
+                      </p>
+                      <SubscribeForm />
+                    </div>
 
                     {/* Contact form */}
-                    <ContactForm />
+                    <div className="bg-[#faf8f5] px-6 py-6">
+                      <p className="mb-6 text-sm text-black">Or contact directly</p>
+                      <ContactForm />
+                    </div>
                   </div>
                 )}
               </div>
