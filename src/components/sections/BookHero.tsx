@@ -9,29 +9,6 @@ interface BookHeroProps {
   readOnlineButtonText?: string
 }
 
-function FancyButton({
-  href,
-  label,
-  external,
-}: {
-  href: string
-  label: string
-  external?: boolean
-}) {
-  return (
-    <a
-      href={href}
-      className="btn-fancy"
-      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-    >
-      <span className="top-key" />
-      <span className="text">{label}</span>
-      <span className="bottom-key-1" />
-      <span className="bottom-key-2" />
-    </a>
-  )
-}
-
 export function BookHero({
   bookCoverImage,
   buyButtonText,
@@ -42,6 +19,9 @@ export function BookHero({
   const buyText = buyButtonText || "Buy"
   const moreText = moreButtonText || "More"
   const readOnlineText = readOnlineButtonText || "Read Online"
+
+  const btnClass =
+    "border border-black bg-white px-8 py-3 text-sm text-black transition-colors hover:bg-black hover:text-white"
 
   return (
     <div className="relative">
@@ -57,15 +37,16 @@ export function BookHero({
         </div>
       )}
 
-      {/* Fancy buttons — auto-width, centered, floating above bottom of image */}
       <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-6 px-8">
         {buyButtonUrl ? (
-          <FancyButton href={buyButtonUrl} label={buyText} external />
+          <a href={buyButtonUrl} target="_blank" rel="noopener noreferrer" className={btnClass}>
+            {buyText}
+          </a>
         ) : (
-          <FancyButton href="#" label={buyText} />
+          <span className={btnClass}>{buyText}</span>
         )}
-        <FancyButton href="/more" label={moreText} />
-        <FancyButton href="/read-online" label={readOnlineText} />
+        <a href="/more" className={btnClass}>{moreText}</a>
+        <a href="/read-online" className={btnClass}>{readOnlineText}</a>
       </div>
     </div>
   )
