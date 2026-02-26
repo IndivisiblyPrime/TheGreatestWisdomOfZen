@@ -20,7 +20,7 @@ export function ReadOnlineSection({ title, pdfUrl }: ReadOnlineSectionProps) {
 
         {pdfUrl ? (
           <iframe
-            src={`${pdfUrl}#zoom=page-fit`}
+            src={`${pdfUrl}#navpanes=0&zoom=page-width`}
             className="w-full border border-black/10"
             style={{ height: "85vh" }}
             title={title || "Book PDF"}
