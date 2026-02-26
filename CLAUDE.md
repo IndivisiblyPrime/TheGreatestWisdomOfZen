@@ -143,10 +143,12 @@ Set in `.env.local` for local dev and in Vercel project settings for production 
 ## Design System
 
 - **Theme**: Minimal black & white — white background, black text/borders
-- **Homepage buttons**: `bg-white border border-black py-3 text-sm`, absolute positioned over bottom of book cover image, 3-col grid, inverts on hover
+- **Homepage buttons**: `bg-white border border-black px-8 py-3 text-sm`, auto-width flex centered, absolute `bottom-8` over image, inverts on hover
 - **Accordion**: CSS border triangle rotates 90° when open; `max-h-0 opacity-0` → `max-h-[500vh] opacity-100` transition
+- **Contact panel cards**: subscribe and contact form each wrapped in `bg-[#faf8f5] px-6 py-6` (warm off-white)
 - **Page headings** (`/more`, `/read-online`): `text-[80px] font-bold leading-none` (120px on md+)
-- **Subtle nav links** (`/more`, `/read-online`): `text-sm text-black hover:opacity-60 transition-opacity`
+- **Subtle nav links** (`/more`, `/read-online`): `text-sm text-black hover:opacity-60 transition-opacity`, top-left row with `gap-6` (Home · More · Read Online)
+- **PDF viewer**: iframe with `#zoom=page-fit` appended to URL — opens fitted to full page in Chrome's viewer
 
 ## GROQ Queries
 
