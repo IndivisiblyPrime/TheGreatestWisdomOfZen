@@ -23,9 +23,7 @@ async function getSettings(): Promise<SiteSettings | null> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
-  const title = settings?.readOnlineTitle
-    ? `${settings.readOnlineTitle}${settings.siteTitle ? ` — ${settings.siteTitle}` : ""}`
-    : "Read Online"
+  const title = settings?.siteTitle || "The Greatest Wisdom of Zen"
   return {
     title,
     icons: settings?.siteFavicon

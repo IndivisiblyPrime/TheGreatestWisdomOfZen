@@ -23,9 +23,7 @@ async function getSettings(): Promise<SiteSettings | null> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
-  const title = settings?.siteTitle
-    ? `More — ${settings.siteTitle}`
-    : "More — The Greatest Wisdom of Zen"
+  const title = settings?.siteTitle || "The Greatest Wisdom of Zen"
   return {
     title,
     icons: settings?.siteFavicon
