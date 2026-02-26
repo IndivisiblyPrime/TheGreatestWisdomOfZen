@@ -38,13 +38,13 @@ src/
 │   ├── api/
 │   │   ├── contact/route.ts           # POST — contact form → Resend email
 │   │   ├── subscribe/route.ts         # POST — email subscribe → Resend notification
-│   │   └── revalidate/route.ts        # POST — Sanity webhook → revalidates / and /more
+│   │   └── revalidate/route.ts        # POST — Sanity webhook → revalidates /, /more, /read-online
 │   └── studio/[[...tool]]/page.tsx    # Sanity Studio (singleton structure)
 ├── components/
 │   └── sections/
 │       ├── BookHero.tsx               # Homepage: book cover image + 3 overlaid buttons
-│       ├── MoreSection.tsx            # /more: Home nav + heading + 2 accordions
-│       └── ReadOnlineSection.tsx      # /read-online: Home nav + heading + PDF iframe
+│       ├── MoreSection.tsx            # /more: nav + heading + 2 accordions
+│       └── ReadOnlineSection.tsx      # /read-online: nav + heading + PDF iframe
 ├── sanity/
 │   ├── env.ts
 │   ├── structure.ts                   # Singleton structure: Homepage Settings opens directly
@@ -67,24 +67,26 @@ src/
 / (Homepage)
   └── BookHero
         ├── <img> book cover — full width, natural height, scrollable
-        └── [Buy] [More] [Read Online] — 3-col grid, overlaid at bottom of image (small, py-3 text-sm)
+        └── [Buy] [More] [Read Online] buttons
+              — auto-width flex row, justify-center, gap-6
+              — absolute bottom-8, inset left-8/right-8
+              — white bg, black border, inverts on hover
 
-/more (accessible via More button only — no navbar link from homepage)
-  └── nav: "Home" link top-right (small, subtle)
+/more (accessible via More button only)
+  └── nav top-left: Home · More · Read Online (text-sm, gap-6, hover:opacity-60)
   └── MoreSection
         ├── Large heading (exploreHeading, 80–120px)
         ├── HR divider
-        ├── Description accordion → bookDescription text
+        ├── Description accordion → bookDescription text (whitespace-pre-wrap)
         └── Contact accordion
-              ├── Subscribe form (email only → /api/subscribe)
-              ├── HR + "Or contact directly" label
-              └── ContactForm (name/email/phone/subject/message → /api/contact)
+              ├── bg-[#faf8f5] card: Subscribe form (email only → /api/subscribe)
+              ├── bg-[#faf8f5] card: "Or contact directly" + ContactForm (→ /api/contact)
 
 /read-online (accessible via Read Online button only)
-  └── nav: "Home" link top-left (small, subtle)
+  └── nav top-left: Home · More · Read Online (same style as /more)
   └── ReadOnlineSection
         ├── Large heading (readOnlineTitle, 80–120px)
-        └── PDF iframe (85vh, full width) — URL from readOnlinePdf asset
+        └── PDF iframe (85vh, full width, #zoom=page-fit for Chrome page-fit view)
 ```
 
 ## Sanity Schema (`homepageSettings.ts`)
@@ -126,33 +128,34 @@ export interface SiteSettings {
 ```
 NEXT_PUBLIC_SANITY_PROJECT_ID=00tez3yv
 NEXT_PUBLIC_SANITY_DATASET=production
-RESEND_API_KEY=<from resend.com>
+RESEND_API_KEY=<set in Vercel>
 CONTACT_EMAIL=jtharvey6@gmail.com
 CONTACT_FROM_EMAIL=<verified sender, optional — defaults to onboarding@resend.dev>
 REVALIDATE_SECRET=52b29192da9d64f108e2de838cae6abfe8bec11c
 ```
 
-Set in `.env.local` for local dev and in Vercel project settings for production (all 4 non-Sanity vars are already set in Vercel).
+All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production. Set in `.env.local` for local dev.
 
 ## ISR / Revalidation
 
-- Pages use `export const revalidate = 60` — auto-refresh every 60 seconds
-- Sanity webhook (ID: `ibtJnljD4nkDRklM`) fires on any document create/update/delete → POSTs to `https://thegreatestwisdomofzen.com/api/revalidate?secret=...` → instantly revalidates `/` and `/more`
+- Pages use `export const revalidate = 60` — auto-refresh every 60 seconds as a fallback
+- Sanity webhook (ID: `ibtJnljD4nkDRklM`) fires on any document create/update/delete → POSTs to `https://thegreatestwisdomofzen.com/api/revalidate?secret=...` → instantly revalidates `/`, `/more`, and `/read-online`
 - Publishing in Studio → live site updates immediately (no Vercel redeploy needed)
+- Code changes require `git push origin main` → Vercel auto-deploys
 
 ## Design System
 
 - **Theme**: Minimal black & white — white background, black text/borders
-- **Homepage buttons**: `bg-white border border-black px-8 py-3 text-sm`, auto-width flex centered, absolute `bottom-8` over image, inverts on hover
-- **Accordion**: CSS border triangle rotates 90° when open; `max-h-0 opacity-0` → `max-h-[500vh] opacity-100` transition
-- **Contact panel cards**: subscribe and contact form each wrapped in `bg-[#faf8f5] px-6 py-6` (warm off-white)
-- **Page headings** (`/more`, `/read-online`): `text-[80px] font-bold leading-none` (120px on md+)
-- **Subtle nav links** (`/more`, `/read-online`): `text-sm text-black hover:opacity-60 transition-opacity`, top-left row with `gap-6` (Home · More · Read Online)
-- **PDF viewer**: iframe with `#zoom=page-fit` appended to URL — opens fitted to full page in Chrome's viewer
+- **Homepage buttons**: `bg-white border border-black px-8 py-3 text-sm`, auto-width flex row centered, `absolute bottom-8 left-8 right-8`, inverts black on hover
+- **Accordion**: CSS `border` triangle arrow rotates 90° when open; `max-h-0 opacity-0` → `max-h-[500vh] opacity-100` transition (duration-500)
+- **Contact panel**: subscribe form and contact form are separate `bg-[#faf8f5] px-6 py-6` cards (warm off-white), spaced with `space-y-4`
+- **Page headings**: `text-[80px] font-bold leading-none tracking-tight` (md: `text-[120px]`)
+- **Nav links** on `/more` and `/read-online`: `flex items-center gap-6 px-8 py-4`, links are `text-sm text-black hover:opacity-60 transition-opacity`
+- **PDF viewer**: `src={pdfUrl + "#zoom=page-fit"}` — fits full page on load in Chrome/Edge; Safari ignores the hint
 
 ## GROQ Queries
 
-Homepage:
+Homepage (`page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon, bookCoverImage,
@@ -160,14 +163,14 @@ Homepage:
 }
 ```
 
-More page:
+More page (`more/page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon, exploreHeading, bookDescription
 }
 ```
 
-Read Online page:
+Read Online page (`read-online/page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon, readOnlineTitle,
@@ -181,7 +184,7 @@ Read Online page:
 - **Upload book PDF**: Studio → Homepage Settings → Read Online tab → Book PDF → Publish
 - **Modify schema**: Edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`
 - **Deploy code changes**: `git push origin main` → Vercel auto-deploys
-- **Add a new page**: Create `src/app/<name>/page.tsx`, add a component in `sections/`, add relevant fields to schema, update `revalidate/route.ts` to revalidate the new path
+- **Add a new page**: Create `src/app/<name>/page.tsx`, add a component in `sections/`, add fields to schema, add `revalidatePath('/<name>')` to `revalidate/route.ts`
 
 ## Git
 
