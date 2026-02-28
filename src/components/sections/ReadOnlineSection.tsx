@@ -1,4 +1,11 @@
-import { PdfReader } from './PdfReader'
+'use client'
+
+import dynamic from 'next/dynamic'
+
+const PdfReader = dynamic(
+  () => import('./PdfReader').then(mod => ({ default: mod.PdfReader })),
+  { ssr: false }
+)
 
 interface ReadOnlineSectionProps {
   title?: string
