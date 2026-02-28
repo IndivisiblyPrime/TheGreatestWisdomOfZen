@@ -9,11 +9,7 @@ import { BookHero } from "@/components/sections/BookHero"
 const SETTINGS_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  bookCoverImage,
-  buyButtonText,
-  buyButtonUrl,
-  moreButtonText,
-  readOnlineButtonText
+  bookCoverImage
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
@@ -41,13 +37,7 @@ export default async function Home() {
 
   return (
     <main>
-      <BookHero
-        bookCoverImage={settings?.bookCoverImage}
-        buyButtonText={settings?.buyButtonText}
-        buyButtonUrl={settings?.buyButtonUrl}
-        moreButtonText={settings?.moreButtonText}
-        readOnlineButtonText={settings?.readOnlineButtonText}
-      />
+      <BookHero bookCoverImage={settings?.bookCoverImage} />
     </main>
   )
 }
