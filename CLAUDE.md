@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-width scrollable book cover image with three overlaid CTA buttons, plus a `/more` page and a `/read-online` page.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero with a centered book cover image (clickable, links to `/more`), plus a `/more` page and a `/read-online` page.
 
 ## Commands
 
@@ -42,9 +42,10 @@ src/
 │   └── studio/[[...tool]]/page.tsx    # Sanity Studio (singleton structure)
 ├── components/
 │   └── sections/
-│       ├── BookHero.tsx               # Homepage: book cover image + 3 overlaid buttons
+│       ├── BookHero.tsx               # Homepage: full-viewport hero, centered cover image linked to /more
 │       ├── MoreSection.tsx            # /more: nav + heading + 2 accordions
-│       └── ReadOnlineSection.tsx      # /read-online: nav + heading + PDF iframe
+│       ├── ReadOnlineSection.tsx      # /read-online: nav + heading + PdfReader
+│       └── PdfReader.tsx              # Client component: react-pdf page-by-page reader with prev/next nav
 ├── sanity/
 │   ├── env.ts
 │   ├── structure.ts                   # Singleton structure: Homepage Settings opens directly
@@ -66,13 +67,12 @@ src/
 ```
 / (Homepage)
   └── BookHero
-        ├── <img> book cover — full width, natural height, scrollable
-        └── [Buy] [More] [Read Online] buttons
-              — auto-width flex row, justify-center, gap-6
-              — absolute bottom-8, inset left-8/right-8
-              — white bg, black border, inverts on hover
+        └── <a href="/more"> wrapping <img> book cover
+              — h-screen flex items-center justify-center
+              — image: max-h-[85vh] w-auto, centered
+              — clicking anywhere on the image navigates to /more
 
-/more (accessible via More button only)
+/more (accessible by clicking the cover image)
   └── nav top-left: Home · More · Read Online (text-sm, gap-6, hover:opacity-60)
   └── MoreSection
         ├── Large heading (exploreHeading, 80–120px)
@@ -82,11 +82,14 @@ src/
               ├── bg-[#faf8f5] card: Subscribe form (email only → /api/subscribe)
               ├── bg-[#faf8f5] card: "Or contact directly" + ContactForm (→ /api/contact)
 
-/read-online (accessible via Read Online button only)
+/read-online (accessible via nav)
   └── nav top-left: Home · More · Read Online (same style as /more)
   └── ReadOnlineSection
         ├── Large heading (readOnlineTitle, 80–120px)
-        └── PDF iframe (85vh, full width, #zoom=page-fit for Chrome page-fit view)
+        └── PdfReader (react-pdf, page-by-page)
+              — max-w-2xl mx-auto centered
+              — prev/next buttons + page counter (1 / N)
+              — buttons: same border/hover style as design system
 ```
 
 ## Sanity Schema (`homepageSettings.ts`)
@@ -146,12 +149,12 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 ## Design System
 
 - **Theme**: Minimal black & white — white background, black text/borders
-- **Homepage buttons**: `bg-white border border-black px-8 py-3 text-sm`, auto-width flex row centered, `absolute bottom-8 left-8 right-8`, inverts black on hover
+- **Buttons** (PDF nav, formerly homepage): `border border-black bg-white px-8 py-3 text-sm`, inverts black on hover, `disabled:opacity-30`
 - **Accordion**: CSS `border` triangle arrow rotates 90° when open; `max-h-0 opacity-0` → `max-h-[500vh] opacity-100` transition (duration-500)
 - **Contact panel**: subscribe form and contact form are separate `bg-[#faf8f5] px-6 py-6` cards (warm off-white), spaced with `space-y-4`
 - **Page headings**: `text-[80px] font-bold leading-none tracking-tight` (md: `text-[120px]`)
 - **Nav links** on `/more` and `/read-online`: `flex items-center gap-6 px-8 py-4`, links are `text-sm text-black hover:opacity-60 transition-opacity`
-- **PDF viewer**: `src={pdfUrl + "#zoom=page-fit"}` — fits full page on load in Chrome/Edge; Safari ignores the hint
+- **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version
 
 ## GROQ Queries
 
