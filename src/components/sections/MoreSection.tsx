@@ -1,6 +1,14 @@
-"use client"
+'use client'
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
+import { SanityImageSource } from "@sanity/image-url/lib/types/types"
+import { urlFor } from "@/sanity/lib/image"
+
+const PdfReader = dynamic(
+  () => import('./PdfReader').then(mod => ({ default: mod.PdfReader })),
+  { ssr: false }
+)
 
 // ─── Contact Form ──────────────────────────────────────────────────────────────
 
@@ -58,7 +66,7 @@ function ContactForm() {
             required
             value={form.name}
             onChange={handleChange}
-            className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
             placeholder="Your name"
           />
         </div>
@@ -72,7 +80,7 @@ function ContactForm() {
             required
             value={form.email}
             onChange={handleChange}
-            className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
             placeholder="your@email.com"
           />
         </div>
@@ -86,7 +94,7 @@ function ContactForm() {
           name="phone"
           value={form.phone}
           onChange={handleChange}
-          className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
           placeholder="+1 (555) 000-0000"
         />
       </div>
@@ -100,7 +108,7 @@ function ContactForm() {
           required
           value={form.subject}
           onChange={handleChange}
-          className="w-full border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
           placeholder="Subject"
         />
       </div>
@@ -114,7 +122,7 @@ function ContactForm() {
           rows={4}
           value={form.message}
           onChange={handleChange}
-          className="w-full resize-none border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full resize-none border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
           placeholder="Your message..."
         />
       </div>
@@ -168,7 +176,7 @@ function SubscribeForm() {
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="flex-1 border-b border-black bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+        className="flex-1 border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
         placeholder="your@email.com"
       />
       {status === "error" && (
@@ -188,98 +196,101 @@ function SubscribeForm() {
 // ─── More Section ─────────────────────────────────────────────────────────────
 
 interface MoreSectionProps {
-  exploreHeading?: string
   bookDescription?: string
+  bookCoverImage?: SanityImageSource
+  buyButtonUrl?: string
+  pdfUrl?: string
 }
 
-const PANELS = [
-  { id: "description", title: "Description" },
-  { id: "contact", title: "Contact" },
-]
+type ActivePanel = 'book' | 'read-online' | 'contact' | null
 
-export function MoreSection({ exploreHeading, bookDescription }: MoreSectionProps) {
-  const [open, setOpen] = useState<Set<string>>(new Set())
+export function MoreSection({ bookDescription, bookCoverImage, buyButtonUrl, pdfUrl }: MoreSectionProps) {
+  const [activePanel, setActivePanel] = useState<ActivePanel>(null)
 
-  const toggle = (id: string) => {
-    setOpen((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
+  const toggle = (panel: ActivePanel) => {
+    setActivePanel(prev => prev === panel ? null : panel)
   }
-
-  const isOpen = (id: string) => open.has(id)
 
   return (
     <>
-      {/* Minimal top nav */}
       <nav className="flex items-center gap-6 px-8 py-4 md:px-16">
-        <a href="/" className="text-sm text-black hover:opacity-60 transition-opacity">Home</a>
-        <a href="/more" className="text-sm text-black hover:opacity-60 transition-opacity">More</a>
-        <a href="/read-online" className="text-sm text-black hover:opacity-60 transition-opacity">Read Online</a>
+        <a href="/" className="text-sm text-black hover:opacity-60 transition-opacity">Back</a>
+        <button
+          onClick={() => toggle('book')}
+          className="text-sm text-black hover:opacity-60 transition-opacity"
+        >
+          Book
+        </button>
+        <button
+          onClick={() => toggle('read-online')}
+          className="text-sm text-black hover:opacity-60 transition-opacity"
+        >
+          Read Online
+        </button>
+        <button
+          onClick={() => toggle('contact')}
+          className="text-sm text-black hover:opacity-60 transition-opacity"
+        >
+          Contact
+        </button>
       </nav>
 
-      <section className="w-full bg-white px-8 pb-16 md:px-16">
-        <h2 className="mb-4 text-[80px] font-bold leading-none tracking-tight md:text-[120px]">
-          {exploreHeading || "Explore"}
-        </h2>
-        <hr className="border-black/20" />
-
-        {PANELS.map((panel) => (
-          <div key={panel.id}>
-            <hr className="border-black" />
-            <button
-              onClick={() => toggle(panel.id)}
-              className="flex w-full items-center gap-3 py-5 text-left"
-            >
-              <span
-                className="shrink-0 transition-transform duration-300"
-                style={{
-                  display: "inline-block",
-                  transform: isOpen(panel.id) ? "rotate(90deg)" : "rotate(0deg)",
-                  width: 0,
-                  height: 0,
-                  borderTop: "6px solid transparent",
-                  borderBottom: "6px solid transparent",
-                  borderLeft: "12px solid black",
-                }}
+      <section className="w-full px-8 pb-16 md:px-16">
+        {activePanel === 'book' && (
+          <div>
+            {bookCoverImage && (
+              <img
+                src={urlFor(bookCoverImage).width(1000).url()}
+                alt="Book cover"
+                className="max-h-[50vh] w-auto mx-auto block"
               />
-              <span className="text-3xl font-medium">{panel.title}</span>
-            </button>
+            )}
+            {bookDescription && (
+              <p className="mt-6 whitespace-pre-wrap leading-relaxed text-neutral-700">
+                {bookDescription}
+              </p>
+            )}
+            {buyButtonUrl && (
+              <a
+                href={buyButtonUrl}
+                className="mt-6 inline-block border border-black px-6 py-2 text-sm hover:bg-black hover:text-white transition-colors"
+              >
+                Buy
+              </a>
+            )}
+          </div>
+        )}
 
-            <div
-              className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                isOpen(panel.id) ? "max-h-[500vh] opacity-100" : "max-h-0 opacity-0"
-              }`}
-            >
-              <div className="pb-10">
-                {panel.id === "description" && (
-                  <p className="whitespace-pre-wrap leading-relaxed text-neutral-700">
-                    {bookDescription || ""}
-                  </p>
-                )}
-                {panel.id === "contact" && (
-                  <div className="space-y-4">
-                    {/* Subscribe */}
-                    <div className="bg-[#faf8f5] px-6 py-6">
-                      <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">
-                        Join the mailing list
-                      </p>
-                      <SubscribeForm />
-                    </div>
+        {activePanel === 'read-online' && (
+          <div>
+            {pdfUrl ? (
+              <PdfReader pdfUrl={pdfUrl} />
+            ) : (
+              <p className="text-sm text-neutral-400">PDF coming soon</p>
+            )}
+            {buyButtonUrl && (
+              <a
+                href={buyButtonUrl}
+                className="mt-6 inline-block border border-black px-6 py-2 text-sm hover:bg-black hover:text-white transition-colors"
+              >
+                Buy
+              </a>
+            )}
+          </div>
+        )}
 
-                    {/* Contact form */}
-                    <div className="bg-[#faf8f5] px-6 py-6">
-                      <p className="mb-6 text-sm text-black">Or contact directly</p>
-                      <ContactForm />
-                    </div>
-                  </div>
-                )}
-              </div>
+        {activePanel === 'contact' && (
+          <div className="space-y-8">
+            <div>
+              <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Mailing list</p>
+              <SubscribeForm />
+            </div>
+            <div>
+              <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Contact</p>
+              <ContactForm />
             </div>
           </div>
-        ))}
-        <hr className="border-black" />
+        )}
       </section>
     </>
   )

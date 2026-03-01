@@ -9,8 +9,10 @@ import { MoreSection } from "@/components/sections/MoreSection"
 const MORE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  exploreHeading,
-  bookDescription
+  bookCoverImage,
+  buyButtonText, buyButtonUrl,
+  bookDescription,
+  readOnlinePdf { asset-> { url } }
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
@@ -38,8 +40,10 @@ export default async function MorePage() {
   return (
     <main>
       <MoreSection
-        exploreHeading={settings?.exploreHeading}
         bookDescription={settings?.bookDescription}
+        bookCoverImage={settings?.bookCoverImage}
+        buyButtonUrl={settings?.buyButtonUrl}
+        pdfUrl={settings?.readOnlinePdf?.asset?.url}
       />
     </main>
   )
