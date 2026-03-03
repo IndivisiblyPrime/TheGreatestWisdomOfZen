@@ -4,19 +4,16 @@ import { Metadata } from "next"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { SiteSettings } from "@/lib/types"
-import { MoreSection } from "@/components/sections/MoreSection"
+import { ContactSection } from "@/components/sections/ContactSection"
 
-const MORE_QUERY = `*[_type == "homepageSettings"][0]{
+const CONTACT_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
-  siteFavicon,
-  bookCoverImage, backgroundImage, brushStrokeImage,
-  buyButtonText, buyButtonUrl,
-  bookDescription
+  siteFavicon
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
   try {
-    return await client.fetch(MORE_QUERY)
+    return await client.fetch(CONTACT_QUERY)
   } catch {
     return null
   }
@@ -33,18 +30,10 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function MorePage() {
-  const settings = await getSettings()
-
+export default async function ContactPage() {
   return (
     <main>
-      <MoreSection
-        bookDescription={settings?.bookDescription}
-        bookCoverImage={settings?.bookCoverImage}
-        buyButtonUrl={settings?.buyButtonUrl}
-        backgroundImage={settings?.backgroundImage}
-        brushStrokeImage={settings?.brushStrokeImage}
-      />
+      <ContactSection />
     </main>
   )
 }

@@ -90,6 +90,23 @@ export const homepageSettings = defineType({
       description: 'Text shown in the Description accordion on the /more page',
     }),
 
+    defineField({
+      name: 'backgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      group: 'more',
+      description: 'Wide background scene shown behind the /more page content.',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'brushStrokeImage',
+      title: 'Brush Stroke (Nav Bar)',
+      type: 'image',
+      group: 'more',
+      description: 'Wide horizontal black brush stroke overlaid at the top of /more. Should be much wider than tall.',
+      options: { hotspot: false },
+    }),
+
     // ─── Read Online ──────────────────────────────────────────────────────────
     defineField({
       name: 'readOnlineTitle',
