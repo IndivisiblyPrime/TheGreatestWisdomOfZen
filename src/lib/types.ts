@@ -16,4 +16,6 @@ export interface SiteSettings {
       url: string;
     };
   };
+  backgroundImage?: SanityImageSource;
+  brushStrokeImage?: SanityImageSource;
 }

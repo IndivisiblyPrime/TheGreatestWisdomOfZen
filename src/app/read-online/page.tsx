@@ -4,19 +4,18 @@ import { Metadata } from "next"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { SiteSettings } from "@/lib/types"
-import { MoreSection } from "@/components/sections/MoreSection"
+import { ReadOnlineSection } from "@/components/sections/ReadOnlineSection"
 
-const MORE_QUERY = `*[_type == "homepageSettings"][0]{
+const READ_ONLINE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  bookCoverImage, backgroundImage, brushStrokeImage,
-  buyButtonText, buyButtonUrl,
-  bookDescription
+  readOnlineTitle,
+  readOnlinePdf { asset-> { url } }
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
   try {
-    return await client.fetch(MORE_QUERY)
+    return await client.fetch(READ_ONLINE_QUERY)
   } catch {
     return null
   }
@@ -33,17 +32,14 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function MorePage() {
+export default async function ReadOnlinePage() {
   const settings = await getSettings()
 
   return (
     <main>
-      <MoreSection
-        bookDescription={settings?.bookDescription}
-        bookCoverImage={settings?.bookCoverImage}
-        buyButtonUrl={settings?.buyButtonUrl}
-        backgroundImage={settings?.backgroundImage}
-        brushStrokeImage={settings?.brushStrokeImage}
+      <ReadOnlineSection
+        pdfUrl={settings?.readOnlinePdf?.asset?.url}
+        readOnlineTitle={settings?.readOnlineTitle}
       />
     </main>
   )

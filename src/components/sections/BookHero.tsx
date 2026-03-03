@@ -29,7 +29,11 @@ export function BookHero({ bookCoverImage }: BookHeroProps) {
     const img = imgRef.current
     const canvas = canvasRef.current
     if (!img || !canvas) {
-      router.push('/more')
+      if ('startViewTransition' in document) {
+        document.startViewTransition(() => router.push('/more'))
+      } else {
+        router.push('/more')
+      }
       return
     }
     const rect = img.getBoundingClientRect()
@@ -43,23 +47,32 @@ export function BookHero({ bookCoverImage }: BookHeroProps) {
       const pixel = ctx.getImageData(x, y, 1, 1).data
       const [r, g, b] = pixel
       if (r + g + b < 300) {
-        router.push('/more')
+        if ('startViewTransition' in document) {
+          document.startViewTransition(() => router.push('/more'))
+        } else {
+          router.push('/more')
+        }
       }
     } catch {
-      router.push('/more')
+      if ('startViewTransition' in document) {
+        document.startViewTransition(() => router.push('/more'))
+      } else {
+        router.push('/more')
+      }
     }
   }, [router])
 
   return (
-    <div className="h-screen flex items-center justify-center">
+    <div className="h-screen flex items-center justify-start pl-16">
       {bookCoverImage ? (
         <div onClick={handleClick} className="cursor-pointer">
           <canvas ref={canvasRef} className="hidden" />
           <img
             ref={imgRef}
-            src={urlFor(bookCoverImage).width(2000).url()}
+            src={urlFor(bookCoverImage).width(400).url()}
             alt="Book cover"
-            className="max-h-[85vh] w-auto"
+            className="w-40 h-auto"
+            style={{ viewTransitionName: 'book-cover' }}
             crossOrigin="anonymous"
             onLoad={handleLoad}
           />
