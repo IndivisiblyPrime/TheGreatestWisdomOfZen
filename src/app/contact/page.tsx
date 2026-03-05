@@ -8,7 +8,9 @@ import { ContactSection } from "@/components/sections/ContactSection"
 
 const CONTACT_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
-  siteFavicon
+  siteFavicon,
+  backgroundImage,
+  brushStrokeImage
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
@@ -31,9 +33,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContactPage() {
+  const settings = await getSettings()
+
   return (
     <main>
-      <ContactSection />
+      <ContactSection
+        backgroundImage={settings?.backgroundImage}
+        brushStrokeImage={settings?.brushStrokeImage}
+      />
     </main>
   )
 }

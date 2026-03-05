@@ -44,10 +44,11 @@ src/
 │   └── studio/[[...tool]]/page.tsx    # Sanity Studio (singleton structure)
 ├── components/
 │   └── sections/
-│       ├── BookHero.tsx               # Homepage: left-aligned ~160px hero, pixel-detection click → /more with view transition
-│       ├── MoreSection.tsx            # /more: layered layout with background, sequenced animations, brush stroke nav
-│       ├── ReadOnlineSection.tsx      # /read-online: nav + PdfReader
-│       ├── ContactSection.tsx         # /contact: nav + SubscribeForm + ContactForm
+│       ├── BookHero.tsx               # Homepage: left-aligned ~160px hero, pixel-sampled cursor, view-transition → /more
+│       ├── NavBackground.tsx          # Shared layout: background image + fixed 80px brush stroke nav (no animation)
+│       ├── MoreSection.tsx            # /more: layered animations (first visit only via sessionStorage), Enzo always visible
+│       ├── ReadOnlineSection.tsx      # /read-online: NavBackground wrapper + PdfReader
+│       ├── ContactSection.tsx         # /contact: NavBackground wrapper + SubscribeForm + ContactForm
 │       └── PdfReader.tsx              # Client component: react-pdf page-by-page reader with prev/next nav
 ├── sanity/
 │   ├── env.ts
@@ -79,36 +80,36 @@ src/
 
 /more (accessible by clicking black strokes on the Enzo image)
   └── MoreSection ('use client')
-        ├── Layered: background image (absolute fill, wipeFromLeft) behind content
-        ├── Content: book cover (w-40, viewTransitionName: 'book-cover') + title + hr + description + buy button
-        │     — sequenced fadeIn/slideInLeft animations over ~2s
-        └── Brush stroke nav bar (absolute top, wipeFromLeft after content):
-              Back → / | Read Online → /read-online | Contact → /contact
+        ├── sessionStorage key 'more-visited': animation runs ONCE (first arrival from homepage)
+        │     on revisit, everything is immediately visible — no animation replays
+        ├── Enzo (book cover): ALWAYS immediately visible, no animation
+        ├── Background image: wipes in from left on first visit
+        ├── Content (title + hr + description + buy button): slideInLeft/fadeIn sequence
+        └── Brush stroke nav (fixed 80px, absolute top): wipes in last on first visit
+              Back → / | More → /more | Read Online → /read-online | Contact → /contact
 
-/read-online
-  └── ReadOnlineSection ('use client')
-        ├── nav: Back | More | Read Online | Contact
-        └── PdfReader (dynamically loaded, ssr: false)
-
-/contact
-  └── ContactSection ('use client')
-        ├── nav: Back | More | Read Online | Contact
-        ├── SubscribeForm (mailing list)
-        └── ContactForm (no bg cards, no border on inputs)
+/read-online and /contact share NavBackground ('use server'-compatible component):
+  ├── Background image: same as /more, immediately visible (no animation)
+  ├── Brush stroke nav: same image, fixed 80px at top, immediately visible
+  │     Back → / | More → /more | Read Online → /read-online | Contact → /contact
+  ├── /read-online content: PdfReader (dynamically loaded, ssr: false)
+  └── /contact content: SubscribeForm + ContactForm (no bg cards, no border on inputs)
 ```
 
-## Animation Sequence on /more mount
+## Animation Sequence on /more (first visit only)
 
-| Element | Keyframe | Duration | Delay |
-|---------|----------|----------|-------|
-| Background image | `wipeFromLeft` | 900ms | 0ms |
-| Book cover | `fadeIn` | 400ms | 700ms |
-| Title (h1) | `slideInLeft` | 400ms | 1100ms |
-| HR divider | `fadeIn` | 300ms | 1300ms |
-| Description | `slideInLeft` | 350ms | 1400ms |
-| Buy button | `fadeIn` | 300ms | 1700ms |
-| Brush stroke wrapper | `wipeFromLeft` | 700ms | 2000ms |
-| Nav buttons | `fadeIn` | 400ms | 2600ms |
+Controlled by `sessionStorage.getItem('more-visited')`. Set on first visit; cleared when browser session ends.
+
+| Element | Keyframe | Duration | Delay | Notes |
+|---------|----------|----------|-------|-------|
+| Book cover (Enzo) | — | — | — | Always immediately visible |
+| Background image | `wipeFromLeft` | 2500ms | 0ms | |
+| Title (h1) | `slideInLeft` | 1200ms | 3000ms | |
+| HR divider | `fadeIn` | 1000ms | 3800ms | |
+| Description | `slideInLeft` | 1200ms | 4500ms | |
+| Buy button | `fadeIn` | 1000ms | 5500ms | |
+| Brush stroke nav | `wipeFromLeft` | 2000ms | 6500ms | |
+| Nav buttons | `fadeIn` | 1200ms | 8000ms | |
 
 ## Sanity Schema (`homepageSettings.ts`)
 
@@ -170,8 +171,8 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 
 - **Theme**: Minimal black & white — white background, black text/borders
 - **Buttons** (PDF nav, buy links): `border border-black px-6 py-2 text-sm`, inverts on hover
-- **Nav on /read-online and /contact**: plain `<a>` elements, `text-sm gap-6 hover:opacity-60`
-- **Nav on /more**: floating buttons in brush stroke bar, `bg-white/80 border border-black/20 px-4 py-1.5`
+- **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top, white text links (`text-white text-sm font-medium hover:opacity-70`); links: Back / More / Read Online / Contact
+- **Nav bar height**: always exactly 80px regardless of viewport — uses `style={{ height: '80px' }}` (not Tailwind class) and image uses inline `objectFit: 'cover'` to prevent height scaling
 - **Contact/Subscribe forms**: no background cards, no border on inputs (`border-0`), section headings use `text-xs uppercase tracking-wide text-neutral-500`
 - **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version
 - **Pixel detection**: BookHero draws image to hidden canvas on load; click samples canvas pixel; navigates only if R+G+B < 300
@@ -202,14 +203,16 @@ Read Online page (`read-online/page.tsx`):
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon,
   readOnlineTitle,
-  readOnlinePdf { asset-> { url } }
+  readOnlinePdf { asset-> { url } },
+  backgroundImage, brushStrokeImage
 }
 ```
 
 Contact page (`contact/page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
-  siteTitle, siteFavicon
+  siteTitle, siteFavicon,
+  backgroundImage, brushStrokeImage
 }
 ```
 

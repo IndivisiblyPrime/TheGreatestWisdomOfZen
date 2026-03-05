@@ -10,7 +10,9 @@ const READ_ONLINE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
   readOnlineTitle,
-  readOnlinePdf { asset-> { url } }
+  readOnlinePdf { asset-> { url } },
+  backgroundImage,
+  brushStrokeImage
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
@@ -40,6 +42,8 @@ export default async function ReadOnlinePage() {
       <ReadOnlineSection
         pdfUrl={settings?.readOnlinePdf?.asset?.url}
         readOnlineTitle={settings?.readOnlineTitle}
+        backgroundImage={settings?.backgroundImage}
+        brushStrokeImage={settings?.brushStrokeImage}
       />
     </main>
   )

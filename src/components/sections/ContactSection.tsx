@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from "react"
+import { SanityImageSource } from "@sanity/image-url/lib/types/types"
+import { NavBackground } from "./NavBackground"
 
 // ─── Contact Form ──────────────────────────────────────────────────────────────
 
@@ -187,17 +189,15 @@ function SubscribeForm() {
 
 // ─── Contact Section ───────────────────────────────────────────────────────────
 
-export function ContactSection() {
-  return (
-    <>
-      <nav className="flex items-center gap-6 px-8 py-4 md:px-16">
-        <a href="/" className="text-sm text-black hover:opacity-60 transition-opacity">Back</a>
-        <a href="/more" className="text-sm text-black hover:opacity-60 transition-opacity">More</a>
-        <a href="/read-online" className="text-sm text-black hover:opacity-60 transition-opacity">Read Online</a>
-        <a href="/contact" className="text-sm text-black hover:opacity-60 transition-opacity">Contact</a>
-      </nav>
+interface ContactSectionProps {
+  backgroundImage?: SanityImageSource
+  brushStrokeImage?: SanityImageSource
+}
 
-      <section className="w-full px-8 pb-16 md:px-16">
+export function ContactSection({ backgroundImage, brushStrokeImage }: ContactSectionProps) {
+  return (
+    <NavBackground backgroundImage={backgroundImage} brushStrokeImage={brushStrokeImage}>
+      <section className="w-full px-8 py-12 md:px-16">
         <div className="space-y-8 max-w-lg">
           <div>
             <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Mailing list</p>
@@ -209,6 +209,6 @@ export function ContactSection() {
           </div>
         </div>
       </section>
-    </>
+    </NavBackground>
   )
 }
