@@ -22,24 +22,25 @@ export function MoreSection({
   const [started, setStarted] = useState(false)
   useEffect(() => { setStarted(true) }, [])
 
+  // Before mount: hidden. After mount: let animation fill-mode:both handle initial state.
   function anim(keyframe: string, duration: string, delay: string): React.CSSProperties {
-    return started
-      ? { animation: `${keyframe} ${duration} ease-out ${delay} both`, opacity: 0 }
-      : { opacity: 0 }
+    if (!started) return { opacity: 0 }
+    return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  const wipeBg = anim('wipeFromLeft', '900ms', '0ms')
-  const coverAnim = anim('fadeIn', '400ms', '700ms')
-  const titleAnim = anim('slideInLeft', '400ms', '1100ms')
-  const hrAnim = anim('fadeIn', '300ms', '1300ms')
-  const descAnim = anim('slideInLeft', '350ms', '1400ms')
-  const buyAnim = anim('fadeIn', '300ms', '1700ms')
-  const brushWipeAnim = anim('wipeFromLeft', '700ms', '2000ms')
-  const navAnim = anim('fadeIn', '400ms', '2600ms')
+  const wipeBg       = anim('wipeFromLeft', '2500ms', '0ms')
+  const coverAnim    = anim('fadeIn',       '1200ms', '2000ms')
+  const titleAnim    = anim('slideInLeft',  '1200ms', '3000ms')
+  const hrAnim       = anim('fadeIn',       '1000ms', '3800ms')
+  const descAnim     = anim('slideInLeft',  '1200ms', '4500ms')
+  const buyAnim      = anim('fadeIn',       '1000ms', '5500ms')
+  const brushWipeAnim = anim('wipeFromLeft','2000ms', '6500ms')
+  const navAnim      = anim('fadeIn',       '1200ms', '8000ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Background — absolute fill, wipe animation */}
+
+      {/* Background — absolute fill, wipe in from left */}
       <div className="absolute inset-0 z-0" style={wipeBg}>
         {backgroundImage ? (
           <img
@@ -52,9 +53,9 @@ export function MoreSection({
         )}
       </div>
 
-      {/* Content — sits above background */}
-      <div className="relative z-10 flex items-center min-h-screen px-16 pt-20">
-        {/* Book cover */}
+      {/* Content — no top padding so vertical center matches homepage exactly */}
+      <div className="relative z-10 flex items-center min-h-screen px-16">
+        {/* Book cover — same w-40, same pl-16 as homepage */}
         {bookCoverImage && (
           <img
             src={urlFor(bookCoverImage).width(400).url()}
@@ -71,7 +72,7 @@ export function MoreSection({
           </h1>
           <hr className="border-black my-4" style={hrAnim} />
           {bookDescription && (
-            <p className="text-sm leading-relaxed text-neutral-800" style={descAnim}>
+            <p className="text-sm leading-relaxed text-neutral-800 whitespace-pre-wrap" style={descAnim}>
               {bookDescription}
             </p>
           )}
@@ -87,7 +88,7 @@ export function MoreSection({
         </div>
       </div>
 
-      {/* Brush stroke nav — absolute top, wipe animation */}
+      {/* Brush stroke nav — absolute top, wipes in after content */}
       <div className="absolute top-0 left-0 w-full z-20" style={brushWipeAnim}>
         {brushStrokeImage && (
           <img
@@ -97,26 +98,18 @@ export function MoreSection({
           />
         )}
         <div className="absolute inset-0 flex items-center justify-center gap-6" style={navAnim}>
-          <a
-            href="/"
-            className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors"
-          >
+          <a href="/" className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors">
             Back
           </a>
-          <a
-            href="/read-online"
-            className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors"
-          >
+          <a href="/read-online" className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors">
             Read Online
           </a>
-          <a
-            href="/contact"
-            className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors"
-          >
+          <a href="/contact" className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors">
             Contact
           </a>
         </div>
       </div>
+
     </div>
   )
 }
