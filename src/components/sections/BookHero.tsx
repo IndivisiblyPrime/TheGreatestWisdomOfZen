@@ -2,7 +2,7 @@
 
 import { urlFor } from "@/sanity/lib/image"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
-import { useRef, useCallback } from "react"
+import { useRef, useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 
 interface BookHeroProps {
@@ -13,6 +13,7 @@ export function BookHero({ bookCoverImage }: BookHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const router = useRouter()
+  const [cursor, setCursor] = useState<'default' | 'pointer'>('default')
 
   const handleLoad = useCallback(() => {
     const img = imgRef.current
@@ -25,47 +26,49 @@ export function BookHero({ bookCoverImage }: BookHeroProps) {
     ctx.drawImage(img, 0, 0)
   }, [])
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const samplePixel = useCallback((e: React.MouseEvent<HTMLDivElement>): boolean => {
     const img = imgRef.current
     const canvas = canvasRef.current
-    if (!img || !canvas) {
-      if ('startViewTransition' in document) {
-        document.startViewTransition(() => router.push('/more'))
-      } else {
-        router.push('/more')
-      }
-      return
-    }
+    if (!img || !canvas) return true
     const rect = img.getBoundingClientRect()
-    const scaleX = img.naturalWidth / rect.width
-    const scaleY = img.naturalHeight / rect.height
-    const x = Math.floor((e.clientX - rect.left) * scaleX)
-    const y = Math.floor((e.clientY - rect.top) * scaleY)
+    const x = Math.floor((e.clientX - rect.left) * img.naturalWidth / rect.width)
+    const y = Math.floor((e.clientY - rect.top) * img.naturalHeight / rect.height)
     try {
       const ctx = canvas.getContext('2d')
-      if (!ctx) return
+      if (!ctx) return true
       const pixel = ctx.getImageData(x, y, 1, 1).data
-      const [r, g, b] = pixel
-      if (r + g + b < 300) {
-        if ('startViewTransition' in document) {
-          document.startViewTransition(() => router.push('/more'))
-        } else {
-          router.push('/more')
-        }
-      }
+      return pixel[0] + pixel[1] + pixel[2] < 300
     } catch {
-      if ('startViewTransition' in document) {
-        document.startViewTransition(() => router.push('/more'))
-      } else {
-        router.push('/more')
-      }
+      return true
     }
-  }, [router])
+  }, [])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    setCursor(samplePixel(e) ? 'pointer' : 'default')
+  }, [samplePixel])
+
+  const handleMouseLeave = useCallback(() => {
+    setCursor('default')
+  }, [])
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!samplePixel(e)) return
+    if ('startViewTransition' in document) {
+      document.startViewTransition(() => router.push('/more'))
+    } else {
+      router.push('/more')
+    }
+  }, [samplePixel, router])
 
   return (
     <div className="h-screen flex items-center justify-start pl-16">
       {bookCoverImage ? (
-        <div onClick={handleClick} className="cursor-pointer">
+        <div
+          onClick={handleClick}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{ cursor }}
+        >
           <canvas ref={canvasRef} className="hidden" />
           <img
             ref={imgRef}
