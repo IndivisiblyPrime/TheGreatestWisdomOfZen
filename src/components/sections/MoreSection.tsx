@@ -76,35 +76,33 @@ export function MoreSection({
               {bookDescription}
             </p>
           )}
-          {buyButtonUrl && (
-            <a
-              href={buyButtonUrl}
-              className="mt-6 inline-block border border-black px-6 py-2 text-sm hover:bg-black hover:text-white transition-colors"
-              style={buyAnim}
-            >
-              Buy
-            </a>
-          )}
+          <a
+            href={buyButtonUrl}
+            className="mt-6 inline-block border border-black px-6 py-2 text-sm hover:bg-black hover:text-white transition-colors"
+            style={buyAnim}
+          >
+            Buy
+          </a>
         </div>
       </div>
 
-      {/* Brush stroke nav — absolute top, wipes in after content */}
-      <div className="absolute top-0 left-0 w-full z-20" style={brushWipeAnim}>
+      {/* Brush stroke nav — fixed-height strip pinned to top */}
+      <div className="absolute top-0 left-0 w-full h-20 z-20 overflow-hidden" style={brushWipeAnim}>
         {brushStrokeImage && (
           <img
             src={urlFor(brushStrokeImage).width(1800).url()}
             alt=""
-            className="w-full object-contain"
+            className="w-full h-full object-cover object-center"
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center gap-6" style={navAnim}>
-          <a href="/" className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors">
+        <div className="absolute inset-0 flex items-center justify-center gap-8" style={navAnim}>
+          <a href="/" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">
             Back
           </a>
-          <a href="/read-online" className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors">
+          <a href="/read-online" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">
             Read Online
           </a>
-          <a href="/contact" className="bg-white/80 border border-black/20 px-4 py-1.5 text-sm hover:bg-white transition-colors">
+          <a href="/contact" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">
             Contact
           </a>
         </div>
