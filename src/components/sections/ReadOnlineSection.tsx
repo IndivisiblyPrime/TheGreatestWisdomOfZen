@@ -21,7 +21,7 @@ export function ReadOnlineSection({ pdfUrl, readOnlineTitle, backgroundImage, br
     <NavBackground backgroundImage={backgroundImage} brushStrokeImage={brushStrokeImage}>
       <section className="w-full px-8 py-12 md:px-16">
         {readOnlineTitle && (
-          <h1 className="text-2xl font-bold mb-8">{readOnlineTitle}</h1>
+          <h1 className="text-2xl font-bold mb-8 text-center">{readOnlineTitle}</h1>
         )}
         {pdfUrl ? (
           <PdfReader pdfUrl={pdfUrl} />

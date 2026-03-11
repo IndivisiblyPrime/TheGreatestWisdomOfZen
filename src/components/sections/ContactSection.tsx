@@ -60,7 +60,7 @@ function ContactForm() {
             required
             value={form.name}
             onChange={handleChange}
-            className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
             placeholder="Your name"
           />
         </div>
@@ -74,7 +74,7 @@ function ContactForm() {
             required
             value={form.email}
             onChange={handleChange}
-            className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
             placeholder="your@email.com"
           />
         </div>
@@ -88,7 +88,7 @@ function ContactForm() {
           name="phone"
           value={form.phone}
           onChange={handleChange}
-          className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
           placeholder="+1 (555) 000-0000"
         />
       </div>
@@ -102,7 +102,7 @@ function ContactForm() {
           required
           value={form.subject}
           onChange={handleChange}
-          className="w-full border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
           placeholder="Subject"
         />
       </div>
@@ -116,7 +116,7 @@ function ContactForm() {
           rows={4}
           value={form.message}
           onChange={handleChange}
-          className="w-full resize-none border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className="w-full resize-none border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
           placeholder="Your message..."
         />
       </div>
@@ -170,7 +170,7 @@ function SubscribeForm() {
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="flex-1 border-0 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+        className="flex-1 border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
         placeholder="your@email.com"
       />
       {status === "error" && (
@@ -197,13 +197,13 @@ interface ContactSectionProps {
 export function ContactSection({ backgroundImage, brushStrokeImage }: ContactSectionProps) {
   return (
     <NavBackground backgroundImage={backgroundImage} brushStrokeImage={brushStrokeImage}>
-      <section className="w-full px-8 py-12 md:px-16">
-        <div className="space-y-8 max-w-lg">
-          <div>
+      <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
+        <div className="space-y-8 max-w-lg w-full">
+          <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
             <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Mailing list</p>
             <SubscribeForm />
           </div>
-          <div>
+          <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
             <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Contact</p>
             <ContactForm />
           </div>

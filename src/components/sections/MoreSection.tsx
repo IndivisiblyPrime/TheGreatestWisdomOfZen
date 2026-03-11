@@ -25,11 +25,11 @@ export function MoreSection({
   const [phase, setPhase] = useState<'hidden' | 'animating' | 'visible'>('hidden')
 
   useEffect(() => {
-    const seen = sessionStorage.getItem('more-visited')
-    if (seen) {
+    const skip = sessionStorage.getItem('more-skip-anim')
+    if (skip) {
+      sessionStorage.removeItem('more-skip-anim')
       setPhase('visible')
     } else {
-      sessionStorage.setItem('more-visited', '1')
       setPhase('animating')
     }
   }, [])
@@ -100,19 +100,18 @@ export function MoreSection({
 
       {/* Brush stroke nav bar — fixed 80px, wipes in on first visit */}
       <div
-        className="absolute top-0 left-0 w-full z-20 overflow-hidden"
-        style={{ ...brushWipeAnim, height: '80px' }}
+        className="absolute top-0 left-0 w-full z-20"
+        style={{
+          ...brushWipeAnim,
+          height: '80px',
+          backgroundImage: brushStrokeImage ? `url(${urlFor(brushStrokeImage).width(1800).url()})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
       >
-        {brushStrokeImage && (
-          <img
-            src={urlFor(brushStrokeImage).width(1800).url()}
-            alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
-          />
-        )}
         <div className="absolute inset-0 flex items-center justify-center gap-8" style={navAnim}>
           <a href="/" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">Back</a>
-          <a href="/more" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">More</a>
+          <a href="/more" className="text-white text-sm font-medium hover:opacity-70 transition-opacity" onClick={() => sessionStorage.setItem('more-skip-anim', '1')}>More</a>
           <a href="/read-online" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">Read Online</a>
           <a href="/contact" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">Contact</a>
         </div>
