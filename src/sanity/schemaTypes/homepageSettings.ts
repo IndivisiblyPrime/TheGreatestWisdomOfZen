@@ -91,6 +91,14 @@ export const homepageSettings = defineType({
     }),
 
     defineField({
+      name: 'bookPageImage',
+      title: 'Book Page Image',
+      type: 'image',
+      group: 'more',
+      description: 'Optional book mockup image shown behind the Enso on the /more page. Appears first in the animation sequence.',
+      options: { hotspot: true },
+    }),
+    defineField({
       name: 'backgroundImage',
       title: 'Background Image',
       type: 'image',

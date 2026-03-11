@@ -9,7 +9,7 @@ import { MoreSection } from "@/components/sections/MoreSection"
 const MORE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  bookCoverImage, backgroundImage, brushStrokeImage,
+  bookCoverImage, bookPageImage, backgroundImage, brushStrokeImage,
   buyButtonText, buyButtonUrl,
   bookDescription
 }`
@@ -41,6 +41,7 @@ export default async function MorePage() {
       <MoreSection
         bookDescription={settings?.bookDescription}
         bookCoverImage={settings?.bookCoverImage}
+        bookPageImage={settings?.bookPageImage}
         buyButtonUrl={settings?.buyButtonUrl}
         backgroundImage={settings?.backgroundImage}
         brushStrokeImage={settings?.brushStrokeImage}

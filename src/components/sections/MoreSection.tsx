@@ -7,6 +7,7 @@ import { urlFor } from "@/sanity/lib/image"
 interface MoreSectionProps {
   bookDescription?: string
   bookCoverImage?: SanityImageSource
+  bookPageImage?: SanityImageSource
   buyButtonUrl?: string
   backgroundImage?: SanityImageSource
   brushStrokeImage?: SanityImageSource
@@ -15,6 +16,7 @@ interface MoreSectionProps {
 export function MoreSection({
   bookDescription,
   bookCoverImage,
+  bookPageImage,
   buyButtonUrl,
   backgroundImage,
   brushStrokeImage,
@@ -40,13 +42,24 @@ export function MoreSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  const wipeBg        = anim('wipeFromLeft', '2500ms', '0ms')
-  const titleAnim     = anim('slideInLeft',  '1200ms', '3000ms')
-  const hrAnim        = anim('fadeIn',       '1000ms', '3800ms')
-  const descAnim      = anim('slideInLeft',  '1200ms', '4500ms')
-  const buyAnim       = anim('fadeIn',       '1000ms', '5500ms')
-  const brushWipeAnim = anim('wipeFromLeft', '2000ms', '6500ms')
-  const navAnim       = anim('fadeIn',       '1200ms', '8000ms')
+  // Animation sequence:
+  // 0ms    — Enso: always immediately visible (view transition from homepage)
+  // 0ms    — Book page image: fades in (if provided)
+  // 600ms  — Background: wipes in from left
+  // 3600ms — Title
+  // 4400ms — HR
+  // 5100ms — Description
+  // 6100ms — Buy button
+  // 7100ms — Brush stroke nav
+  // 8600ms — Nav buttons
+  const bookPageAnim  = anim('fadeIn',       '500ms',  '0ms')
+  const wipeBg        = anim('wipeFromLeft', '2500ms', '600ms')
+  const titleAnim     = anim('slideInLeft',  '1200ms', '3600ms')
+  const hrAnim        = anim('fadeIn',       '1000ms', '4400ms')
+  const descAnim      = anim('slideInLeft',  '1200ms', '5100ms')
+  const buyAnim       = anim('fadeIn',       '1000ms', '6100ms')
+  const brushWipeAnim = anim('wipeFromLeft', '2000ms', '7100ms')
+  const navAnim       = anim('fadeIn',       '1200ms', '8600ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -64,17 +77,38 @@ export function MoreSection({
         )}
       </div>
 
-      {/* Content — vertically centered, matches homepage Enzo position */}
+      {/* Content — vertically centered, matches homepage Enso position */}
       <div className="relative z-10 flex items-center min-h-screen px-16">
 
-        {/* Book cover — always immediately visible (view transition carries it from homepage) */}
+        {/* Enso + optional book page image group */}
         {bookCoverImage && (
-          <img
-            src={urlFor(bookCoverImage).width(400).url()}
-            alt="Book cover"
-            className="w-40 h-auto flex-shrink-0"
-            style={{ viewTransitionName: 'book-cover' }}
-          />
+          bookPageImage ? (
+            // Book page image behind Enso — both in a single relative container so they move together
+            <div className="relative flex-shrink-0">
+              {/* Book image — defines the container size, animates in first */}
+              <img
+                src={urlFor(bookPageImage).width(500).url()}
+                alt="Book"
+                className="block w-52 h-auto"
+                style={bookPageAnim}
+              />
+              {/* Enso — overlaid centered on book, always immediately visible */}
+              <img
+                src={urlFor(bookCoverImage).width(400).url()}
+                alt="Book cover"
+                className="absolute inset-0 w-full h-full object-contain"
+                style={{ viewTransitionName: 'book-cover' }}
+              />
+            </div>
+          ) : (
+            // No book page image — Enso only (current behaviour)
+            <img
+              src={urlFor(bookCoverImage).width(400).url()}
+              alt="Book cover"
+              className="w-40 h-auto flex-shrink-0"
+              style={{ viewTransitionName: 'book-cover' }}
+            />
+          )
         )}
 
         {/* Title + Description + Buy */}
@@ -104,16 +138,17 @@ export function MoreSection({
         style={{
           ...brushWipeAnim,
           height: '80px',
+          overflow: 'hidden',
           backgroundImage: brushStrokeImage ? `url(${urlFor(brushStrokeImage).width(1800).url()})` : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
         <div className="absolute inset-0 flex items-center justify-center gap-8" style={navAnim}>
-          <a href="/" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">Back</a>
-          <a href="/more" className="text-white text-sm font-medium hover:opacity-70 transition-opacity" onClick={() => sessionStorage.setItem('more-skip-anim', '1')}>More</a>
-          <a href="/read-online" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">Read Online</a>
-          <a href="/contact" className="text-white text-sm font-medium hover:opacity-70 transition-opacity">Contact</a>
+          <a href="/" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Back</a>
+          <a href="/more" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap" onClick={() => sessionStorage.setItem('more-skip-anim', '1')}>More</a>
+          <a href="/read-online" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Read Online</a>
+          <a href="/contact" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Contact</a>
         </div>
       </div>
 
