@@ -61,7 +61,7 @@ export function BookHero({ bookCoverImage }: BookHeroProps) {
   }, [samplePixel, router])
 
   return (
-    <div className="h-screen flex items-center justify-start pl-16">
+    <div className="h-screen flex items-center justify-center">
       {bookCoverImage ? (
         <div
           onClick={handleClick}

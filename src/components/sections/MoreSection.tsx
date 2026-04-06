@@ -53,7 +53,7 @@ export function MoreSection({
   // 7100ms — Brush stroke nav
   // 8600ms — Nav buttons
   const bookPageAnim  = anim('fadeIn',       '500ms',  '0ms')
-  const wipeBg        = anim('wipeFromLeft', '2500ms', '600ms')
+  const wipeBg        = anim('fadeIn',       '3000ms', '600ms')
   const titleAnim     = anim('slideInLeft',  '1200ms', '3600ms')
   const hrAnim        = anim('fadeIn',       '1000ms', '4400ms')
   const descAnim      = anim('slideInLeft',  '1200ms', '5100ms')
@@ -80,35 +80,16 @@ export function MoreSection({
       {/* Content — vertically centered, matches homepage Enso position */}
       <div className="relative z-10 flex items-center min-h-screen px-16">
 
-        {/* Enso + optional book page image group */}
-        {bookCoverImage && (
-          bookPageImage ? (
-            // Book page image behind Enso — both in a single relative container so they move together
-            <div className="relative flex-shrink-0">
-              {/* Book image — defines the container size, animates in first */}
-              <img
-                src={urlFor(bookPageImage).width(500).url()}
-                alt="Book"
-                className="block w-52 h-auto"
-                style={bookPageAnim}
-              />
-              {/* Enso — overlaid centered on book, always immediately visible */}
-              <img
-                src={urlFor(bookCoverImage).width(400).url()}
-                alt="Book cover"
-                className="absolute inset-0 w-full h-full object-contain"
-                style={{ viewTransitionName: 'book-cover' }}
-              />
-            </div>
-          ) : (
-            // No book page image — Enso only (current behaviour)
+        {/* Book page image */}
+        {bookPageImage && (
+          <div className="flex-shrink-0">
             <img
-              src={urlFor(bookCoverImage).width(400).url()}
-              alt="Book cover"
-              className="w-40 h-auto flex-shrink-0"
-              style={{ viewTransitionName: 'book-cover' }}
+              src={urlFor(bookPageImage).width(500).url()}
+              alt="Book"
+              className="block w-52 h-auto"
+              style={bookPageAnim}
             />
-          )
+          </div>
         )}
 
         {/* Title + Description + Buy */}
