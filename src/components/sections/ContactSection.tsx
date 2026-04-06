@@ -200,7 +200,7 @@ export function ContactSection({ backgroundImage, brushStrokeImage }: ContactSec
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
         <div className="space-y-8 max-w-lg w-full">
           <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
-            <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Mailing list</p>
+            <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Mailing list <span className="normal-case tracking-normal">(zero spam or marketing emails)</span></p>
             <SubscribeForm />
           </div>
           <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
