@@ -7,13 +7,15 @@ import { useRouter } from "next/navigation"
 
 interface BookHeroProps {
   bookCoverImage?: SanityImageSource
+  transitionVideoUrl?: string
 }
 
-export function BookHero({ bookCoverImage }: BookHeroProps) {
+export function BookHero({ bookCoverImage, transitionVideoUrl }: BookHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const router = useRouter()
   const [cursor, setCursor] = useState<'default' | 'pointer'>('default')
+  const [showVideo, setShowVideo] = useState(false)
 
   const handleLoad = useCallback(() => {
     const img = imgRef.current
@@ -51,14 +53,22 @@ export function BookHero({ bookCoverImage }: BookHeroProps) {
     setCursor('default')
   }, [])
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!samplePixel(e)) return
+  const navigateToMore = useCallback(() => {
     if ('startViewTransition' in document) {
       document.startViewTransition(() => router.push('/more'))
     } else {
       router.push('/more')
     }
-  }, [samplePixel, router])
+  }, [router])
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!samplePixel(e)) return
+    if (transitionVideoUrl) {
+      setShowVideo(true)
+    } else {
+      navigateToMore()
+    }
+  }, [samplePixel, transitionVideoUrl, navigateToMore])
 
   return (
     <div className="h-screen flex items-center justify-center">
@@ -83,6 +93,19 @@ export function BookHero({ bookCoverImage }: BookHeroProps) {
       ) : (
         <div className="flex items-center justify-center bg-neutral-100 min-h-screen w-full">
           <span className="text-neutral-400">Book cover image</span>
+        </div>
+      )}
+
+      {showVideo && transitionVideoUrl && (
+        <div className="fixed inset-0 z-50 bg-black">
+          <video
+            key={transitionVideoUrl}
+            src={transitionVideoUrl}
+            autoPlay
+            playsInline
+            className="w-full h-full object-cover"
+            onEnded={navigateToMore}
+          />
         </div>
       )}
     </div>

@@ -9,7 +9,8 @@ import { BookHero } from "@/components/sections/BookHero"
 const SETTINGS_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  bookCoverImage
+  bookCoverImage,
+  transitionVideo { asset-> { url } }
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
@@ -37,7 +38,10 @@ export default async function Home() {
 
   return (
     <main>
-      <BookHero bookCoverImage={settings?.bookCoverImage} />
+      <BookHero
+        bookCoverImage={settings?.bookCoverImage}
+        transitionVideoUrl={settings?.transitionVideo?.asset?.url}
+      />
     </main>
   )
 }

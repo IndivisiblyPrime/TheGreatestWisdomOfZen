@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
@@ -14,6 +14,17 @@ interface PdfReaderProps {
 export function PdfReader({ pdfUrl }: PdfReaderProps) {
   const [numPages, setNumPages] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageWidth, setPageWidth] = useState<number>(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    setPageWidth(el.clientWidth)
+    const ro = new ResizeObserver(([entry]) => setPageWidth(entry.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages)
@@ -24,7 +35,7 @@ export function PdfReader({ pdfUrl }: PdfReaderProps) {
     'border border-black bg-white px-8 py-3 text-sm text-black transition-colors hover:bg-black hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black'
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto" ref={containerRef}>
       <Document
         file={pdfUrl}
         onLoadSuccess={onDocumentLoadSuccess}
@@ -41,7 +52,7 @@ export function PdfReader({ pdfUrl }: PdfReaderProps) {
       >
         <Page
           pageNumber={currentPage}
-          width={undefined}
+          width={pageWidth || undefined}
           className="border border-black/10"
         />
       </Document>

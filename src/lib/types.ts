@@ -16,6 +16,11 @@ export interface SiteSettings {
       url: string;
     };
   };
+  transitionVideo?: {
+    asset?: {
+      url: string;
+    };
+  };
   bookPageImage?: SanityImageSource;
   backgroundImage?: SanityImageSource;
   brushStrokeImage?: SanityImageSource;
