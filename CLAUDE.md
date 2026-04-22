@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero with a small (~160px), left-aligned book cover image (pixel-detection click navigates to `/more` only when clicking dark/black brush strokes). The `/more` page is a full layered layout with a background image wipe, sequenced content animations, and a brush stroke nav bar. Read Online and Contact are their own dedicated pages.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero with a centered book cover (Enzo) image — pixel-detection cursor shows pointer only on dark/black pixels; clicking plays a fullscreen transition video (if set in Sanity) then navigates to `/more`, or navigates directly if no video is configured. The `/more` page is a full layered layout with a background image wipe, sequenced content animations, and a brush stroke nav bar. Read Online and Contact are their own dedicated pages.
 
 ## Commands
 
@@ -71,12 +71,13 @@ src/
 ```
 / (Homepage)
   └── BookHero ('use client')
-        └── <div onClick> wrapping hidden <canvas> + <img> book cover
-              — h-screen flex items-center justify-start pl-16
-              — image: w-40 h-auto (~160px), left-aligned, cursor-pointer
+        └── <div onClick> wrapping hidden <canvas> + <img> book cover (Enzo)
+              — h-screen flex items-center justify-center
+              — image: w-40 h-auto (~160px), centered
               — style: viewTransitionName: 'book-cover'
-              — canvas pixel check: R+G+B < 300 → document.startViewTransition → router.push('/more')
-              — clicking empty/beige areas does nothing
+              — canvas pixel check: R+G+B < 300 → show fullscreen video (if transitionVideoUrl set) then navigate to /more
+              — if no video configured: document.startViewTransition → router.push('/more') directly
+              — clicking empty/white areas does nothing (cursor stays default)
 
 /more (accessible by clicking black strokes on the Enzo image)
   └── MoreSection ('use client')
@@ -118,7 +119,7 @@ Five groups:
 | Group       | Fields |
 |-------------|--------|
 | Site        | `siteTitle` (string), `siteFavicon` (image) |
-| Hero        | `bookCoverImage` (image, required) |
+| Hero        | `bookCoverImage` (image, required), `transitionVideo` (file, accept: video/*) |
 | Buttons     | `buyButtonText` (default "Buy"), `buyButtonUrl` (url), `moreButtonText` (default "More"), `readOnlineButtonText` (default "Read Online") |
 | More        | `exploreHeading` (default "Explore"), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot), `brushStrokeImage` (image) |
 | Read Online | `readOnlineTitle` (default "Read Online"), `readOnlinePdf` (file, accept: pdf) |
@@ -140,6 +141,9 @@ export interface SiteSettings {
   bookDescription?: string
   readOnlineTitle?: string
   readOnlinePdf?: {
+    asset?: { url: string }
+  }
+  transitionVideo?: {
     asset?: { url: string }
   }
   backgroundImage?: SanityImageSource
@@ -174,7 +178,8 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 - **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top, white text links (`text-white text-sm font-medium hover:opacity-70`); links: Back / More / Read Online / Contact
 - **Nav bar height**: always exactly 80px regardless of viewport — uses `style={{ height: '80px' }}` (not Tailwind class) and image uses inline `objectFit: 'cover'` to prevent height scaling
 - **Contact/Subscribe forms**: no background cards, no border on inputs (`border-0`), section headings use `text-xs uppercase tracking-wide text-neutral-500`
-- **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version
+- **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version; ResizeObserver measures container width and passes it to `Page` `width` prop so PDF fills container with no white space to the right
+- **Nav bar image**: brush stroke is an `<img>` with `height: 80px; width: 100%; objectFit: cover` (not CSS background-image) so height is truly fixed at 80px regardless of viewport width
 - **Pixel detection**: BookHero draws image to hidden canvas on load; click samples canvas pixel; navigates only if R+G+B < 300
 - **View transitions**: `viewTransitionName: 'book-cover'` on img in BookHero and MoreSection; `document.startViewTransition` wraps navigation when supported
 
@@ -184,7 +189,7 @@ Homepage (`page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon, bookCoverImage,
-  buyButtonText, buyButtonUrl, moreButtonText, readOnlineButtonText
+  transitionVideo { asset-> { url } }
 }
 ```
 
@@ -221,6 +226,7 @@ Contact page (`contact/page.tsx`):
 - **Edit content**: `/studio` → Homepage Settings (opens directly — singleton)
 - **Upload book PDF**: Studio → Homepage Settings → Read Online tab → Book PDF → Publish
 - **Upload background/brush stroke images**: Studio → Homepage Settings → More tab → Background Image / Brush Stroke → Publish
+- **Upload transition video**: Studio → Homepage Settings → Hero tab → Transition Video → Publish (video plays fullscreen when clicking the Enzo image, then navigates to /more)
 - **Modify schema**: Edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`
 - **Deploy code changes**: `git push origin main` → Vercel auto-deploys
 - **Add a new page**: Create `src/app/<name>/page.tsx`, add a component in `sections/`, add fields to schema, add `revalidatePath('/<name>')` to `revalidate/route.ts`
