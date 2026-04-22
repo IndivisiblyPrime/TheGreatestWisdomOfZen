@@ -41,6 +41,14 @@ export const homepageSettings = defineType({
       options: { hotspot: true },
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      name: 'transitionVideo',
+      title: 'Transition Video',
+      type: 'file',
+      group: 'hero',
+      description: 'Video shown fullscreen when clicking the book cover image. Plays before navigating to /more.',
+      options: { accept: 'video/*' },
+    }),
 
     // ─── Buttons ──────────────────────────────────────────────────────────────
     defineField({

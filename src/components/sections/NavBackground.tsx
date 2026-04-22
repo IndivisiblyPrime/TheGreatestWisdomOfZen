@@ -36,14 +36,15 @@ export function NavBackground({ backgroundImage, brushStrokeImage, children }: N
       {/* Brush stroke nav bar — fixed 80px, no animation */}
       <div
         className="absolute top-0 left-0 w-full z-20"
-        style={{
-          height: '80px',
-          overflow: 'hidden',
-          backgroundImage: brushStrokeImage ? `url(${urlFor(brushStrokeImage).width(1800).url()})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
+        style={{ height: '80px', overflow: 'hidden' }}
       >
+        {brushStrokeImage && (
+          <img
+            src={urlFor(brushStrokeImage).width(1800).url()}
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '80px', objectFit: 'cover', objectPosition: 'center' }}
+          />
+        )}
         <div className="absolute inset-0 flex items-center justify-center gap-8">
           <a href="/" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Back</a>
           <a href="/more" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap" onClick={() => sessionStorage.setItem('more-skip-anim', '1')}>More</a>
