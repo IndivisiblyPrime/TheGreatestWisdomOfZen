@@ -31,17 +31,24 @@ export function BookHero({ bookCoverImage, transitionVideoUrl }: BookHeroProps) 
   const samplePixel = useCallback((e: React.MouseEvent<HTMLDivElement>): boolean => {
     const img = imgRef.current
     const canvas = canvasRef.current
-    if (!img || !canvas) return true
+    if (!img || !canvas) return false
     const rect = img.getBoundingClientRect()
-    const x = Math.floor((e.clientX - rect.left) * img.naturalWidth / rect.width)
-    const y = Math.floor((e.clientY - rect.top) * img.naturalHeight / rect.height)
+    const naturalW = img.naturalWidth
+    const naturalH = img.naturalHeight
+    if (!naturalW || !naturalH) return false
+    // Correct for object-fit: cover — image is scaled to cover then centered/cropped
+    const scale = Math.max(rect.width / naturalW, rect.height / naturalH)
+    const offsetX = (naturalW * scale - rect.width) / 2
+    const offsetY = (naturalH * scale - rect.height) / 2
+    const x = Math.floor((e.clientX - rect.left + offsetX) / scale)
+    const y = Math.floor((e.clientY - rect.top + offsetY) / scale)
     try {
       const ctx = canvas.getContext('2d')
-      if (!ctx) return true
+      if (!ctx) return false
       const pixel = ctx.getImageData(x, y, 1, 1).data
       return pixel[0] + pixel[1] + pixel[2] < 300
     } catch {
-      return true
+      return false
     }
   }, [])
 
@@ -71,27 +78,35 @@ export function BookHero({ bookCoverImage, transitionVideoUrl }: BookHeroProps) 
   }, [samplePixel, transitionVideoUrl, navigateToMore])
 
   return (
-    <div className="h-screen flex items-center justify-center">
+    <div
+      className="relative h-screen overflow-hidden"
+      onClick={handleClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ cursor }}
+    >
       {bookCoverImage ? (
-        <div
-          onClick={handleClick}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          style={{ cursor }}
-        >
+        <>
           <canvas ref={canvasRef} className="hidden" />
           <img
             ref={imgRef}
-            src={urlFor(bookCoverImage).width(400).url()}
+            src={urlFor(bookCoverImage).width(1800).url()}
             alt="Book cover"
-            className="w-40 h-auto"
-            style={{ viewTransitionName: 'book-cover' }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              viewTransitionName: 'book-cover',
+            } as React.CSSProperties}
             crossOrigin="anonymous"
             onLoad={handleLoad}
           />
-        </div>
+        </>
       ) : (
-        <div className="flex items-center justify-center bg-neutral-100 min-h-screen w-full">
+        <div className="absolute inset-0 bg-neutral-100 flex items-center justify-center">
           <span className="text-neutral-400">Book cover image</span>
         </div>
       )}
