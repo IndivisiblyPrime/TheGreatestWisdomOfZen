@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero with a centered book cover (Enzo) image — pixel-detection cursor shows pointer only on dark/black pixels; clicking plays a fullscreen transition video (if set in Sanity) then navigates to `/more`, or navigates directly if no video is configured. The `/more` page is a full layered layout with a background image wipe, sequenced content animations, and a brush stroke nav bar. Read Online and Contact are their own dedicated pages.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero where the book cover image fills the entire screen (object-fit cover) — pixel-detection cursor shows pointer only on dark/black pixels; clicking plays a fullscreen transition video (if set in Sanity) then navigates to `/more`, or navigates directly if no video is configured. The `/more` page loads with the background immediately visible; text, book, and nav bar animate in sequentially. Read Online and Contact are their own dedicated pages.
 
 ## Commands
 
@@ -71,22 +71,21 @@ src/
 ```
 / (Homepage)
   └── BookHero ('use client')
-        └── <div onClick> wrapping hidden <canvas> + <img> book cover (Enzo)
-              — h-screen flex items-center justify-center
-              — image: w-40 h-auto (~160px), centered
-              — style: viewTransitionName: 'book-cover'
-              — canvas pixel check: R+G+B < 300 → show fullscreen video (if transitionVideoUrl set) then navigate to /more
-              — if no video configured: document.startViewTransition → router.push('/more') directly
-              — clicking empty/white areas does nothing (cursor stays default)
+        — relative h-screen overflow-hidden container with click/mousemove handlers
+        — book cover image: position absolute inset-0, w-full h-full, object-fit cover
+        — pixel detection: canvas stores natural image; samplePixel corrects for cover crop offset
+          (scale = max(displayW/naturalW, displayH/naturalH); offsetX/Y = centered crop)
+        — R+G+B < 300 → if transitionVideoUrl: show fullscreen video → onEnded navigates to /more
+        — if no video: document.startViewTransition → router.push('/more')
+        — light pixels: cursor stays default, click does nothing
 
-/more (accessible by clicking black strokes on the Enzo image)
+/more (accessible by clicking dark pixels on the homepage hero, or after video ends)
   └── MoreSection ('use client')
-        ├── sessionStorage key 'more-visited': animation runs ONCE (first arrival from homepage)
-        │     on revisit, everything is immediately visible — no animation replays
-        ├── Enzo (book cover): ALWAYS immediately visible, no animation
-        ├── Background image: wipes in from left on first visit
-        ├── Content (title + hr + description + buy button): slideInLeft/fadeIn sequence
-        └── Brush stroke nav (fixed 80px, absolute top): wipes in last on first visit
+        ├── Background image: ALWAYS immediately visible (no animation)
+        ├── sessionStorage key 'more-skip-anim': if set, everything shows immediately (no animation)
+        ├── Book page image: fadeIn 500ms at 0ms
+        ├── Content (title + hr + description + buy button): slideInLeft/fadeIn starting at 3600ms
+        └── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 7100ms, buttons fadeIn at 8600ms
               Back → / | More → /more | Read Online → /read-online | Contact → /contact
 
 /read-online and /contact share NavBackground ('use server'-compatible component):
@@ -103,14 +102,14 @@ Controlled by `sessionStorage.getItem('more-visited')`. Set on first visit; clea
 
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
-| Book cover (Enzo) | — | — | — | Always immediately visible |
-| Background image | `wipeFromLeft` | 2500ms | 0ms | |
-| Title (h1) | `slideInLeft` | 1200ms | 3000ms | |
-| HR divider | `fadeIn` | 1000ms | 3800ms | |
-| Description | `slideInLeft` | 1200ms | 4500ms | |
-| Buy button | `fadeIn` | 1000ms | 5500ms | |
-| Brush stroke nav | `wipeFromLeft` | 2000ms | 6500ms | |
-| Nav buttons | `fadeIn` | 1200ms | 8000ms | |
+| Background image | — | — | — | Always immediately visible, no animation |
+| Book page image | `fadeIn` | 500ms | 0ms | |
+| Title (h1) | `slideInLeft` | 1200ms | 3600ms | |
+| HR divider | `fadeIn` | 1000ms | 4400ms | |
+| Description | `slideInLeft` | 1200ms | 5100ms | |
+| Buy button | `fadeIn` | 1000ms | 6100ms | |
+| Brush stroke nav | `wipeFromLeft` | 2000ms | 7100ms | |
+| Nav buttons | `fadeIn` | 1200ms | 8600ms | |
 
 ## Sanity Schema (`homepageSettings.ts`)
 
