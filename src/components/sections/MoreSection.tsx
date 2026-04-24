@@ -42,10 +42,8 @@ export function MoreSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  // Animation sequence:
-  // 0ms    — Enso: always immediately visible (view transition from homepage)
+  // Animation sequence (background is always immediately visible):
   // 0ms    — Book page image: fades in (if provided)
-  // 600ms  — Background: wipes in from left
   // 3600ms — Title
   // 4400ms — HR
   // 5100ms — Description
@@ -53,7 +51,6 @@ export function MoreSection({
   // 7100ms — Brush stroke nav
   // 8600ms — Nav buttons
   const bookPageAnim  = anim('fadeIn',       '500ms',  '0ms')
-  const wipeBg        = anim('fadeIn',       '3000ms', '600ms')
   const titleAnim     = anim('slideInLeft',  '1200ms', '3600ms')
   const hrAnim        = anim('fadeIn',       '1000ms', '4400ms')
   const descAnim      = anim('slideInLeft',  '1200ms', '5100ms')
@@ -64,8 +61,8 @@ export function MoreSection({
   return (
     <div className="relative min-h-screen overflow-hidden">
 
-      {/* Background — wipes in on first visit, immediate on revisit */}
-      <div className="absolute inset-0 z-0" style={wipeBg}>
+      {/* Background — always immediately visible */}
+      <div className="absolute inset-0 z-0">
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
