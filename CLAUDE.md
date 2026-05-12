@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero where the book cover image fills the entire screen (object-fit cover) — pixel-detection cursor shows pointer only on dark/black pixels; clicking plays a fullscreen transition video (if set in Sanity) then navigates to `/more`, or navigates directly if no video is configured. The `/more` page loads with the background immediately visible; text, book, and nav bar animate in sequentially. Read Online and Contact are their own dedicated pages.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /more); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity) then navigates to `/more` seamlessly, or navigates directly if no video is configured. The `/more` page loads with the background immediately visible; text and nav bar animate in sequentially. Read Online and Contact are their own dedicated pages.
 
 ## Commands
 
@@ -44,7 +44,7 @@ src/
 │   └── studio/[[...tool]]/page.tsx    # Sanity Studio (singleton structure)
 ├── components/
 │   └── sections/
-│       ├── BookHero.tsx               # Homepage: left-aligned ~160px hero, pixel-sampled cursor, view-transition → /more
+│       ├── BookHero.tsx               # Homepage: full-screen background image, pointer cursor everywhere, click → video → /more
 │       ├── NavBackground.tsx          # Shared layout: background image + fixed 80px brush stroke nav (no animation)
 │       ├── MoreSection.tsx            # /more: layered animations (first visit only via sessionStorage), Enzo always visible
 │       ├── ReadOnlineSection.tsx      # /read-online: NavBackground wrapper + PdfReader
@@ -71,28 +71,25 @@ src/
 ```
 / (Homepage)
   └── BookHero ('use client')
-        — relative h-screen overflow-hidden container with click/mousemove handlers
-        — book cover image: position absolute inset-0, w-full h-full, object-fit cover
-        — pixel detection: canvas stores natural image; samplePixel corrects for cover crop offset
-          (scale = max(displayW/naturalW, displayH/naturalH); offsetX/Y = centered crop)
-        — R+G+B < 300 → if transitionVideoUrl: show fullscreen video → onEnded navigates to /more
-        — if no video: document.startViewTransition → router.push('/more')
-        — light pixels: cursor stays default, click does nothing
+        — relative h-screen overflow-hidden; shows backgroundImage (same image as /more)
+        — cursor is always pointer — whole screen is clickable
+        — click → if transitionVideoUrl: fixed inset-0 z-50 video overlay → onEnded navigates to /more
+        — click → if no video: document.startViewTransition → router.push('/more')
+        — seamless transition: background image on homepage matches /more, so video → /more is smooth
 
-/more (accessible by clicking dark pixels on the homepage hero, or after video ends)
+/more (accessible by clicking on the homepage hero, or after video ends)
   └── MoreSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation)
         ├── sessionStorage key 'more-skip-anim': if set, everything shows immediately (no animation)
-        ├── Book page image: fadeIn 500ms at 0ms
         ├── Content (title + hr + description + buy button): slideInLeft/fadeIn starting at 3600ms
         └── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 7100ms, buttons fadeIn at 8600ms
               Back → / | More → /more | Read Online → /read-online | Contact → /contact
 
 /read-online and /contact share NavBackground ('use server'-compatible component):
-  ├── Background image: same as /more, immediately visible (no animation)
+  ├── Background image: fixed inset-0 z-0 (fixed, not absolute — prevents PDF from scaling it)
   ├── Brush stroke nav: same image, fixed 80px at top, immediately visible
   │     Back → / | More → /more | Read Online → /read-online | Contact → /contact
-  ├── /read-online content: PdfReader (dynamically loaded, ssr: false)
+  ├── /read-online content: PdfReader (dynamically loaded, ssr: false) + italic note below
   └── /contact content: SubscribeForm + ContactForm (no bg cards, no border on inputs)
 ```
 
@@ -103,7 +100,6 @@ Controlled by `sessionStorage.getItem('more-visited')`. Set on first visit; clea
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
 | Background image | — | — | — | Always immediately visible, no animation |
-| Book page image | `fadeIn` | 500ms | 0ms | |
 | Title (h1) | `slideInLeft` | 1200ms | 3600ms | |
 | HR divider | `fadeIn` | 1000ms | 4400ms | |
 | Description | `slideInLeft` | 1200ms | 5100ms | |
@@ -118,10 +114,10 @@ Five groups:
 | Group       | Fields |
 |-------------|--------|
 | Site        | `siteTitle` (string), `siteFavicon` (image) |
-| Hero        | `bookCoverImage` (image, required), `transitionVideo` (file, accept: video/*) |
+| Hero        | `bookCoverImage` (image, legacy/unused), `transitionVideo` (file, accept: video/*) |
 | Buttons     | `buyButtonText` (default "Buy"), `buyButtonUrl` (url), `moreButtonText` (default "More"), `readOnlineButtonText` (default "Read Online") |
-| More        | `exploreHeading` (default "Explore"), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot), `brushStrokeImage` (image) |
-| Read Online | `readOnlineTitle` (default "Read Online"), `readOnlinePdf` (file, accept: pdf) |
+| More        | `exploreHeading` (default "Explore"), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `brushStrokeImage` (image) |
+| Read Online | `readOnlineTitle` (default "Read Online", legacy/unused), `readOnlinePdf` (file, accept: pdf) |
 
 **Singleton setup:** `structure.ts` configures `homepageSettings` as a singleton with fixed `documentId: "homepageSettings"` — clicking it in Studio opens the form directly, no list view.
 
