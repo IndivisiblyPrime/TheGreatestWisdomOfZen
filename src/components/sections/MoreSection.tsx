@@ -6,8 +6,6 @@ import { urlFor } from "@/sanity/lib/image"
 
 interface MoreSectionProps {
   bookDescription?: string
-  bookCoverImage?: SanityImageSource
-  bookPageImage?: SanityImageSource
   buyButtonUrl?: string
   backgroundImage?: SanityImageSource
   brushStrokeImage?: SanityImageSource
@@ -15,8 +13,6 @@ interface MoreSectionProps {
 
 export function MoreSection({
   bookDescription,
-  bookCoverImage,
-  bookPageImage,
   buyButtonUrl,
   backgroundImage,
   brushStrokeImage,
@@ -42,15 +38,6 @@ export function MoreSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  // Animation sequence (background is always immediately visible):
-  // 0ms    — Book page image: fades in (if provided)
-  // 3600ms — Title
-  // 4400ms — HR
-  // 5100ms — Description
-  // 6100ms — Buy button
-  // 7100ms — Brush stroke nav
-  // 8600ms — Nav buttons
-  const bookPageAnim  = anim('fadeIn',       '500ms',  '0ms')
   const titleAnim     = anim('slideInLeft',  '1200ms', '3600ms')
   const hrAnim        = anim('fadeIn',       '1000ms', '4400ms')
   const descAnim      = anim('slideInLeft',  '1200ms', '5100ms')
@@ -76,18 +63,6 @@ export function MoreSection({
 
       {/* Content — vertically centered, matches homepage Enso position */}
       <div className="relative z-10 flex items-center min-h-screen px-16">
-
-        {/* Book page image */}
-        {bookPageImage && (
-          <div className="flex-shrink-0">
-            <img
-              src={urlFor(bookPageImage).width(500).url()}
-              alt="Book"
-              className="block w-52 h-auto"
-              style={bookPageAnim}
-            />
-          </div>
-        )}
 
         {/* Title + Description + Buy */}
         <div className="ml-12 max-w-lg">

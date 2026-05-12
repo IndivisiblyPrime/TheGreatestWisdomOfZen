@@ -21,7 +21,6 @@ export interface SiteSettings {
       url: string;
     };
   };
-  bookPageImage?: SanityImageSource;
   backgroundImage?: SanityImageSource;
   brushStrokeImage?: SanityImageSource;
 }
