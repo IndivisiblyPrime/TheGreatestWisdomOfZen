@@ -14,16 +14,15 @@ interface PdfReaderProps {
 export function PdfReader({ pdfUrl }: PdfReaderProps) {
   const [numPages, setNumPages] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageWidth, setPageWidth] = useState<number>(0)
+  const [pageHeight, setPageHeight] = useState<number>(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    setPageWidth(el.clientWidth)
-    const ro = new ResizeObserver(([entry]) => setPageWidth(entry.contentRect.width))
-    ro.observe(el)
-    return () => ro.disconnect()
+    // Height-based sizing: subtract nav (80px), vertical padding (96px), buttons + gap (~80px)
+    const update = () => setPageHeight(Math.min(Math.max(300, window.innerHeight - 256), 600))
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
   }, [])
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
@@ -31,28 +30,35 @@ export function PdfReader({ pdfUrl }: PdfReaderProps) {
     setCurrentPage(1)
   }, [])
 
+  const changePage = useCallback((delta: number) => {
+    const scrollY = window.scrollY
+    setCurrentPage(p => p + delta)
+    // Restore scroll position after react-pdf re-renders the new page
+    setTimeout(() => window.scrollTo({ top: scrollY, behavior: 'instant' }), 50)
+  }, [])
+
   const btnClass =
     'border border-black bg-white px-8 py-3 text-sm text-black transition-colors hover:bg-black hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black'
 
   return (
-    <div className="max-w-2xl mx-auto" ref={containerRef}>
+    <div className="mx-auto flex flex-col items-center" ref={containerRef}>
       <Document
         file={pdfUrl}
         onLoadSuccess={onDocumentLoadSuccess}
         loading={
-          <div className="flex items-center justify-center border border-black/10 bg-neutral-50" style={{ height: '85vh' }}>
+          <div className="flex items-center justify-center border border-black/10 bg-neutral-50" style={{ height: pageHeight || '85vh' }}>
             <p className="text-neutral-400 text-sm">Loading…</p>
           </div>
         }
         error={
-          <div className="flex items-center justify-center border border-black/10 bg-neutral-50" style={{ height: '85vh' }}>
+          <div className="flex items-center justify-center border border-black/10 bg-neutral-50" style={{ height: pageHeight || '85vh' }}>
             <p className="text-neutral-400 text-sm">Failed to load PDF.</p>
           </div>
         }
       >
         <Page
           pageNumber={currentPage}
-          width={pageWidth || undefined}
+          height={pageHeight || undefined}
           className="border border-black/10"
         />
       </Document>
@@ -60,8 +66,9 @@ export function PdfReader({ pdfUrl }: PdfReaderProps) {
       {numPages > 0 && (
         <div className="flex items-center justify-center gap-6 mt-6">
           <button
+            type="button"
             className={btnClass}
-            onClick={() => setCurrentPage((p) => p - 1)}
+            onClick={() => changePage(-1)}
             disabled={currentPage <= 1}
           >
             ← Prev
@@ -70,8 +77,9 @@ export function PdfReader({ pdfUrl }: PdfReaderProps) {
             {currentPage} / {numPages}
           </span>
           <button
+            type="button"
             className={btnClass}
-            onClick={() => setCurrentPage((p) => p + 1)}
+            onClick={() => changePage(1)}
             disabled={currentPage >= numPages}
           >
             Next →

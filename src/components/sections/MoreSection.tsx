@@ -38,12 +38,12 @@ export function MoreSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  const titleAnim     = anim('slideInLeft',  '1200ms', '3600ms')
-  const hrAnim        = anim('fadeIn',       '1000ms', '4400ms')
-  const descAnim      = anim('slideInLeft',  '1200ms', '5100ms')
-  const buyAnim       = anim('fadeIn',       '1000ms', '6100ms')
-  const brushWipeAnim = anim('wipeFromLeft', '2000ms', '7100ms')
-  const navAnim       = anim('fadeIn',       '1200ms', '8600ms')
+  const titleAnim     = anim('slideInLeft',  '1200ms', '300ms')
+  const hrAnim        = anim('fadeIn',       '1000ms', '1100ms')
+  const descAnim      = anim('slideInLeft',  '1200ms', '1800ms')
+  const buyAnim       = anim('fadeIn',       '1000ms', '2800ms')
+  const brushWipeAnim = anim('wipeFromLeft', '2000ms', '3800ms')
+  const navAnim       = anim('fadeIn',       '1200ms', '5300ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">

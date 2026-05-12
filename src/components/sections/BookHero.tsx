@@ -2,7 +2,7 @@
 
 import { urlFor } from "@/sanity/lib/image"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
-import { useRef, useState, useCallback } from "react"
+import { useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 
 interface BookHeroProps {
@@ -12,7 +12,6 @@ interface BookHeroProps {
 
 export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps) {
   const router = useRouter()
-  const [showVideo, setShowVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const navigateToMore = useCallback(() => {
@@ -24,8 +23,11 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
   }, [router])
 
   const handleClick = useCallback(() => {
-    if (transitionVideoUrl) {
-      setShowVideo(true)
+    if (transitionVideoUrl && videoRef.current) {
+      // Only start playing if not already playing
+      if (videoRef.current.paused) {
+        videoRef.current.play()
+      }
     } else {
       navigateToMore()
     }
@@ -37,7 +39,7 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
       onClick={handleClick}
       style={{ cursor: 'pointer' }}
     >
-      {/* Background image — always visible, seamless with /more */}
+      {/* Background image — fallback while video loads, or when no video */}
       <div className="absolute inset-0 z-0">
         {backgroundImage ? (
           <img
@@ -50,19 +52,16 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
         )}
       </div>
 
-      {/* Fullscreen video overlay — shown on click */}
-      {showVideo && transitionVideoUrl && (
-        <div className="fixed inset-0 z-50">
-          <video
-            ref={videoRef}
-            key={transitionVideoUrl}
-            src={transitionVideoUrl}
-            autoPlay
-            playsInline
-            className="w-full h-full object-cover"
-            onEnded={navigateToMore}
-          />
-        </div>
+      {/* Video — always rendered when available, paused on first frame until clicked */}
+      {transitionVideoUrl && (
+        <video
+          ref={videoRef}
+          src={transitionVideoUrl}
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover z-10"
+          onEnded={navigateToMore}
+        />
       )}
     </div>
   )
