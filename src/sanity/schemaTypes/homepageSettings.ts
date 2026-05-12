@@ -37,9 +37,8 @@ export const homepageSettings = defineType({
       title: 'Book Cover Image',
       type: 'image',
       group: 'hero',
-      description: 'The tall full-width scrollable book photo shown on the homepage.',
+      description: 'Legacy field — no longer displayed on the homepage.',
       options: { hotspot: true },
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'transitionVideo',
@@ -98,14 +97,6 @@ export const homepageSettings = defineType({
       description: 'Text shown in the Description accordion on the /more page',
     }),
 
-    defineField({
-      name: 'bookPageImage',
-      title: 'Book Page Image',
-      type: 'image',
-      group: 'more',
-      description: 'Optional book mockup image shown behind the Enso on the /more page. Appears first in the animation sequence.',
-      options: { hotspot: true },
-    }),
     defineField({
       name: 'backgroundImage',
       title: 'Background Image',

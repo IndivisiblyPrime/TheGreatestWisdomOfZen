@@ -9,7 +9,6 @@ import { ReadOnlineSection } from "@/components/sections/ReadOnlineSection"
 const READ_ONLINE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  readOnlineTitle,
   readOnlinePdf { asset-> { url } },
   backgroundImage,
   brushStrokeImage
@@ -41,7 +40,6 @@ export default async function ReadOnlinePage() {
     <main>
       <ReadOnlineSection
         pdfUrl={settings?.readOnlinePdf?.asset?.url}
-        readOnlineTitle={settings?.readOnlineTitle}
         backgroundImage={settings?.backgroundImage}
         brushStrokeImage={settings?.brushStrokeImage}
       />

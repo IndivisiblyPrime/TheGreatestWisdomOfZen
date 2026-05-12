@@ -15,8 +15,8 @@ export function NavBackground({ backgroundImage, brushStrokeImage, children }: N
   return (
     <div className="relative min-h-screen overflow-hidden">
 
-      {/* Background — immediately visible */}
-      <div className="absolute inset-0 z-0">
+      {/* Background — fixed to viewport so tall content (e.g. PDF) doesn't scale it */}
+      <div className="fixed inset-0 z-0">
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
