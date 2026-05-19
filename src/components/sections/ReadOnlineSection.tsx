@@ -27,6 +27,9 @@ export function ReadOnlineSection({ pdfUrl, backgroundImage, brushStrokeImage }:
         <p className="mt-8 text-sm text-center text-neutral-600 italic">
           Note: This is a blank book. That&apos;s the joke. May its humor and simplicity bring clarity or at least a good laugh
         </p>
+        <p className="mt-3 text-sm text-center text-neutral-600 italic">
+          Published by Neti Neti LLC
+        </p>
       </section>
     </NavBackground>
   )

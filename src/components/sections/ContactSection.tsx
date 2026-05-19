@@ -198,6 +198,7 @@ export function ContactSection({ backgroundImage, brushStrokeImage }: ContactSec
   return (
     <NavBackground backgroundImage={backgroundImage} brushStrokeImage={brushStrokeImage}>
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
+        <p className="mb-8 text-sm text-neutral-600 text-center">Fill out the forms below to get in contact with Neti Neti LLC</p>
         <div className="space-y-8 max-w-lg w-full">
           <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
             <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Mailing list <span className="normal-case tracking-normal">(zero spam or marketing emails)</span></p>
