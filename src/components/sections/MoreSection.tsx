@@ -82,6 +82,9 @@ export function MoreSection({
           >
             Buy
           </a>
+          <p className="mt-3 text-sm italic text-neutral-700" style={buyAnim}>
+            Published by Neti Neti LLC
+          </p>
         </div>
       </div>
 
