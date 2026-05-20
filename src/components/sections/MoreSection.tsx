@@ -61,11 +61,11 @@ export function MoreSection({
         )}
       </div>
 
-      {/* Content — vertically centered, matches homepage Enso position */}
-      <div className="relative z-10 flex items-center min-h-screen px-16">
+      {/* Content — centered */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-8">
 
         {/* Title + Description + Buy */}
-        <div className="ml-12 max-w-lg">
+        <div className="max-w-lg w-full text-center">
           <h1 className="text-3xl font-bold" style={titleAnim}>
             The Greatest Wisdom of Zen
           </h1>
