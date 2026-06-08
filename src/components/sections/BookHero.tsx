@@ -62,30 +62,32 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
         )}
       </div>
 
-      {/* Video — always rendered when available, paused on first frame until clicked */}
+      {/* Video — always rendered when available, paused on first frame until clicked.
+          #t=0.001 forces iOS Safari to seek + paint the first frame on load (mobile fix). */}
       {transitionVideoUrl && (
         <video
           ref={videoRef}
-          src={transitionVideoUrl}
+          src={`${transitionVideoUrl}#t=0.001`}
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover z-10"
+          onLoadedMetadata={() => {
+            // Belt-and-braces: explicitly seek so the first frame renders on mobile
+            if (videoRef.current && videoRef.current.currentTime === 0) {
+              videoRef.current.currentTime = 0.001
+            }
+          }}
           onEnded={navigateToMore}
         />
       )}
 
-      {/* "Click to continue" prompt — appears after 7s, blinks until clicked */}
+      {/* "Click to continue" prompt — appears after 7s, smoothly fades in/out until clicked */}
       {showPrompt && transitionVideoUrl && (
         <div
-          className="absolute top-[12%] left-1/2 -translate-x-1/2 z-20 pointer-events-none whitespace-nowrap"
-          style={{ animation: 'blink 1.2s linear infinite' }}
+          className="absolute bottom-[6%] left-1/2 -translate-x-1/2 z-20 pointer-events-none whitespace-nowrap"
+          style={{ animation: 'pulseFade 3.5s ease-in-out infinite' }}
         >
-          <span
-            className="text-white font-bold text-2xl border-2 border-black px-5 py-2 inline-block"
-            style={{
-              textShadow: '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000',
-            }}
-          >
+          <span className="text-black font-bold text-2xl">
             Click to continue
           </span>
         </div>
