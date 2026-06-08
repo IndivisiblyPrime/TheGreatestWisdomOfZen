@@ -64,8 +64,8 @@ export function MoreSection({
       {/* Content — centered */}
       <div className="relative z-10 flex items-center justify-center min-h-screen px-8">
 
-        {/* Title + Description + Buy */}
-        <div className="max-w-lg w-full text-center">
+        {/* Title + Description + Buy — block stays centered, text aligns left */}
+        <div className="max-w-lg w-full text-left">
           <h1 className="text-3xl font-bold" style={titleAnim}>
             The Greatest Wisdom of Zen
           </h1>

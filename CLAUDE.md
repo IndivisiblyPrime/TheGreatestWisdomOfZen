@@ -76,12 +76,14 @@ src/
         — click → if transitionVideoUrl: fixed inset-0 z-50 video overlay → onEnded navigates to /more
         — click → if no video: document.startViewTransition → router.push('/more')
         — seamless transition: background image on homepage matches /more, so video → /more is smooth
+        — video src has `#t=0.001` + onLoadedMetadata seek to force first-frame render on iOS/mobile
+        — "Click to continue" prompt: appears after 7s, black text (no box), bottom-centered, smooth pulseFade in/out
 
 /more (accessible by clicking on the homepage hero, or after video ends)
   └── MoreSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation)
         ├── sessionStorage key 'more-skip-anim': if set, everything shows immediately (no animation)
-        ├── Content (title + hr + description + buy button): slideInLeft/fadeIn starting at 3600ms
+        ├── Content (title + hr + description + buy button): left-aligned text inside a centered max-w-lg block; slideInLeft/fadeIn starting at 3600ms
         └── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 7100ms, buttons fadeIn at 8600ms
               Back → / | More → /more | Read Online → /read-online | Contact → /contact
 
