@@ -77,7 +77,7 @@ export function MoreSection({
           )}
           <a
             href={buyButtonUrl}
-            className="mt-6 inline-block border border-black px-6 py-2 text-sm hover:bg-black hover:text-white transition-colors"
+            className="mt-6 inline-block border border-black bg-black text-white px-6 py-2 text-sm hover:bg-white hover:text-black transition-colors"
             style={buyAnim}
           >
             Buy

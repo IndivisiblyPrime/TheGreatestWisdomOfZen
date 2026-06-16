@@ -59,7 +59,7 @@ export function PdfReader({ pdfUrl }: PdfReaderProps) {
         <Page
           pageNumber={currentPage}
           height={pageHeight || undefined}
-          className="border border-black/10"
+          className="border border-black/15 shadow-[0_6px_30px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
         />
       </Document>
 
