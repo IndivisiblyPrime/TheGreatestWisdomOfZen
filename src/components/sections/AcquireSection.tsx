@@ -39,12 +39,12 @@ export function AcquireSection({
   }
 
   // Top-down sequence: brush stroke → nav buttons → title → hr → description → Acquire button
-  const brushWipeAnim = anim('wipeFromLeft', '870ms', '0ms')
-  const navAnim       = anim('fadeIn',       '530ms', '550ms')
-  const titleAnim     = anim('slideInLeft',  '530ms', '1000ms')
-  const hrAnim        = anim('fadeIn',       '400ms', '1350ms')
-  const descAnim      = anim('slideInLeft',  '530ms', '1600ms')
-  const buyAnim       = anim('fadeIn',       '470ms', '2150ms')
+  const brushWipeAnim = anim('wipeFromLeft', '1080ms', '0ms')
+  const navAnim       = anim('fadeIn',       '660ms',  '690ms')
+  const titleAnim     = anim('slideInLeft',  '660ms',  '1250ms')
+  const hrAnim        = anim('fadeIn',       '500ms',  '1700ms')
+  const descAnim      = anim('slideInLeft',  '660ms',  '2000ms')
+  const buyAnim       = anim('fadeIn',       '590ms',  '2700ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
