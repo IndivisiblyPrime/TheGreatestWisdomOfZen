@@ -4,28 +4,28 @@ import { useState, useEffect } from "react"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { urlFor } from "@/sanity/lib/image"
 
-interface MoreSectionProps {
+interface AcquireSectionProps {
   bookDescription?: string
   buyButtonUrl?: string
   backgroundImage?: SanityImageSource
   brushStrokeImage?: SanityImageSource
 }
 
-export function MoreSection({
+export function AcquireSection({
   bookDescription,
   buyButtonUrl,
   backgroundImage,
   brushStrokeImage,
-}: MoreSectionProps) {
+}: AcquireSectionProps) {
   // 'hidden'   — before client mount (SSR), everything opacity:0
   // 'animating' — first visit, run the full sequence
   // 'visible'  — revisit, show everything immediately
   const [phase, setPhase] = useState<'hidden' | 'animating' | 'visible'>('hidden')
 
   useEffect(() => {
-    const skip = sessionStorage.getItem('more-skip-anim')
+    const skip = sessionStorage.getItem('acquire-skip-anim')
     if (skip) {
-      sessionStorage.removeItem('more-skip-anim')
+      sessionStorage.removeItem('acquire-skip-anim')
       setPhase('visible')
     } else {
       setPhase('animating')
@@ -38,12 +38,12 @@ export function MoreSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  const titleAnim     = anim('slideInLeft',  '1200ms', '300ms')
-  const hrAnim        = anim('fadeIn',       '1000ms', '1100ms')
-  const descAnim      = anim('slideInLeft',  '1200ms', '1800ms')
-  const buyAnim       = anim('fadeIn',       '1000ms', '2800ms')
-  const brushWipeAnim = anim('wipeFromLeft', '2000ms', '3800ms')
-  const navAnim       = anim('fadeIn',       '1200ms', '5300ms')
+  const titleAnim     = anim('slideInLeft',  '800ms',  '200ms')
+  const hrAnim        = anim('fadeIn',       '600ms',  '700ms')
+  const descAnim      = anim('slideInLeft',  '800ms',  '1200ms')
+  const buyAnim       = anim('fadeIn',       '700ms',  '1200ms')
+  const brushWipeAnim = anim('wipeFromLeft', '1300ms', '2000ms')
+  const navAnim       = anim('fadeIn',       '800ms',  '3300ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -64,7 +64,7 @@ export function MoreSection({
       {/* Content — centered */}
       <div className="relative z-10 flex items-center justify-center min-h-screen px-8">
 
-        {/* Title + Description + Buy — block stays centered, text aligns left */}
+        {/* Title + Description + Acquire — block stays centered, text aligns left */}
         <div className="max-w-lg w-full text-left">
           <h1 className="text-3xl font-bold" style={titleAnim}>
             The Greatest Wisdom of Zen
@@ -77,10 +77,10 @@ export function MoreSection({
           )}
           <a
             href={buyButtonUrl}
-            className="mt-6 inline-block border border-black bg-black text-white px-6 py-2 text-sm hover:bg-white hover:text-black transition-colors"
+            className="mt-6 inline-block border border-black bg-white text-black px-6 py-2 text-sm hover:bg-black hover:text-white transition-colors"
             style={buyAnim}
           >
-            Buy
+            Acquire
           </a>
           <p className="mt-3 text-sm italic text-neutral-700" style={buyAnim}>
             Published by Neti Neti LLC
@@ -102,8 +102,7 @@ export function MoreSection({
         )}
         <div className="absolute inset-0 flex items-center justify-center gap-8" style={navAnim}>
           <a href="/" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Back</a>
-          <a href="/more" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap" onClick={() => sessionStorage.setItem('more-skip-anim', '1')}>More</a>
-          <a href="/read-online" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Read Online</a>
+          <a href="/acquire" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap" onClick={() => sessionStorage.setItem('acquire-skip-anim', '1')}>More</a>
           <a href="/contact" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Contact</a>
         </div>
       </div>

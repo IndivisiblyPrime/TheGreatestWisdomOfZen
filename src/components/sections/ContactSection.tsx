@@ -201,7 +201,7 @@ export function ContactSection({ backgroundImage, brushStrokeImage }: ContactSec
         <p className="mb-8 text-sm text-neutral-600 text-center">Fill out the forms below to get in contact with Neti Neti LLC</p>
         <div className="space-y-8 max-w-lg w-full">
           <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
-            <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Mailing list <span className="normal-case tracking-normal">(zero spam or marketing emails)</span></p>
+            <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Join the mailing list <span className="normal-case tracking-normal">(zero spam or marketing emails)</span></p>
             <SubscribeForm />
           </div>
           <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
