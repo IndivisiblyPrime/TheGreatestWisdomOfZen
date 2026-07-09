@@ -90,14 +90,14 @@ src/
   └── AcquireSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation)
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
-        ├── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 0ms, buttons fadeIn at 550ms — animates FIRST (top-down sequence)
+        ├── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 0ms, buttons fadeIn at 690ms — animates FIRST (top-down sequence)
         │     Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
-        └── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title at 1000ms, hr at 1350ms, description at 1600ms, button + publisher line at 2150ms
+        └── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title at 1250ms, hr at 1700ms, description at 2000ms, button + publisher line at 2700ms
 
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
 
 /reviews uses NavBackground (same shell as /contact):
-  └── ReviewsSection: centered max-w-lg column — 4.5-star row + "4.5 out of 5" heading, then five hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Four 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!") with an indented reply "Ah, you are getting it." signed with a small ensō SVG. No Sanity content beyond background/brush images.
+  └── ReviewsSection: centered max-w-lg column — header has big "4.5 out of 5" + larger star row + "Reader Reviews" on the LEFT and a transparent ensō image (`public/enso.png`) on the RIGHT, hr below. Then seven hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", third) with an indented reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". No Sanity content beyond background/brush images.
 
 /read-online — DISABLED. Route calls notFound() immediately; no nav link points to it anywhere. Component code (ReadOnlineSection, PdfReader) and Sanity fields (readOnlinePdf, readOnlineTitle) are untouched in case it needs to come back — see "Re-enabling /read-online" below.
 
@@ -118,17 +118,17 @@ src/
 
 Controlled by `sessionStorage.getItem('acquire-skip-anim')` (set when navigating internally via the "Acquire" nav link, so revisits skip the animation). Cleared when browser session ends.
 
-Top-down order (brush stroke first), 1.5× faster than the previous sequence:
+Top-down order (brush stroke first):
 
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
 | Background image | — | — | — | Always immediately visible, no animation |
-| Brush stroke nav | `wipeFromLeft` | 870ms | 0ms | Animates first |
-| Nav buttons | `fadeIn` | 530ms | 550ms | Right after the brush stroke |
-| Title (h1) | `slideInLeft` | 530ms | 1000ms | |
-| HR divider | `fadeIn` | 400ms | 1350ms | |
-| Description | `slideInLeft` | 530ms | 1600ms | |
-| Acquire button + publisher line | `fadeIn` | 470ms | 2150ms | Last |
+| Brush stroke nav | `wipeFromLeft` | 1080ms | 0ms | Animates first |
+| Nav buttons | `fadeIn` | 660ms | 690ms | Right after the brush stroke |
+| Title (h1) | `slideInLeft` | 660ms | 1250ms | |
+| HR divider | `fadeIn` | 500ms | 1700ms | |
+| Description | `slideInLeft` | 660ms | 2000ms | |
+| Acquire button + publisher line | `fadeIn` | 590ms | 2700ms | Last |
 
 ## Sanity Schema (`homepageSettings.ts`)
 

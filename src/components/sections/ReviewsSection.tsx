@@ -29,28 +29,6 @@ function Stars({ rating, className }: { rating: number; className?: string }) {
   )
 }
 
-// ─── Enso (hand-drawn incomplete circle) ───────────────────────────────────────
-
-function Enso({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      className="inline-block align-middle"
-      aria-label="ensō"
-    >
-      <path
-        d="M13.5 3.2a9 9 0 1 0 6.8 6.3"
-        fill="none"
-        stroke="black"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
 // ─── Reviews data ──────────────────────────────────────────────────────────────
 
 const reviews: {
@@ -85,6 +63,16 @@ const reviews: {
     text: "My book club has been discussing it in silence for three years now. We are so close.",
     author: "Margaret, Book Club President",
   },
+  {
+    rating: 5,
+    text: "This book said nothing. I heard everything.",
+    author: "An Enlightened Customer",
+  },
+  {
+    rating: 5,
+    text: "Worth every penny. I especially liked the part where my expectations died.",
+    author: "A Former Seeker",
+  },
 ]
 
 // ─── Reviews Section ───────────────────────────────────────────────────────────
@@ -100,11 +88,21 @@ export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSec
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
         <div className="max-w-lg w-full">
 
-          {/* Overall rating */}
-          <div className="text-center mb-10">
-            <Stars rating={4.5} className="text-3xl tracking-widest" />
-            <p className="mt-2 text-2xl font-bold">4.5 out of 5</p>
-            <hr className="border-black my-4" />
+          {/* Overall rating — big text + stars on the left, ensō on the right */}
+          <div className="mb-10">
+            <div className="flex items-center justify-between gap-6">
+              <div>
+                <p className="text-4xl md:text-5xl font-bold whitespace-nowrap">4.5 out of 5</p>
+                <Stars rating={4.5} className="mt-3 block text-3xl md:text-4xl tracking-widest" />
+                <p className="mt-4 text-lg text-neutral-700">Reader Reviews</p>
+              </div>
+              <img
+                src="/enso.png"
+                alt="ensō"
+                className="w-24 md:w-32 h-auto shrink-0"
+              />
+            </div>
+            <hr className="border-black mt-6" />
           </div>
 
           {/* Individual reviews */}
@@ -122,8 +120,8 @@ export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSec
                     <p className="text-sm leading-relaxed text-neutral-800">
                       &ldquo;{review.reply.text}&rdquo;
                     </p>
-                    <p className="mt-2 text-sm text-neutral-600">
-                      — <Enso />
+                    <p className="mt-2 text-sm italic text-neutral-600">
+                      — Author of The Greatest Wisdom of Zen
                     </p>
                   </div>
                 )}
