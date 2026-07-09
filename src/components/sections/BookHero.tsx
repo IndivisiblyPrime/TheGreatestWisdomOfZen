@@ -23,11 +23,11 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
     return () => clearTimeout(timerRef.current)
   }, [transitionVideoUrl])
 
-  const navigateToMore = useCallback(() => {
+  const navigateToAcquire = useCallback(() => {
     if ('startViewTransition' in document) {
-      document.startViewTransition(() => router.push('/more'))
+      document.startViewTransition(() => router.push('/acquire'))
     } else {
-      router.push('/more')
+      router.push('/acquire')
     }
   }, [router])
 
@@ -36,12 +36,13 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
     setShowPrompt(false)
     if (transitionVideoUrl && videoRef.current) {
       if (videoRef.current.paused) {
+        videoRef.current.playbackRate = 1.5
         videoRef.current.play()
       }
     } else {
-      navigateToMore()
+      navigateToAcquire()
     }
-  }, [transitionVideoUrl, navigateToMore])
+  }, [transitionVideoUrl, navigateToAcquire])
 
   return (
     <div
@@ -77,7 +78,7 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
               videoRef.current.currentTime = 0.001
             }
           }}
-          onEnded={navigateToMore}
+          onEnded={navigateToAcquire}
         />
       )}
 

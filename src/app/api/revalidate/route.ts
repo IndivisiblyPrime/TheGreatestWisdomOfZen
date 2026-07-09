@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
     })
 
     revalidatePath('/')
+    revalidatePath('/acquire')
     revalidatePath('/more')
-    revalidatePath('/read-online')
     revalidatePath('/contact')
 
     return NextResponse.json(

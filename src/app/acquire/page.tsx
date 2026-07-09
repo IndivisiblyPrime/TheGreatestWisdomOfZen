@@ -1,23 +1,22 @@
 export const revalidate = 60
 
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { SiteSettings } from "@/lib/types"
-import { ReadOnlineSection } from "@/components/sections/ReadOnlineSection"
+import { AcquireSection } from "@/components/sections/AcquireSection"
 
-const READ_ONLINE_QUERY = `*[_type == "homepageSettings"][0]{
+const ACQUIRE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  readOnlinePdf { asset-> { url } },
-  backgroundImage,
-  brushStrokeImage
+  backgroundImage, brushStrokeImage,
+  buyButtonText, buyButtonUrl,
+  bookDescription
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
   try {
-    return await client.fetch(READ_ONLINE_QUERY)
+    return await client.fetch(ACQUIRE_QUERY)
   } catch {
     return null
   }
@@ -34,15 +33,14 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// /read-online is disabled — code kept in place in case we want to bring it back.
-export default async function ReadOnlinePage() {
-  notFound()
+export default async function AcquirePage() {
   const settings = await getSettings()
 
   return (
     <main>
-      <ReadOnlineSection
-        pdfUrl={settings?.readOnlinePdf?.asset?.url}
+      <AcquireSection
+        bookDescription={settings?.bookDescription}
+        buyButtonUrl={settings?.buyButtonUrl}
         backgroundImage={settings?.backgroundImage}
         brushStrokeImage={settings?.brushStrokeImage}
       />

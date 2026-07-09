@@ -45,7 +45,7 @@ export const homepageSettings = defineType({
       title: 'Transition Video',
       type: 'file',
       group: 'hero',
-      description: 'Video shown fullscreen when clicking the book cover image. Plays before navigating to /more.',
+      description: 'Video shown fullscreen when clicking the book cover image. Plays before navigating to /acquire.',
       options: { accept: 'video/*' },
     }),
 
@@ -86,7 +86,7 @@ export const homepageSettings = defineType({
       type: 'string',
       group: 'more',
       initialValue: 'Explore',
-      description: 'Large heading on the /more page',
+      description: 'Large heading on the /acquire page',
     }),
     defineField({
       name: 'bookDescription',
@@ -94,7 +94,7 @@ export const homepageSettings = defineType({
       type: 'text',
       group: 'more',
       rows: 6,
-      description: 'Text shown in the Description accordion on the /more page',
+      description: 'Text shown in the Description accordion on the /acquire page',
     }),
 
     defineField({
@@ -102,7 +102,7 @@ export const homepageSettings = defineType({
       title: 'Background Image',
       type: 'image',
       group: 'more',
-      description: 'Wide background scene shown behind the /more page content.',
+      description: 'Wide background scene shown behind the /acquire page content.',
       options: { hotspot: true },
     }),
     defineField({
@@ -110,7 +110,7 @@ export const homepageSettings = defineType({
       title: 'Brush Stroke (Nav Bar)',
       type: 'image',
       group: 'more',
-      description: 'Wide horizontal black brush stroke overlaid at the top of /more. Should be much wider than tall.',
+      description: 'Wide horizontal black brush stroke overlaid at the top of /acquire. Should be much wider than tall.',
       options: { hotspot: false },
     }),
 
