@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; text and nav bar animate in sequentially. Contact is its own dedicated page.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; nav bar and text animate in top-down. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with five reviews, four 5-star jokes and one 1-star ("There is nothing in this thing! It is empty!") answered by an ensō.
 
 `/read-online` is currently **disabled** — the route, component, and PDF reader code are all still in the repo (in case it's needed again), but the page returns a 404 and there is no nav link to it. See "Disabled: /read-online" below.
 
@@ -41,18 +41,21 @@ src/
 │   │   └── page.tsx                   # DISABLED — calls notFound() before rendering; ReadOnlineSection/PdfReader kept in place
 │   ├── contact/
 │   │   └── page.tsx                   # /contact route — renders ContactSection
+│   ├── reviews/
+│   │   └── page.tsx                   # /reviews route — renders ReviewsSection (joke reviews, hardcoded)
 │   ├── api/
 │   │   ├── contact/route.ts           # POST — contact form → Resend email
 │   │   ├── subscribe/route.ts         # POST — email subscribe → Resend notification
-│   │   └── revalidate/route.ts        # POST — Sanity webhook → revalidates /, /acquire, /more, /contact
+│   │   └── revalidate/route.ts        # POST — Sanity webhook → revalidates /, /acquire, /more, /contact, /reviews
 │   └── studio/[[...tool]]/page.tsx    # Sanity Studio (singleton structure)
 ├── components/
 │   └── sections/
-│       ├── BookHero.tsx               # Homepage: full-screen background image, pointer cursor everywhere, click → video (1.5x playback) → /acquire
-│       ├── NavBackground.tsx          # Shared layout: background image + fixed 80px brush stroke nav (no animation) — used by /contact only
+│       ├── BookHero.tsx               # Homepage: full-screen background image, pointer cursor everywhere, click → video (2x playback) → /acquire
+│       ├── NavBackground.tsx          # Shared layout: background image + fixed 80px brush stroke nav (no animation) — used by /contact and /reviews
 │       ├── AcquireSection.tsx         # /acquire: layered animations (first visit only via sessionStorage), Acquire button always visible
 │       ├── ReadOnlineSection.tsx      # DISABLED (route returns 404) — kept in place, not currently linked or reachable
 │       ├── ContactSection.tsx         # /contact: NavBackground wrapper + SubscribeForm + ContactForm
+│       ├── ReviewsSection.tsx         # /reviews: NavBackground wrapper + hardcoded joke reviews (stars, ensō SVG reply)
 │       └── PdfReader.tsx              # DISABLED (only used by ReadOnlineSection) — react-pdf page-by-page reader
 ├── sanity/
 │   ├── env.ts
@@ -77,7 +80,7 @@ src/
   └── BookHero ('use client')
         — relative h-screen overflow-hidden; shows backgroundImage (same image as /acquire)
         — cursor is always pointer — whole screen is clickable
-        — click → if transitionVideoUrl: fixed inset-0 z-50 video overlay, playbackRate set to 1.5x → onEnded navigates to /acquire
+        — click → if transitionVideoUrl: fixed inset-0 z-50 video overlay, playbackRate set to 2x → onEnded navigates to /acquire
         — click → if no video: document.startViewTransition → router.push('/acquire')
         — seamless transition: background image on homepage matches /acquire, so video → /acquire is smooth
         — video src has `#t=0.001` + onLoadedMetadata seek to force first-frame render on iOS/mobile
@@ -87,18 +90,21 @@ src/
   └── AcquireSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation)
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
-        ├── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; slideInLeft/fadeIn starting at 200ms, description/button/publisher line animate in together at 1200ms
-        └── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 2000ms, buttons fadeIn at 3300ms
-              Back → / | More → /acquire | Contact → /contact
+        ├── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 0ms, buttons fadeIn at 550ms — animates FIRST (top-down sequence)
+        │     Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
+        └── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title at 1000ms, hr at 1350ms, description at 1600ms, button + publisher line at 2150ms
 
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
+
+/reviews uses NavBackground (same shell as /contact):
+  └── ReviewsSection: centered max-w-lg column — 4.5-star row + "4.5 out of 5" heading, then five hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Four 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!") with an indented reply "Ah, you are getting it." signed with a small ensō SVG. No Sanity content beyond background/brush images.
 
 /read-online — DISABLED. Route calls notFound() immediately; no nav link points to it anywhere. Component code (ReadOnlineSection, PdfReader) and Sanity fields (readOnlinePdf, readOnlineTitle) are untouched in case it needs to come back — see "Re-enabling /read-online" below.
 
 /contact uses NavBackground ('use server'-compatible component):
   ├── Background image: fixed inset-0 z-0 (fixed, not absolute)
   ├── Brush stroke nav: same image, fixed 80px at top, immediately visible
-  │     Back → / | More → /acquire | Contact → /contact
+  │     Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
   └── Content: SubscribeForm + ContactForm (no bg cards, no border on inputs)
 ```
 
@@ -110,17 +116,19 @@ src/
 
 ## Animation Sequence on /acquire (first visit only)
 
-Controlled by `sessionStorage.getItem('acquire-skip-anim')` (set when navigating internally via the "More" nav link, so revisits skip the animation). Cleared when browser session ends.
+Controlled by `sessionStorage.getItem('acquire-skip-anim')` (set when navigating internally via the "Acquire" nav link, so revisits skip the animation). Cleared when browser session ends.
+
+Top-down order (brush stroke first), 1.5× faster than the previous sequence:
 
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
 | Background image | — | — | — | Always immediately visible, no animation |
-| Title (h1) | `slideInLeft` | 800ms | 200ms | |
-| HR divider | `fadeIn` | 600ms | 700ms | |
-| Description | `slideInLeft` | 800ms | 1200ms | |
-| Acquire button + publisher line | `fadeIn` | 700ms | 1200ms | Starts alongside the description, not after it |
-| Brush stroke nav | `wipeFromLeft` | 1300ms | 2000ms | |
-| Nav buttons | `fadeIn` | 800ms | 3300ms | |
+| Brush stroke nav | `wipeFromLeft` | 870ms | 0ms | Animates first |
+| Nav buttons | `fadeIn` | 530ms | 550ms | Right after the brush stroke |
+| Title (h1) | `slideInLeft` | 530ms | 1000ms | |
+| HR divider | `fadeIn` | 400ms | 1350ms | |
+| Description | `slideInLeft` | 530ms | 1600ms | |
+| Acquire button + publisher line | `fadeIn` | 470ms | 2150ms | Last |
 
 ## Sanity Schema (`homepageSettings.ts`)
 
@@ -177,7 +185,7 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 ## ISR / Revalidation
 
 - Pages use `export const revalidate = 60` — auto-refresh every 60 seconds as a fallback
-- Sanity webhook (ID: `ibtJnljD4nkDRklM`) fires on any document create/update/delete → POSTs to `https://thegreatestwisdomofzen.com/api/revalidate?secret=...` → instantly revalidates `/`, `/acquire`, `/more`, `/contact`
+- Sanity webhook (ID: `ibtJnljD4nkDRklM`) fires on any document create/update/delete → POSTs to `https://thegreatestwisdomofzen.com/api/revalidate?secret=...` → instantly revalidates `/`, `/acquire`, `/more`, `/contact`, `/reviews`
 - Publishing in Studio → live site updates immediately (no Vercel redeploy needed)
 - Code changes require `git push origin main` → Vercel auto-deploys
 
@@ -186,7 +194,7 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 - **Theme**: Minimal black & white — white background, black text/borders
 - **Buttons** (PDF nav, buy links): `border border-black px-6 py-2 text-sm`, inverts on hover
 - **Acquire button** (`/acquire`): starts `bg-white text-black`, inverts to `bg-black text-white` on hover
-- **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top, white text links (`text-white text-sm font-medium hover:opacity-70`); links: Back / More / Contact (Read Online link removed while disabled)
+- **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top, white text links (`text-white text-sm font-medium hover:opacity-70`); links: Back / Acquire / Reviews / Contact (Read Online link removed while disabled)
 - **Nav bar height**: always exactly 80px regardless of viewport — uses `style={{ height: '80px' }}` (not Tailwind class) and image uses inline `objectFit: 'cover'` to prevent height scaling
 - **Contact/Subscribe forms**: no background cards, no border on inputs (`border-0`), section headings use `text-xs uppercase tracking-wide text-neutral-500`
 - **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version; ResizeObserver measures container width and passes it to `Page` `width` prop so PDF fills container with no white space to the right
@@ -236,7 +244,7 @@ Contact page (`contact/page.tsx`):
 - **Edit content**: `/studio` → Homepage Settings (opens directly — singleton)
 - **Upload book PDF**: Studio → Homepage Settings → Read Online tab → Book PDF → Publish (unused while /read-online is disabled)
 - **Upload background/brush stroke images**: Studio → Homepage Settings → More tab → Background Image / Brush Stroke → Publish
-- **Upload transition video**: Studio → Homepage Settings → Hero tab → Transition Video → Publish (video plays fullscreen at 1.5x speed when clicking the Enzo image, then navigates to /acquire)
+- **Upload transition video**: Studio → Homepage Settings → Hero tab → Transition Video → Publish (video plays fullscreen at 2x speed when clicking the Enzo image, then navigates to /acquire)
 - **Modify schema**: Edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`
 - **Deploy code changes**: `git push origin main` → Vercel auto-deploys
 - **Add a new page**: Create `src/app/<name>/page.tsx`, add a component in `sections/`, add fields to schema, add `revalidatePath('/<name>')` to `revalidate/route.ts`

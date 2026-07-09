@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     revalidatePath('/acquire')
     revalidatePath('/more')
     revalidatePath('/contact')
+    revalidatePath('/reviews')
 
     return NextResponse.json(
       {

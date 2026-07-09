@@ -38,12 +38,13 @@ export function AcquireSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  const titleAnim     = anim('slideInLeft',  '800ms',  '200ms')
-  const hrAnim        = anim('fadeIn',       '600ms',  '700ms')
-  const descAnim      = anim('slideInLeft',  '800ms',  '1200ms')
-  const buyAnim       = anim('fadeIn',       '700ms',  '1200ms')
-  const brushWipeAnim = anim('wipeFromLeft', '1300ms', '2000ms')
-  const navAnim       = anim('fadeIn',       '800ms',  '3300ms')
+  // Top-down sequence: brush stroke → nav buttons → title → hr → description → Acquire button
+  const brushWipeAnim = anim('wipeFromLeft', '870ms', '0ms')
+  const navAnim       = anim('fadeIn',       '530ms', '550ms')
+  const titleAnim     = anim('slideInLeft',  '530ms', '1000ms')
+  const hrAnim        = anim('fadeIn',       '400ms', '1350ms')
+  const descAnim      = anim('slideInLeft',  '530ms', '1600ms')
+  const buyAnim       = anim('fadeIn',       '470ms', '2150ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -102,7 +103,8 @@ export function AcquireSection({
         )}
         <div className="absolute inset-0 flex items-center justify-center gap-8" style={navAnim}>
           <a href="/" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Back</a>
-          <a href="/acquire" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap" onClick={() => sessionStorage.setItem('acquire-skip-anim', '1')}>More</a>
+          <a href="/acquire" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap" onClick={() => sessionStorage.setItem('acquire-skip-anim', '1')}>Acquire</a>
+          <a href="/reviews" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Reviews</a>
           <a href="/contact" className="text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap">Contact</a>
         </div>
       </div>
