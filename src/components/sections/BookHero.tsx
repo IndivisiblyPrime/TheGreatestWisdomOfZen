@@ -36,7 +36,7 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
     setShowPrompt(false)
     if (transitionVideoUrl && videoRef.current) {
       if (videoRef.current.paused) {
-        videoRef.current.playbackRate = 1.5
+        videoRef.current.playbackRate = 2
         videoRef.current.play()
       }
     } else {
