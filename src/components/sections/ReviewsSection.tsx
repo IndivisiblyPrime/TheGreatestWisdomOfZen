@@ -93,8 +93,7 @@ export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSec
             <div className="flex items-center justify-between gap-6">
               <div>
                 <p className="text-4xl md:text-5xl font-bold whitespace-nowrap">4.5 out of 5</p>
-                <Stars rating={4.5} className="mt-3 block text-3xl md:text-4xl tracking-widest" />
-                <p className="mt-4 text-lg text-neutral-700">Reader Reviews</p>
+                <Stars rating={4.5} className="mt-3 block text-6xl md:text-7xl tracking-widest" />
               </div>
               <img
                 src="/enso.png"

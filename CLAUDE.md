@@ -97,7 +97,7 @@ src/
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
 
 /reviews uses NavBackground (same shell as /contact):
-  └── ReviewsSection: centered max-w-lg column — header has big "4.5 out of 5" + larger star row + "Reader Reviews" on the LEFT and a transparent ensō image (`public/enso.png`) on the RIGHT, hr below. Then seven hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", third) with an indented reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". No Sanity content beyond background/brush images.
+  └── ReviewsSection: centered max-w-lg column — header has big "4.5 out of 5" + oversized star row (text-6xl/7xl) on the LEFT and a transparent ensō image (`public/enso.png`) on the RIGHT, hr below. Then seven hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", third) with an indented reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". No Sanity content beyond background/brush images.
 
 /read-online — DISABLED. Route calls notFound() immediately; no nav link points to it anywhere. Component code (ReadOnlineSection, PdfReader) and Sanity fields (readOnlinePdf, readOnlineTitle) are untouched in case it needs to come back — see "Re-enabling /read-online" below.
 
