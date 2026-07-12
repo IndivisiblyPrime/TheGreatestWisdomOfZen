@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; nav bar and text animate in top-down. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with five reviews, four 5-star jokes and one 1-star ("There is nothing in this thing! It is empty!") answered by an ensō.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; nav bar and text animate in top-down. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing in this thing! It is empty!") with an in-character author reply.
 
 `/read-online` is currently **disabled** — the route, component, and PDF reader code are all still in the repo (in case it's needed again), but the page returns a 404 and there is no nav link to it. See "Disabled: /read-online" below.
 
@@ -97,7 +97,7 @@ src/
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
 
 /reviews uses NavBackground (same shell as /contact):
-  └── ReviewsSection: centered max-w-lg column — header has big "4.5 out of 5" + oversized star row (text-6xl/7xl) on the LEFT and a transparent ensō image (`public/enso.png`) on the RIGHT, hr below. Then seven hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", third) with an indented reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". No Sanity content beyond background/brush images.
+  └── ReviewsSection: centered max-w-lg column — header has big "4.5 out of 5" + oversized star row (text-6xl/7xl), centered, hr below (ensō image removed — `public/enso.png` is unused but left in place). Then seven hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", third) with an indented reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". No Sanity content beyond background/brush images.
 
 /read-online — DISABLED. Route calls notFound() immediately; no nav link points to it anywhere. Component code (ReadOnlineSection, PdfReader) and Sanity fields (readOnlinePdf, readOnlineTitle) are untouched in case it needs to come back — see "Re-enabling /read-online" below.
 
