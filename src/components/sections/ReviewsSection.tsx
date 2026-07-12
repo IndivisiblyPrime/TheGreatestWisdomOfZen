@@ -88,20 +88,11 @@ export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSec
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
         <div className="max-w-lg w-full">
 
-          {/* Overall rating — big text + stars on the left, ensō on the right */}
-          <div className="mb-10">
-            <div className="flex items-center justify-between gap-6">
-              <div>
-                <p className="text-4xl md:text-5xl font-bold whitespace-nowrap">4.5 out of 5</p>
-                <Stars rating={4.5} className="mt-3 block text-6xl md:text-7xl tracking-widest" />
-              </div>
-              <img
-                src="/enso.png"
-                alt="ensō"
-                className="w-24 md:w-32 h-auto shrink-0"
-              />
-            </div>
-            <hr className="border-black mt-6" />
+          {/* Overall rating — big text + stars, centered */}
+          <div className="mb-10 flex flex-col items-center text-center">
+            <p className="text-4xl md:text-5xl font-bold whitespace-nowrap">4.5 out of 5</p>
+            <Stars rating={4.5} className="mt-3 block text-6xl md:text-7xl tracking-widest" />
+            <hr className="border-black mt-6 w-full" />
           </div>
 
           {/* Individual reviews */}
