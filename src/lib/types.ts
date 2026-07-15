@@ -21,6 +21,12 @@ export interface SiteSettings {
       url: string;
     };
   };
+  transitionVideoMobile?: {
+    asset?: {
+      url: string;
+    };
+  };
   backgroundImage?: SanityImageSource;
+  backgroundImageMobile?: SanityImageSource;
   brushStrokeImage?: SanityImageSource;
 }

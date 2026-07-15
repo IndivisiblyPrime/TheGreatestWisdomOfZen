@@ -9,8 +9,9 @@ import { BookHero } from "@/components/sections/BookHero"
 const SETTINGS_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  backgroundImage,
-  transitionVideo { asset-> { url } }
+  backgroundImage, backgroundImageMobile,
+  transitionVideo { asset-> { url } },
+  transitionVideoMobile { asset-> { url } }
 }`
 
 async function getSettings(): Promise<SiteSettings | null> {
@@ -40,7 +41,9 @@ export default async function Home() {
     <main>
       <BookHero
         backgroundImage={settings?.backgroundImage}
+        backgroundImageMobile={settings?.backgroundImageMobile}
         transitionVideoUrl={settings?.transitionVideo?.asset?.url}
+        transitionVideoMobileUrl={settings?.transitionVideoMobile?.asset?.url}
       />
     </main>
   )
