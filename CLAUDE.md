@@ -125,6 +125,7 @@ Top-down order (brush stroke first):
 | Background image | — | — | — | Always immediately visible, no animation |
 | Brush stroke nav | `wipeFromLeft` | 1080ms | 0ms | Animates first |
 | Nav buttons | `fadeIn` | 660ms | 690ms | Right after the brush stroke |
+| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/20 backdrop-blur-sm`, same style as Contact page cards) wraps the whole title/description/button block; wipes in left-to-right in sync with the text, finishing as the Acquire button/publisher line settle |
 | Title (h1) | `slideInLeft` | 660ms | 1250ms | |
 | HR divider | `fadeIn` | 500ms | 1700ms | |
 | Description | `slideInLeft` | 660ms | 2000ms | |
