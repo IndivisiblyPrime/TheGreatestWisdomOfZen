@@ -39,12 +39,13 @@ export function AcquireSection({
   }
 
   // Top-down sequence: brush stroke → nav buttons → title → hr → description → Acquire button
-  const brushWipeAnim = anim('wipeFromLeft', '1080ms', '0ms')
-  const navAnim       = anim('fadeIn',       '660ms',  '690ms')
-  const titleAnim     = anim('slideInLeft',  '660ms',  '1250ms')
-  const hrAnim        = anim('fadeIn',       '500ms',  '1700ms')
-  const descAnim      = anim('slideInLeft',  '660ms',  '2000ms')
-  const buyAnim       = anim('fadeIn',       '590ms',  '2700ms')
+  const brushWipeAnim   = anim('wipeFromLeft', '1080ms', '0ms')
+  const navAnim         = anim('fadeIn',       '660ms',  '690ms')
+  const backdropWipeAnim = anim('wipeFromLeft', '2040ms', '1250ms')
+  const titleAnim       = anim('slideInLeft',  '660ms',  '1250ms')
+  const hrAnim          = anim('fadeIn',       '500ms',  '1700ms')
+  const descAnim        = anim('slideInLeft',  '660ms',  '2000ms')
+  const buyAnim         = anim('fadeIn',       '590ms',  '2700ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -66,7 +67,10 @@ export function AcquireSection({
       <div className="relative z-10 flex items-center justify-center min-h-screen px-8">
 
         {/* Title + Description + Acquire — block stays centered, text aligns left */}
-        <div className="max-w-lg w-full text-left">
+        <div
+          className="max-w-lg w-full text-left rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6"
+          style={{ ...backdropWipeAnim, overflow: 'hidden' }}
+        >
           <h1 className="text-3xl font-bold" style={titleAnim}>
             The Greatest Wisdom of Zen
           </h1>
