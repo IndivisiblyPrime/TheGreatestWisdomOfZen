@@ -9,7 +9,7 @@ import { AcquireSection } from "@/components/sections/AcquireSection"
 const ACQUIRE_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  backgroundImage, brushStrokeImage,
+  backgroundImage, backgroundImageMobile, brushStrokeImage,
   buyButtonText, buyButtonUrl,
   bookDescription
 }`
@@ -42,6 +42,7 @@ export default async function AcquirePage() {
         bookDescription={settings?.bookDescription}
         buyButtonUrl={settings?.buyButtonUrl}
         backgroundImage={settings?.backgroundImage}
+        backgroundImageMobile={settings?.backgroundImageMobile}
         brushStrokeImage={settings?.brushStrokeImage}
       />
     </main>

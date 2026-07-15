@@ -48,6 +48,14 @@ export const homepageSettings = defineType({
       description: 'Video shown fullscreen when clicking the book cover image. Plays before navigating to /acquire.',
       options: { accept: 'video/*' },
     }),
+    defineField({
+      name: 'transitionVideoMobile',
+      title: 'Transition Video (Mobile)',
+      type: 'file',
+      group: 'hero',
+      description: 'Optional — shown instead of Transition Video on narrow screens (under 768px wide). Falls back to Transition Video if left empty. Both videos are always downloaded so the correct one can play instantly if the browser is resized.',
+      options: { accept: 'video/*' },
+    }),
 
     // ─── Buttons ──────────────────────────────────────────────────────────────
     defineField({
@@ -102,7 +110,15 @@ export const homepageSettings = defineType({
       title: 'Background Image',
       type: 'image',
       group: 'more',
-      description: 'Wide background scene shown behind the /acquire page content.',
+      description: 'Wide background scene shown behind the /acquire page content. Also used on the homepage.',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'backgroundImageMobile',
+      title: 'Background Image (Mobile)',
+      type: 'image',
+      group: 'more',
+      description: 'Optional — shown instead of Background Image on narrow screens (under 768px wide), on both the homepage and /acquire. Falls back to Background Image if left empty.',
       options: { hotspot: true },
     }),
     defineField({

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code when working in this repository.
 
 **The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; nav bar and text animate in top-down. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing in this thing! It is empty!") with an in-character author reply.
 
+The homepage and `/acquire` background image, and the homepage transition video, each have an optional mobile-specific variant (see "Mobile assets" below) that swaps in below the `md:` breakpoint (768px) via pure CSS — so it reacts live if the browser window is resized, not just on page load.
+
 `/read-online` is currently **disabled** — the route, component, and PDF reader code are all still in the repo (in case it's needed again), but the page returns a 404 and there is no nav link to it. See "Disabled: /read-online" below.
 
 ## Commands
@@ -85,14 +87,15 @@ src/
         — seamless transition: background image on homepage matches /acquire, so video → /acquire is smooth
         — video src has `#t=0.001` + onLoadedMetadata seek to force first-frame render on iOS/mobile
         — "Click to continue" prompt: appears after 7s, black text (no box), bottom-centered, smooth pulseFade in/out
+        — Mobile assets: both desktop and mobile `<img>`/`<video>` elements are always mounted; Tailwind `hidden md:block` / `md:hidden` classes pick which is shown, so it updates instantly on resize. Both videos are downloaded up front (accepted bandwidth tradeoff — avoids a JS-driven single-mount that wouldn't react to a mid-session resize). Click handler picks the active `<video>` ref via `window.matchMedia('(min-width: 768px)')` at click time, matching the CSS breakpoint.
 
 /acquire (accessible by clicking on the homepage hero, or after video ends)
   └── AcquireSection ('use client')
-        ├── Background image: ALWAYS immediately visible (no animation)
+        ├── Background image: ALWAYS immediately visible (no animation); same desktop/mobile CSS-swap pattern as BookHero
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
         ├── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 0ms, buttons fadeIn at 690ms — animates FIRST (top-down sequence)
         │     Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
-        └── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title at 1250ms, hr at 1700ms, description at 2000ms, button + publisher line at 2700ms
+        └── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title at 1250ms, hr at 1700ms, description at 2000ms, button + publisher line at 2000ms (same time as the description)
 
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
 
@@ -129,7 +132,7 @@ Top-down order (brush stroke first):
 | Title (h1) | `slideInLeft` | 660ms | 1250ms | |
 | HR divider | `fadeIn` | 500ms | 1700ms | |
 | Description | `slideInLeft` | 660ms | 2000ms | |
-| Acquire button + publisher line | `fadeIn` | 590ms | 2700ms | Last |
+| Acquire button + publisher line | `fadeIn` | 590ms | 2000ms | Starts together with the description, not after it |
 
 ## Sanity Schema (`homepageSettings.ts`)
 
@@ -138,9 +141,9 @@ Five groups:
 | Group       | Fields |
 |-------------|--------|
 | Site        | `siteTitle` (string), `siteFavicon` (image) |
-| Hero        | `bookCoverImage` (image, legacy/unused), `transitionVideo` (file, accept: video/*) |
+| Hero        | `bookCoverImage` (image, legacy/unused), `transitionVideo` (file, accept: video/*), `transitionVideoMobile` (file, accept: video/*, optional — falls back to `transitionVideo` under 768px) |
 | Buttons     | `buyButtonText` (default "Buy", legacy/unused — button text is hardcoded "Acquire" in `AcquireSection.tsx`), `buyButtonUrl` (url), `moreButtonText` (default "More", legacy/unused), `readOnlineButtonText` (default "Read Online", legacy/unused — /read-online disabled) |
-| More        | `exploreHeading` (default "Explore", legacy/unused), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `brushStrokeImage` (image). Group internally still named `more`; feeds the `/acquire` page. |
+| More        | `exploreHeading` (default "Explore", legacy/unused), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `backgroundImageMobile` (image, hotspot, optional — falls back to `backgroundImage` under 768px, on both homepage and /acquire), `brushStrokeImage` (image). Group internally still named `more`; feeds the `/acquire` page. |
 | Read Online | `readOnlineTitle` (default "Read Online", legacy/unused), `readOnlinePdf` (file, accept: pdf) — fields kept for when /read-online is re-enabled |
 
 **Singleton setup:** `structure.ts` configures `homepageSettings` as a singleton with fixed `documentId: "homepageSettings"` — clicking it in Studio opens the form directly, no list view.
@@ -165,7 +168,11 @@ export interface SiteSettings {
   transitionVideo?: {
     asset?: { url: string }
   }
+  transitionVideoMobile?: {
+    asset?: { url: string }
+  }
   backgroundImage?: SanityImageSource
+  backgroundImageMobile?: SanityImageSource
   brushStrokeImage?: SanityImageSource
 }
 ```
@@ -200,7 +207,6 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 - **Contact/Subscribe forms**: no background cards, no border on inputs (`border-0`), section headings use `text-xs uppercase tracking-wide text-neutral-500`
 - **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version; ResizeObserver measures container width and passes it to `Page` `width` prop so PDF fills container with no white space to the right
 - **Nav bar image**: brush stroke is an `<img>` with `height: 80px; width: 100%; objectFit: cover` (not CSS background-image) so height is truly fixed at 80px regardless of viewport width
-- **Pixel detection**: BookHero draws image to hidden canvas on load; click samples canvas pixel; navigates only if R+G+B < 300
 - **View transitions**: `document.startViewTransition` wraps the homepage → /acquire navigation when supported by the browser
 
 ## GROQ Queries
@@ -208,8 +214,10 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 Homepage (`page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
-  siteTitle, siteFavicon, bookCoverImage,
-  transitionVideo { asset-> { url } }
+  siteTitle, siteFavicon,
+  backgroundImage, backgroundImageMobile,
+  transitionVideo { asset-> { url } },
+  transitionVideoMobile { asset-> { url } }
 }
 ```
 
@@ -217,7 +225,7 @@ Acquire page (`acquire/page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon,
-  backgroundImage, brushStrokeImage,
+  backgroundImage, backgroundImageMobile, brushStrokeImage,
   buyButtonText, buyButtonUrl,
   bookDescription
 }
@@ -245,7 +253,9 @@ Contact page (`contact/page.tsx`):
 - **Edit content**: `/studio` → Homepage Settings (opens directly — singleton)
 - **Upload book PDF**: Studio → Homepage Settings → Read Online tab → Book PDF → Publish (unused while /read-online is disabled)
 - **Upload background/brush stroke images**: Studio → Homepage Settings → More tab → Background Image / Brush Stroke → Publish
+- **Upload mobile background image**: Studio → Homepage Settings → More tab → Background Image (Mobile) → Publish (optional; used on homepage + /acquire under 768px wide)
 - **Upload transition video**: Studio → Homepage Settings → Hero tab → Transition Video → Publish (video plays fullscreen at 2x speed when clicking the Enzo image, then navigates to /acquire)
+- **Upload mobile transition video**: Studio → Homepage Settings → Hero tab → Transition Video (Mobile) → Publish (optional; used under 768px wide)
 - **Modify schema**: Edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`
 - **Deploy code changes**: `git push origin main` → Vercel auto-deploys
 - **Add a new page**: Create `src/app/<name>/page.tsx`, add a component in `sections/`, add fields to schema, add `revalidatePath('/<name>')` to `revalidate/route.ts`

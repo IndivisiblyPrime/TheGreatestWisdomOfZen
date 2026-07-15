@@ -7,14 +7,25 @@ import { useRouter } from "next/navigation"
 
 interface BookHeroProps {
   backgroundImage?: SanityImageSource
+  backgroundImageMobile?: SanityImageSource
   transitionVideoUrl?: string
+  transitionVideoMobileUrl?: string
 }
 
-export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps) {
+export function BookHero({
+  backgroundImage,
+  backgroundImageMobile,
+  transitionVideoUrl,
+  transitionVideoMobileUrl,
+}: BookHeroProps) {
   const router = useRouter()
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const desktopVideoRef = useRef<HTMLVideoElement>(null)
+  const mobileVideoRef = useRef<HTMLVideoElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [showPrompt, setShowPrompt] = useState(false)
+
+  const mobileVideoUrl = transitionVideoMobileUrl || transitionVideoUrl
+  const mobileImage = backgroundImageMobile || backgroundImage
 
   // Show "Click to continue" after 7 seconds of no interaction
   useEffect(() => {
@@ -31,18 +42,26 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
     }
   }, [router])
 
+  // Matches the `md:` breakpoint (768px) used below, so JS and CSS agree on
+  // which of the two video elements is currently the visible one.
+  const getActiveVideoRef = useCallback(() => {
+    const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
+    return isDesktop ? desktopVideoRef : mobileVideoRef
+  }, [])
+
   const handleClick = useCallback(() => {
     clearTimeout(timerRef.current)
     setShowPrompt(false)
-    if (transitionVideoUrl && videoRef.current) {
-      if (videoRef.current.paused) {
-        videoRef.current.playbackRate = 2
-        videoRef.current.play()
+    if (transitionVideoUrl) {
+      const video = getActiveVideoRef().current
+      if (video && video.paused) {
+        video.playbackRate = 2
+        video.play()
       }
     } else {
       navigateToAcquire()
     }
-  }, [transitionVideoUrl, navigateToAcquire])
+  }, [transitionVideoUrl, getActiveVideoRef, navigateToAcquire])
 
   return (
     <div
@@ -50,8 +69,8 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
       onClick={handleClick}
       style={{ cursor: 'pointer' }}
     >
-      {/* Background image — fallback while video loads, or when no video */}
-      <div className="absolute inset-0 z-0">
+      {/* Background image — fallback while video loads, or when no video. Desktop/mobile variants swap via CSS, so they stay in sync with a resized browser. */}
+      <div className="absolute inset-0 z-0 hidden md:block">
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
@@ -62,20 +81,47 @@ export function BookHero({ backgroundImage, transitionVideoUrl }: BookHeroProps)
           <div className="w-full h-full bg-neutral-100" />
         )}
       </div>
+      <div className="absolute inset-0 z-0 md:hidden">
+        {mobileImage ? (
+          <img
+            src={urlFor(mobileImage).width(1200).url()}
+            alt=""
+            className="w-full h-full object-cover object-center"
+          />
+        ) : (
+          <div className="w-full h-full bg-neutral-100" />
+        )}
+      </div>
 
       {/* Video — always rendered when available, paused on first frame until clicked.
-          #t=0.001 forces iOS Safari to seek + paint the first frame on load (mobile fix). */}
+          #t=0.001 forces iOS Safari to seek + paint the first frame on load (mobile fix).
+          Both desktop and mobile videos are mounted and preloaded; CSS picks which is
+          shown so a mid-session resize never shows the wrong one. */}
       {transitionVideoUrl && (
         <video
-          ref={videoRef}
+          ref={desktopVideoRef}
           src={`${transitionVideoUrl}#t=0.001`}
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-10"
+          className="absolute inset-0 w-full h-full object-cover z-10 hidden md:block"
           onLoadedMetadata={() => {
-            // Belt-and-braces: explicitly seek so the first frame renders on mobile
-            if (videoRef.current && videoRef.current.currentTime === 0) {
-              videoRef.current.currentTime = 0.001
+            if (desktopVideoRef.current && desktopVideoRef.current.currentTime === 0) {
+              desktopVideoRef.current.currentTime = 0.001
+            }
+          }}
+          onEnded={navigateToAcquire}
+        />
+      )}
+      {mobileVideoUrl && (
+        <video
+          ref={mobileVideoRef}
+          src={`${mobileVideoUrl}#t=0.001`}
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover z-10 md:hidden"
+          onLoadedMetadata={() => {
+            if (mobileVideoRef.current && mobileVideoRef.current.currentTime === 0) {
+              mobileVideoRef.current.currentTime = 0.001
             }
           }}
           onEnded={navigateToAcquire}
