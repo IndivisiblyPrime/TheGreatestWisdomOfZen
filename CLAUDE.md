@@ -53,11 +53,11 @@ src/
 ├── components/
 │   └── sections/
 │       ├── BookHero.tsx               # Homepage: full-screen background image, pointer cursor everywhere, click → video (2x playback) → /acquire
-│       ├── NavBackground.tsx          # Shared layout: background image + fixed 80px brush stroke nav (no animation) — used by /contact and /reviews
-│       ├── AcquireSection.tsx         # /acquire: layered animations (first visit only via sessionStorage), Acquire button always visible
+│       ├── NavBackground.tsx          # Shared layout: background image + fixed 80px brush stroke nav, current-page link underlined — used by /contact and /reviews
+│       ├── AcquireSection.tsx         # /acquire: layered animations (first visit only via sessionStorage), Acquire button always visible; own copy of the brush-stroke nav (current-page link underlined)
 │       ├── ReadOnlineSection.tsx      # DISABLED (route returns 404) — kept in place, not currently linked or reachable
 │       ├── ContactSection.tsx         # /contact: NavBackground wrapper + SubscribeForm + ContactForm
-│       ├── ReviewsSection.tsx         # /reviews: NavBackground wrapper + hardcoded joke reviews (stars, ensō SVG reply)
+│       ├── ReviewsSection.tsx         # /reviews: NavBackground wrapper + hardcoded joke reviews in a 2-col card grid (SVG stars, Fraunces serif accents)
 │       └── PdfReader.tsx              # DISABLED (only used by ReadOnlineSection) — react-pdf page-by-page reader
 ├── sanity/
 │   ├── env.ts
@@ -100,7 +100,9 @@ src/
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
 
 /reviews uses NavBackground (same shell as /contact):
-  └── ReviewsSection: centered max-w-lg column — header has big "4.5 out of 5" + oversized star row (text-6xl/7xl), centered, hr below (ensō image removed — `public/enso.png` is unused but left in place). Then seven hardcoded joke review cards (border border-black, bg-white/70 backdrop-blur). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", third) with an indented reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". No Sanity content beyond background/brush images.
+  └── ReviewsSection: centered max-w-3xl column. Header card (rounded-lg, border-black/10, bg-white/70 backdrop-blur) holds a large "4.5" in Fraunces (serif — echoes the book cover's own lettering) with an SVG star row beneath, no spelled-out "out of 5"/review count (deliberately terse). Below that, seven hardcoded joke reviews render as cards in a `grid md:grid-cols-2` (single column on mobile) — same rounded/soft-border/glass treatment as the header card and as /acquire's content card, each with a decorative oversized Fraunces closing-quote mark inset fully inside the card (top-2 right-4 — do not use a negative top offset here, see note below). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", 3rd, `md:col-span-2` so its indented reply has room) with reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". Order (top to bottom): Lao Tzu, Margaret (Book Club President), the 1-star/reply, A Devoted Student, The Dalai Lama, An Enlightened Customer, A Former Seeker. Cards fade/slide in with a short staggered entrance on mount (`fadeSlideUp` keyframe in globals.css), skipped entirely for `prefers-reduced-motion`. Stars are inline SVGs (see `STAR_PATH`/`StarIcon` in ReviewsSection.tsx) with precise percentage clip-path fill, not the "★" text glyph — crisper at large sizes and consistent across browsers. No Sanity content beyond background/brush images.
+
+  **Quote-mark clipping gotcha:** the decorative quote glyph must sit fully inside the card's box (positive `top`/inset), not straddle the edge with a negative offset. A text span's line-box is taller than the glyph's visible ink, and the ink sits near the top of that box — a negative `top` (meant to let the glyph "bleed" off the corner) pulls most of the box above the card's `overflow-hidden` clip line while the ink (concentrated near the top of the box) gets disproportionately clipped, reading as "sitting outside the card" rather than a clean bleed. Verified by comparing `getBoundingClientRect()` of the card vs. the glyph span directly, not by eyeballing a screenshot.
 
 /read-online — DISABLED. Route calls notFound() immediately; no nav link points to it anywhere. Component code (ReadOnlineSection, PdfReader) and Sanity fields (readOnlinePdf, readOnlineTitle) are untouched in case it needs to come back — see "Re-enabling /read-online" below.
 
@@ -202,11 +204,12 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 - **Theme**: Minimal black & white — white background, black text/borders
 - **Buttons** (PDF nav, buy links): `border border-black px-6 py-2 text-sm`, inverts on hover
 - **Acquire button** (`/acquire`): starts `bg-white text-black`, inverts to `bg-black text-white` on hover
-- **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top, white text links (`text-white text-sm font-medium hover:opacity-70`); links: Back / Acquire / Reviews / Contact (Read Online link removed while disabled)
+- **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top, white text links (`text-white text-sm font-medium hover:opacity-70`); links: Back / Acquire / Reviews / Contact (Read Online link removed while disabled). The current page's link gets `underline underline-offset-4` (via `usePathname()` compared against each link's `href`) — implemented independently in both `NavBackground.tsx` and `AcquireSection.tsx` since the latter doesn't reuse the former.
 - **Nav bar height**: always exactly 80px regardless of viewport — uses `style={{ height: '80px' }}` (not Tailwind class) and image uses inline `objectFit: 'cover'` to prevent height scaling
+- **Brush-stroke image crop**: the source art fades to sparse/frayed bristles in roughly its left 20% and has a soft dark vignette past its right ~95% — at the bar's actual on-screen aspect ratio, `object-fit: cover` alone shows the source's full width with zero horizontal cropping (height is the non-binding constraint), so those soft edges are always visible by default. Both nav bars counter this with an oversized, shifted image (`width: '133.3%', left: '-26.7%'`) so only the solid-ink middle ~75% shows. Requires `maxWidth: 'none'` in the same inline style — Tailwind's preflight sets `img { max-width: 100% }`, which otherwise silently clamps the oversized width back down to 100% and the image just slides instead of zooming (verify with `getBoundingClientRect()`, not a screenshot — the discrepancy is easy to miss by eye).
 - **Contact/Subscribe forms**: no background cards, no border on inputs (`border-0`), section headings use `text-xs uppercase tracking-wide text-neutral-500`
 - **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version; ResizeObserver measures container width and passes it to `Page` `width` prop so PDF fills container with no white space to the right
-- **Nav bar image**: brush stroke is an `<img>` with `height: 80px; width: 100%; objectFit: cover` (not CSS background-image) so height is truly fixed at 80px regardless of viewport width
+- **Nav bar image**: brush stroke is an `<img>` with `height: 80px; objectFit: cover` (not CSS background-image) so height is truly fixed at 80px regardless of viewport width — width is oversized to 133.3% for the crop described above, not a plain 100%
 - **View transitions**: `document.startViewTransition` wraps the homepage → /acquire navigation when supported by the browser
 
 ## GROQ Queries
