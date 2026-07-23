@@ -164,13 +164,13 @@ function SubscribeForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
       <input
         type="email"
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="flex-1 border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+        className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none sm:flex-1"
         placeholder="your@email.com"
       />
       {status === "error" && (
@@ -179,7 +179,7 @@ function SubscribeForm() {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white disabled:opacity-50"
+        className="w-full border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white disabled:opacity-50 sm:w-auto"
       >
         {status === "sending" ? "…" : "Subscribe"}
       </button>
@@ -200,11 +200,11 @@ export function ContactSection({ backgroundImage, brushStrokeImage }: ContactSec
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
         <p className="mb-8 text-sm text-neutral-600 text-center">Fill out the forms below to get in contact with Neti Neti LLC</p>
         <div className="space-y-8 max-w-lg w-full">
-          <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
+          <div className="rounded border border-gray-300/40 bg-white/70 backdrop-blur-sm p-6">
             <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Join the mailing list <span className="normal-case tracking-normal">(zero spam or marketing emails)</span></p>
             <SubscribeForm />
           </div>
-          <div className="rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6">
+          <div className="rounded border border-gray-300/40 bg-white/70 backdrop-blur-sm p-6">
             <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Contact</p>
             <ContactForm />
           </div>

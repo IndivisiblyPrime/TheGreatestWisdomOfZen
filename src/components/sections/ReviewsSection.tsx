@@ -129,7 +129,7 @@ export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSec
           </div>
 
           {/* Individual reviews */}
-          <div className="grid gap-5 md:grid-cols-2 items-start">
+          <div className="grid gap-5 md:grid-cols-2 auto-rows-[minmax(240px,auto)]">
             {reviews.map((review, i) => (
               <div
                 key={i}
