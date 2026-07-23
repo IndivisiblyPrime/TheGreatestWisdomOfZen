@@ -122,7 +122,7 @@ export function AcquireSection({
           <img
             src={urlFor(brushStrokeImage).width(1800).url()}
             alt=""
-            style={{ position: 'absolute', top: 0, left: '-26.7%', width: '133.3%', maxWidth: 'none', height: '80px', objectFit: 'cover', objectPosition: 'center' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '80px', objectFit: 'cover', objectPosition: 'center' }}
           />
         )}
         <div className="absolute inset-0 flex items-center justify-center gap-8" style={navAnim}>
