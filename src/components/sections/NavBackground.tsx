@@ -7,24 +7,39 @@ import { usePathname } from "next/navigation"
 
 interface NavBackgroundProps {
   backgroundImage?: SanityImageSource
+  backgroundImageMobile?: SanityImageSource
   brushStrokeImage?: SanityImageSource
   children: ReactNode
 }
 
-// Shared layout for /read-online and /contact: background + fixed brush stroke nav, no animation.
-export function NavBackground({ backgroundImage, brushStrokeImage, children }: NavBackgroundProps) {
+// Shared layout for /read-online, /contact, and /reviews: background + fixed brush stroke nav, no animation.
+export function NavBackground({ backgroundImage, backgroundImageMobile, brushStrokeImage, children }: NavBackgroundProps) {
   const pathname = usePathname()
   const linkClass = (href: string) =>
     `text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap ${pathname === href ? 'underline underline-offset-4' : ''}`
+  const mobileImage = backgroundImageMobile || backgroundImage
 
   return (
     <div className="relative min-h-screen overflow-hidden">
 
-      {/* Background — fixed to viewport so tall content (e.g. PDF) doesn't scale it */}
-      <div className="fixed inset-0 z-0">
+      {/* Background — fixed to viewport so tall content (e.g. PDF) doesn't scale it. Same
+          desktop/mobile CSS-swap pattern as BookHero/AcquireSection, so the breakpoint is
+          driven purely by current viewport width, consistently, on every page. */}
+      <div className="fixed inset-0 z-0 hidden md:block">
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
+            alt=""
+            className="w-full h-full object-cover object-center"
+          />
+        ) : (
+          <div className="w-full h-full bg-neutral-100" />
+        )}
+      </div>
+      <div className="fixed inset-0 z-0 md:hidden">
+        {mobileImage ? (
+          <img
+            src={urlFor(mobileImage).width(1200).url()}
             alt=""
             className="w-full h-full object-cover object-center"
           />
