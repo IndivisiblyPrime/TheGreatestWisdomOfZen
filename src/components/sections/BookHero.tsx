@@ -29,10 +29,10 @@ export function BookHero({
   const mobileVideoUrl = transitionVideoMobileUrl || transitionVideoUrl
   const mobileImage = startingImageMobile || backgroundImageMobile || backgroundImage
 
-  // Show "Click to continue" after 7 seconds of no interaction
+  // Show "Click to continue" after 5 seconds of no interaction
   useEffect(() => {
     if (!transitionVideoUrl) return
-    timerRef.current = setTimeout(() => setShowPrompt(true), 7000)
+    timerRef.current = setTimeout(() => setShowPrompt(true), 5000)
     return () => clearTimeout(timerRef.current)
   }, [transitionVideoUrl])
 
@@ -130,7 +130,7 @@ export function BookHero({
         />
       )}
 
-      {/* "Click to continue" prompt — appears after 7s, smoothly fades in/out until clicked */}
+      {/* "Click to continue" prompt — appears after 5s, smoothly fades in/out until clicked */}
       {showPrompt && transitionVideoUrl && (
         <div
           className="absolute bottom-[6%] left-1/2 -translate-x-1/2 z-20 pointer-events-none whitespace-nowrap"

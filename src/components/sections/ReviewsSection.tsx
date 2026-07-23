@@ -98,21 +98,17 @@ interface ReviewsSectionProps {
 }
 
 export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSectionProps) {
-  // Cards settle in with a quiet stagger on mount. Gated behind two states
-  // (rather than one) so the pre-mount SSR/client-first-paint markup always
-  // matches (avoids a hydration mismatch), and so prefers-reduced-motion can
-  // be honored by skipping straight to the final state.
+  // Cards settle in with a quiet stagger on mount. Starts hidden so the
+  // pre-mount SSR/client-first-paint markup always matches (avoids a
+  // hydration mismatch), then reveals once mounted.
   const [ready, setReady] = useState(false)
-  const [skipAnim, setSkipAnim] = useState(false)
 
   useEffect(() => {
-    setSkipAnim(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
     setReady(true)
   }, [])
 
   function revealAnim(delayMs: number): React.CSSProperties {
     if (!ready) return { opacity: 0 }
-    if (skipAnim) return {}
     return { animation: `fadeSlideUp 560ms ease-out ${delayMs}ms both` }
   }
 
