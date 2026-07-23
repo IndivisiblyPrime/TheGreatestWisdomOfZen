@@ -191,12 +191,13 @@ function SubscribeForm() {
 
 interface ContactSectionProps {
   backgroundImage?: SanityImageSource
+  backgroundImageMobile?: SanityImageSource
   brushStrokeImage?: SanityImageSource
 }
 
-export function ContactSection({ backgroundImage, brushStrokeImage }: ContactSectionProps) {
+export function ContactSection({ backgroundImage, backgroundImageMobile, brushStrokeImage }: ContactSectionProps) {
   return (
-    <NavBackground backgroundImage={backgroundImage} brushStrokeImage={brushStrokeImage}>
+    <NavBackground backgroundImage={backgroundImage} backgroundImageMobile={backgroundImageMobile} brushStrokeImage={brushStrokeImage}>
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
         <p className="mb-8 text-sm text-neutral-600 text-center">Fill out the forms below to get in contact with Neti Neti LLC</p>
         <div className="space-y-8 max-w-lg w-full">

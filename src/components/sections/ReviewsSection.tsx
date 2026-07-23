@@ -94,10 +94,11 @@ const reviews: {
 
 interface ReviewsSectionProps {
   backgroundImage?: SanityImageSource
+  backgroundImageMobile?: SanityImageSource
   brushStrokeImage?: SanityImageSource
 }
 
-export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSectionProps) {
+export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushStrokeImage }: ReviewsSectionProps) {
   // Cards settle in with a quiet stagger on mount. Starts hidden so the
   // pre-mount SSR/client-first-paint markup always matches (avoids a
   // hydration mismatch), then reveals once mounted.
@@ -113,7 +114,7 @@ export function ReviewsSection({ backgroundImage, brushStrokeImage }: ReviewsSec
   }
 
   return (
-    <NavBackground backgroundImage={backgroundImage} brushStrokeImage={brushStrokeImage}>
+    <NavBackground backgroundImage={backgroundImage} backgroundImageMobile={backgroundImageMobile} brushStrokeImage={brushStrokeImage}>
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
         <div className="max-w-3xl w-full">
 

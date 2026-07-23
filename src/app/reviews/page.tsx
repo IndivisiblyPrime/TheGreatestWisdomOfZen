@@ -9,7 +9,7 @@ import { ReviewsSection } from "@/components/sections/ReviewsSection"
 const REVIEWS_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  backgroundImage,
+  backgroundImage, backgroundImageMobile,
   brushStrokeImage
 }`
 
@@ -39,6 +39,7 @@ export default async function ReviewsPage() {
     <main>
       <ReviewsSection
         backgroundImage={settings?.backgroundImage}
+        backgroundImageMobile={settings?.backgroundImageMobile}
         brushStrokeImage={settings?.brushStrokeImage}
       />
     </main>

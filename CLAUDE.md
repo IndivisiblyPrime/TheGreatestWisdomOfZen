@@ -6,7 +6,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 **The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; nav bar and text animate in top-down. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing in this thing! It is empty!") with an in-character author reply.
 
-The homepage and `/acquire` background image, and the homepage transition video, each have an optional mobile-specific variant (see "Mobile assets" below) that swaps in below the `md:` breakpoint (768px) via pure CSS — so it reacts live if the browser window is resized, not just on page load. The homepage's mobile image can additionally be overridden independently of `/acquire`'s via `startingImageMobile` — see below.
+The background image (used on the homepage, `/acquire`, `/contact`, and `/reviews`) and the homepage transition video each have an optional mobile-specific variant (see "Mobile assets" below) that swaps in below the `md:` breakpoint (768px) via pure CSS — so it reacts live if the browser window is resized, and stays consistent across page navigations at the same width (not just on initial page load). The homepage's mobile image can additionally be overridden independently of the other pages' via `startingImageMobile` — see below.
 
 `/read-online` is currently **disabled** — the route, component, and PDF reader code are all still in the repo (in case it's needed again), but the page returns a 404 and there is no nav link to it. See "Disabled: /read-online" below.
 
@@ -53,7 +53,7 @@ src/
 ├── components/
 │   └── sections/
 │       ├── BookHero.tsx               # Homepage: full-screen background image, pointer cursor everywhere, click → video (2x playback) → /acquire
-│       ├── NavBackground.tsx          # Shared layout: background image + fixed 80px brush stroke nav, current-page link underlined — used by /contact and /reviews
+│       ├── NavBackground.tsx          # Shared layout: mobile-aware background image (desktop/mobile CSS-swap, same pattern as BookHero/AcquireSection) + fixed 80px brush stroke nav, current-page link underlined — used by /contact and /reviews
 │       ├── AcquireSection.tsx         # /acquire: layered animations (first visit only via sessionStorage), Acquire button always visible; own copy of the brush-stroke nav (current-page link underlined)
 │       ├── ReadOnlineSection.tsx      # DISABLED (route returns 404) — kept in place, not currently linked or reachable
 │       ├── ContactSection.tsx         # /contact: NavBackground wrapper + SubscribeForm + ContactForm
@@ -107,10 +107,10 @@ src/
 /read-online — DISABLED. Route calls notFound() immediately; no nav link points to it anywhere. Component code (ReadOnlineSection, PdfReader) and Sanity fields (readOnlinePdf, readOnlineTitle) are untouched in case it needs to come back — see "Re-enabling /read-online" below.
 
 /contact uses NavBackground ('use server'-compatible component):
-  ├── Background image: fixed inset-0 z-0 (fixed, not absolute)
+  ├── Background image: fixed inset-0 z-0 (fixed, not absolute); same desktop/mobile CSS-swap as BookHero/AcquireSection via backgroundImage/backgroundImageMobile
   ├── Brush stroke nav: same image, fixed 80px at top, immediately visible
   │     Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
-  └── Content: SubscribeForm + ContactForm (no bg cards, no border on inputs)
+  └── Content: SubscribeForm + ContactForm (bg-white/70 cards, no border on inputs beyond border-b)
 ```
 
 ### Re-enabling /read-online
@@ -145,7 +145,7 @@ Five groups:
 | Site        | `siteTitle` (string), `siteFavicon` (image) |
 | Hero        | `bookCoverImage` (image, legacy/unused), `transitionVideo` (file, accept: video/*), `transitionVideoMobile` (file, accept: video/*, optional — falls back to `transitionVideo` under 768px), `startingImageMobile` (image, hotspot, optional — homepage-only mobile hero image, falls back to `backgroundImageMobile` then `backgroundImage`) |
 | Buttons     | `buyButtonText` (default "Buy", legacy/unused — button text is hardcoded "Acquire" in `AcquireSection.tsx`), `buyButtonUrl` (url), `moreButtonText` (default "More", legacy/unused), `readOnlineButtonText` (default "Read Online", legacy/unused — /read-online disabled) |
-| More        | `exploreHeading` (default "Explore", legacy/unused), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `backgroundImageMobile` (image, hotspot, optional — falls back to `backgroundImage` under 768px; used on /acquire, and on the homepage too if `startingImageMobile` is left empty), `brushStrokeImage` (image). Group internally still named `more`; feeds the `/acquire` page. |
+| More        | `exploreHeading` (default "Explore", legacy/unused), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `backgroundImageMobile` (image, hotspot, optional — falls back to `backgroundImage` under 768px; used on /acquire, /contact, and /reviews, and on the homepage too if `startingImageMobile` is left empty), `brushStrokeImage` (image). Group internally still named `more`; feeds the `/acquire` page. |
 | Read Online | `readOnlineTitle` (default "Read Online", legacy/unused), `readOnlinePdf` (file, accept: pdf) — fields kept for when /read-online is re-enabled |
 
 **Singleton setup:** `structure.ts` configures `homepageSettings` as a singleton with fixed `documentId: "homepageSettings"` — clicking it in Studio opens the form directly, no list view.
@@ -212,6 +212,7 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 - **Nav bar image**: brush stroke is an `<img>` with `height: 80px; width: 100%; objectFit: cover` (not CSS background-image) so height is truly fixed at 80px regardless of viewport width — shows the source art's full width as-is (frayed left edge and all; a deliberate look, not a bug)
 - **View transitions**: `document.startViewTransition` wraps the homepage → /acquire navigation when supported by the browser
 - **Mobile scroll-lock gotcha**: full-bleed background images use `position: fixed`, not `absolute`/`relative` + `h-screen`. Two separate failure modes this avoids: (1) `BookHero`'s root is `fixed inset-0` rather than `relative h-screen` — mobile Safari's `100vh` can exceed the actual visible viewport once the address bar is accounted for, which let the whole hero rubber-band-scroll by a few pixels; `fixed inset-0` always matches the true visual viewport and removes the hero from normal document flow entirely, so there's nothing left for the page to scroll. (2) `AcquireSection`'s background layers are `fixed inset-0` rather than `absolute inset-0` — `absolute` sizes itself against the `min-h-screen` content container, so on mobile, where wrapped text pushes that container taller than one screen, the background image stretched to match and `object-cover` re-cropped it, making it look like scrolling "revealed more of the image." `NavBackground` (`/contact`, `/reviews`) already used `fixed` correctly; `AcquireSection` and `BookHero` didn't and were the source of the bug.
+- **Mobile breakpoint consistency across pages**: `/`, `/acquire`, `/contact`, and `/reviews` all use the identical `hidden md:block` / `md:hidden` dual-image CSS-swap, keyed off `backgroundImage`/`backgroundImageMobile` (plus the homepage's own `startingImageMobile` fallback layer). The breakpoint is evaluated purely by the browser's CSS media query against current viewport width — never by JS or a server-side check — so a desktop browser resized narrow shows the mobile image identically everywhere, and navigating between pages at that width never flips back to the desktop image. `NavBackground` (`/contact`, `/reviews`) originally had no mobile variant at all and always rendered the desktop `backgroundImage` regardless of viewport — that inconsistency (mobile image on `/`/`/acquire`, desktop image on `/contact`/`/reviews`, at the same width) is what got fixed.
 
 ## GROQ Queries
 
@@ -244,11 +245,12 @@ Read Online page (`read-online/page.tsx`) — DISABLED; `notFound()` is called b
 }
 ```
 
-Contact page (`contact/page.tsx`):
+Contact page (`contact/page.tsx`) and Reviews page (`reviews/page.tsx`, identical query shape):
 ```groq
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon,
-  backgroundImage, brushStrokeImage
+  backgroundImage, backgroundImageMobile,
+  brushStrokeImage
 }
 ```
 
@@ -257,7 +259,7 @@ Contact page (`contact/page.tsx`):
 - **Edit content**: `/studio` → Homepage Settings (opens directly — singleton)
 - **Upload book PDF**: Studio → Homepage Settings → Read Online tab → Book PDF → Publish (unused while /read-online is disabled)
 - **Upload background/brush stroke images**: Studio → Homepage Settings → More tab → Background Image / Brush Stroke → Publish
-- **Upload mobile background image**: Studio → Homepage Settings → More tab → Background Image (Mobile) → Publish (optional; used on /acquire under 768px wide, and on the homepage too if Starting Image (Mobile) is left empty)
+- **Upload mobile background image**: Studio → Homepage Settings → More tab → Background Image (Mobile) → Publish (optional; used on /acquire, /contact, and /reviews under 768px wide, and on the homepage too if Starting Image (Mobile) is left empty)
 - **Upload mobile starting image**: Studio → Homepage Settings → Hero tab → Starting Image (Mobile) → Publish (optional; homepage-only, under 768px wide — lets the homepage show a different first image from /acquire's mobile background)
 - **Upload transition video**: Studio → Homepage Settings → Hero tab → Transition Video → Publish (video plays fullscreen at 2x speed when clicking the Enzo image, then navigates to /acquire)
 - **Upload mobile transition video**: Studio → Homepage Settings → Hero tab → Transition Video (Mobile) → Publish (optional; used under 768px wide)

@@ -9,7 +9,7 @@ import { ContactSection } from "@/components/sections/ContactSection"
 const CONTACT_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  backgroundImage,
+  backgroundImage, backgroundImageMobile,
   brushStrokeImage
 }`
 
@@ -39,6 +39,7 @@ export default async function ContactPage() {
     <main>
       <ContactSection
         backgroundImage={settings?.backgroundImage}
+        backgroundImageMobile={settings?.backgroundImageMobile}
         brushStrokeImage={settings?.brushStrokeImage}
       />
     </main>
