@@ -9,7 +9,7 @@ import { BookHero } from "@/components/sections/BookHero"
 const SETTINGS_QUERY = `*[_type == "homepageSettings"][0]{
   siteTitle,
   siteFavicon,
-  backgroundImage, backgroundImageMobile,
+  backgroundImage, backgroundImageMobile, startingImageMobile,
   transitionVideo { asset-> { url } },
   transitionVideoMobile { asset-> { url } }
 }`
@@ -42,6 +42,7 @@ export default async function Home() {
       <BookHero
         backgroundImage={settings?.backgroundImage}
         backgroundImageMobile={settings?.backgroundImageMobile}
+        startingImageMobile={settings?.startingImageMobile}
         transitionVideoUrl={settings?.transitionVideo?.asset?.url}
         transitionVideoMobileUrl={settings?.transitionVideoMobile?.asset?.url}
       />

@@ -28,5 +28,6 @@ export interface SiteSettings {
   };
   backgroundImage?: SanityImageSource;
   backgroundImageMobile?: SanityImageSource;
+  startingImageMobile?: SanityImageSource;
   brushStrokeImage?: SanityImageSource;
 }

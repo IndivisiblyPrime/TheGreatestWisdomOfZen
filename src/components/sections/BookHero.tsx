@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 interface BookHeroProps {
   backgroundImage?: SanityImageSource
   backgroundImageMobile?: SanityImageSource
+  startingImageMobile?: SanityImageSource
   transitionVideoUrl?: string
   transitionVideoMobileUrl?: string
 }
@@ -15,6 +16,7 @@ interface BookHeroProps {
 export function BookHero({
   backgroundImage,
   backgroundImageMobile,
+  startingImageMobile,
   transitionVideoUrl,
   transitionVideoMobileUrl,
 }: BookHeroProps) {
@@ -25,7 +27,7 @@ export function BookHero({
   const [showPrompt, setShowPrompt] = useState(false)
 
   const mobileVideoUrl = transitionVideoMobileUrl || transitionVideoUrl
-  const mobileImage = backgroundImageMobile || backgroundImage
+  const mobileImage = startingImageMobile || backgroundImageMobile || backgroundImage
 
   // Show "Click to continue" after 7 seconds of no interaction
   useEffect(() => {
@@ -65,7 +67,7 @@ export function BookHero({
 
   return (
     <div
-      className="relative h-screen overflow-hidden"
+      className="fixed inset-0 overflow-hidden overscroll-none"
       onClick={handleClick}
       style={{ cursor: 'pointer' }}
     >
