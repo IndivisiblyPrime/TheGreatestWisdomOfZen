@@ -57,8 +57,10 @@ export function AcquireSection({
   return (
     <div className="relative min-h-screen overflow-hidden">
 
-      {/* Background — always immediately visible. Desktop/mobile variants swap via CSS so they stay in sync with a resized browser. */}
-      <div className="absolute inset-0 z-0 hidden md:block">
+      {/* Background — fixed to viewport (not absolute) so it can't stretch/re-crop if content
+          overflows min-h-screen; desktop/mobile variants swap via CSS so they stay in sync with a
+          resized browser. */}
+      <div className="fixed inset-0 z-0 hidden md:block">
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
@@ -69,7 +71,7 @@ export function AcquireSection({
           <div className="w-full h-full bg-neutral-100" />
         )}
       </div>
-      <div className="absolute inset-0 z-0 md:hidden">
+      <div className="fixed inset-0 z-0 md:hidden">
         {mobileImage ? (
           <img
             src={urlFor(mobileImage).width(1200).url()}
