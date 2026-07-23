@@ -116,11 +116,11 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
   return (
     <NavBackground backgroundImage={backgroundImage} backgroundImageMobile={backgroundImageMobile} brushStrokeImage={brushStrokeImage}>
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
-        <div className="max-w-3xl w-full">
+        <div className="max-w-2xl w-full">
 
           {/* Overall rating */}
           <div
-            className="mb-8 flex flex-col items-center text-center rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm px-8 py-10"
+            className="mb-6 flex flex-col items-center text-center rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm px-8 py-8"
             style={revealAnim(0)}
           >
             <p className={`${fraunces.className} font-semibold text-7xl md:text-8xl leading-none`}>
@@ -130,11 +130,11 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
           </div>
 
           {/* Individual reviews */}
-          <div className="grid gap-5 md:grid-cols-2 auto-rows-[minmax(240px,auto)]">
+          <div className="grid gap-4 md:grid-cols-2">
             {reviews.map((review, i) => (
               <div
                 key={i}
-                className={`relative overflow-hidden rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm p-6 ${review.reply ? 'md:col-span-2' : ''}`}
+                className={`relative overflow-hidden rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm p-5 ${review.reply ? 'md:col-span-2' : ''}`}
                 style={revealAnim(90 + i * 70)}
               >
                 <span

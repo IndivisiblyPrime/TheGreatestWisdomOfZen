@@ -6,7 +6,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 **The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; nav bar and text animate in top-down. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing in this thing! It is empty!") with an in-character author reply.
 
-The background image (used on the homepage, `/acquire`, `/contact`, and `/reviews`) and the homepage transition video each have an optional mobile-specific variant (see "Mobile assets" below) that swaps in below the `md:` breakpoint (768px) via pure CSS — so it reacts live if the browser window is resized, and stays consistent across page navigations at the same width (not just on initial page load). The homepage's mobile image can additionally be overridden independently of the other pages' via `startingImageMobile` — see below.
+The background image (used on the homepage, `/acquire`, `/contact`, and `/reviews`) and the homepage transition video each have an optional mobile-specific variant (see "Mobile assets" below) that swaps in below the `md:` breakpoint (768px) via pure CSS — so it reacts live if the browser window is resized, and stays consistent across page navigations at the same width (not just on initial page load).
 
 `/read-online` is currently **disabled** — the route, component, and PDF reader code are all still in the repo (in case it's needed again), but the page returns a 404 and there is no nav link to it. See "Disabled: /read-online" below.
 
@@ -87,11 +87,11 @@ src/
         — seamless transition: background image on homepage matches /acquire on desktop, so video → /acquire is smooth
         — video src has `#t=0.001` + onLoadedMetadata seek to force first-frame render on iOS/mobile
         — "Click to continue" prompt: appears after 5s, black text (no box), bottom-centered, smooth pulseFade in/out
-        — Mobile assets: both desktop and mobile `<img>`/`<video>` elements are always mounted; Tailwind `hidden md:block` / `md:hidden` classes pick which is shown, so it updates instantly on resize. Both videos are downloaded up front (accepted bandwidth tradeoff — avoids a JS-driven single-mount that wouldn't react to a mid-session resize). Click handler picks the active `<video>` ref via `window.matchMedia('(min-width: 768px)')` at click time, matching the CSS breakpoint. The homepage's mobile image is `startingImageMobile || backgroundImageMobile || backgroundImage` — i.e. it can be a completely different image from `/acquire`'s mobile background (falls back to matching it if left empty).
+        — Mobile assets: both desktop and mobile `<img>`/`<video>` elements are always mounted; Tailwind `hidden md:block` / `md:hidden` classes pick which is shown, so it updates instantly on resize. Both videos are downloaded up front (accepted bandwidth tradeoff — avoids a JS-driven single-mount that wouldn't react to a mid-session resize). Click handler picks the active `<video>` ref via `window.matchMedia('(min-width: 768px)')` at click time, matching the CSS breakpoint. The homepage's mobile image is `backgroundImageMobile || backgroundImage`, same as every other page — there is deliberately no homepage-only "starting image" field; the opening experience is always the transition video, not a distinct static image.
 
 /acquire (accessible by clicking on the homepage hero, or after video ends)
   └── AcquireSection ('use client')
-        ├── Background image: ALWAYS immediately visible (no animation); fixed inset-0 (not absolute — see "Mobile scroll-lock gotcha" below); same desktop/mobile CSS-swap pattern as BookHero, but mobile always uses `backgroundImageMobile` (never `startingImageMobile`, which is homepage-only)
+        ├── Background image: ALWAYS immediately visible (no animation); fixed inset-0 (not absolute — see "Mobile scroll-lock gotcha" below); same desktop/mobile CSS-swap pattern as BookHero
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
         ├── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 0ms, buttons fadeIn at 690ms — animates FIRST (top-down sequence)
         │     Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
@@ -100,7 +100,7 @@ src/
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
 
 /reviews uses NavBackground (same shell as /contact):
-  └── ReviewsSection: centered max-w-3xl column. Header card (rounded-lg, border-black/10, bg-white/70 backdrop-blur) holds a large "4.5" in Fraunces (serif — echoes the book cover's own lettering) with an SVG star row beneath, no spelled-out "out of 5"/review count (deliberately terse). Below that, seven hardcoded joke reviews render as cards in a `grid md:grid-cols-2 auto-rows-[minmax(240px,auto)]` (single column on mobile, still row-height-minmax'd there) — same rounded/soft-border/glass treatment as the header card and as /acquire's content card, each with a decorative oversized Fraunces closing-quote mark inset fully inside the card (top-2 right-4 — do not use a negative top offset here, see note below). The `minmax(240px, auto)` keeps the six regular cards visually uniform in height (short reviews just get empty space below the text) without a fixed height that would clip a longer one — 240px was picked to comfortably fit the longest regular review (Lao Tzu's, ~3 lines) without growing; the one-star/reply row grows past it naturally since its content needs more. Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", 3rd, `md:col-span-2` so its indented reply has room) with reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". Order (top to bottom): Lao Tzu, Margaret (Book Club President), the 1-star/reply, A Devoted Student, The Dalai Lama, An Enlightened Customer, A Former Seeker. Cards fade/slide in with a short staggered entrance on mount (`fadeSlideUp` keyframe in globals.css). Stars are inline SVGs (see `STAR_PATH`/`StarIcon` in ReviewsSection.tsx) with precise percentage clip-path fill, not the "★" text glyph — crisper at large sizes and consistent across browsers. No Sanity content beyond background/brush images.
+  └── ReviewsSection: centered max-w-2xl column (deliberately narrower than the old max-w-3xl — on a laptop-width viewport, max-w-3xl left barely any margin before the background photo's book cover/rocks started showing at the edges; max-w-2xl gives real breathing room while still fitting 2 cards per row above the md: breakpoint). Header card (rounded-lg, border-black/10, bg-white/70 backdrop-blur, px-8 py-8) holds a large "4.5" in Fraunces (serif — echoes the book cover's own lettering) with an SVG star row beneath, no spelled-out "out of 5"/review count (deliberately terse). Below that, seven hardcoded joke reviews render as cards in a plain `grid gap-4 md:grid-cols-2` (single column on mobile) — same rounded/soft-border/glass treatment as the header card and as /acquire's content card, each with a decorative oversized Fraunces closing-quote mark inset fully inside the card (top-2 right-4 — do not use a negative top offset here, see note below). Row height is natural/content-driven (no `auto-rows`/`minmax` floor) — an earlier version forced every row to a 240px minimum so short reviews had a lot of dead space below the text; removing the floor lets short reviews' cards (and rows) shrink to fit while the longer one-star/reply row still grows naturally. Card padding is `p-5` (was `p-6`). Six 5-star reviews + one 1-star ("There is nothing in this thing! It is empty!", 3rd, `md:col-span-2` so its indented reply has room) with reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". Order (top to bottom): Lao Tzu, Margaret (Book Club President), the 1-star/reply, A Devoted Student, The Dalai Lama, An Enlightened Customer, A Former Seeker. Cards fade/slide in with a short staggered entrance on mount (`fadeSlideUp` keyframe in globals.css). Stars are inline SVGs (see `STAR_PATH`/`StarIcon` in ReviewsSection.tsx) with precise percentage clip-path fill, not the "★" text glyph — crisper at large sizes and consistent across browsers. No Sanity content beyond background/brush images.
 
   **Quote-mark clipping gotcha:** the decorative quote glyph must sit fully inside the card's box (positive `top`/inset), not straddle the edge with a negative offset. A text span's line-box is taller than the glyph's visible ink, and the ink sits near the top of that box — a negative `top` (meant to let the glyph "bleed" off the corner) pulls most of the box above the card's `overflow-hidden` clip line while the ink (concentrated near the top of the box) gets disproportionately clipped, reading as "sitting outside the card" rather than a clean bleed. Verified by comparing `getBoundingClientRect()` of the card vs. the glyph span directly, not by eyeballing a screenshot.
 
@@ -130,7 +130,7 @@ Top-down order (brush stroke first):
 | Background image | — | — | — | Always immediately visible, no animation |
 | Brush stroke nav | `wipeFromLeft` | 1080ms | 0ms | Animates first |
 | Nav buttons | `fadeIn` | 660ms | 690ms | Right after the brush stroke |
-| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/20 backdrop-blur-sm`, same style as Contact page cards) wraps the whole title/description/button block; wipes in left-to-right in sync with the text, finishing as the Acquire button/publisher line settle |
+| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/70 backdrop-blur-sm`, same opacity as Contact/Reviews cards) wraps the whole title/description/button block; wipes in left-to-right in sync with the text, finishing as the Acquire button/publisher line settle |
 | Title (h1) | `slideInLeft` | 660ms | 1250ms | |
 | HR divider | `fadeIn` | 500ms | 1700ms | |
 | Description | `slideInLeft` | 660ms | 2000ms | |
@@ -143,9 +143,9 @@ Five groups:
 | Group       | Fields |
 |-------------|--------|
 | Site        | `siteTitle` (string), `siteFavicon` (image) |
-| Hero        | `bookCoverImage` (image, legacy/unused), `transitionVideo` (file, accept: video/*), `transitionVideoMobile` (file, accept: video/*, optional — falls back to `transitionVideo` under 768px), `startingImageMobile` (image, hotspot, optional — homepage-only mobile hero image, falls back to `backgroundImageMobile` then `backgroundImage`) |
+| Hero        | `transitionVideo` (file, accept: video/*), `transitionVideoMobile` (file, accept: video/*, optional — falls back to `transitionVideo` under 768px) |
 | Buttons     | `buyButtonText` (default "Buy", legacy/unused — button text is hardcoded "Acquire" in `AcquireSection.tsx`), `buyButtonUrl` (url), `moreButtonText` (default "More", legacy/unused), `readOnlineButtonText` (default "Read Online", legacy/unused — /read-online disabled) |
-| More        | `exploreHeading` (default "Explore", legacy/unused), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `backgroundImageMobile` (image, hotspot, optional — falls back to `backgroundImage` under 768px; used on /acquire, /contact, and /reviews, and on the homepage too if `startingImageMobile` is left empty), `brushStrokeImage` (image). Group internally still named `more`; feeds the `/acquire` page. |
+| More        | `exploreHeading` (default "Explore", legacy/unused), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `backgroundImageMobile` (image, hotspot, optional — falls back to `backgroundImage` under 768px; used on the homepage, /acquire, /contact, and /reviews), `brushStrokeImage` (image). Group internally still named `more`; feeds the `/acquire` page. |
 | Read Online | `readOnlineTitle` (default "Read Online", legacy/unused), `readOnlinePdf` (file, accept: pdf) — fields kept for when /read-online is re-enabled |
 
 **Singleton setup:** `structure.ts` configures `homepageSettings` as a singleton with fixed `documentId: "homepageSettings"` — clicking it in Studio opens the form directly, no list view.
@@ -156,7 +156,6 @@ Five groups:
 export interface SiteSettings {
   siteTitle?: string
   siteFavicon?: SanityImageSource
-  bookCoverImage?: SanityImageSource
   buyButtonText?: string
   buyButtonUrl?: string
   moreButtonText?: string
@@ -175,7 +174,6 @@ export interface SiteSettings {
   }
   backgroundImage?: SanityImageSource
   backgroundImageMobile?: SanityImageSource
-  startingImageMobile?: SanityImageSource
   brushStrokeImage?: SanityImageSource
 }
 ```
@@ -212,7 +210,7 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 - **Nav bar image**: brush stroke is an `<img>` with `height: 80px; width: 100%; objectFit: cover` (not CSS background-image) so height is truly fixed at 80px regardless of viewport width — shows the source art's full width as-is (frayed left edge and all; a deliberate look, not a bug)
 - **View transitions**: `document.startViewTransition` wraps the homepage → /acquire navigation when supported by the browser
 - **Mobile scroll-lock gotcha**: full-bleed background images use `position: fixed`, not `absolute`/`relative` + `h-screen`. Two separate failure modes this avoids: (1) `BookHero`'s root is `fixed inset-0` rather than `relative h-screen` — mobile Safari's `100vh` can exceed the actual visible viewport once the address bar is accounted for, which let the whole hero rubber-band-scroll by a few pixels; `fixed inset-0` always matches the true visual viewport and removes the hero from normal document flow entirely, so there's nothing left for the page to scroll. (2) `AcquireSection`'s background layers are `fixed inset-0` rather than `absolute inset-0` — `absolute` sizes itself against the `min-h-screen` content container, so on mobile, where wrapped text pushes that container taller than one screen, the background image stretched to match and `object-cover` re-cropped it, making it look like scrolling "revealed more of the image." `NavBackground` (`/contact`, `/reviews`) already used `fixed` correctly; `AcquireSection` and `BookHero` didn't and were the source of the bug.
-- **Mobile breakpoint consistency across pages**: `/`, `/acquire`, `/contact`, and `/reviews` all use the identical `hidden md:block` / `md:hidden` dual-image CSS-swap, keyed off `backgroundImage`/`backgroundImageMobile` (plus the homepage's own `startingImageMobile` fallback layer). The breakpoint is evaluated purely by the browser's CSS media query against current viewport width — never by JS or a server-side check — so a desktop browser resized narrow shows the mobile image identically everywhere, and navigating between pages at that width never flips back to the desktop image. `NavBackground` (`/contact`, `/reviews`) originally had no mobile variant at all and always rendered the desktop `backgroundImage` regardless of viewport — that inconsistency (mobile image on `/`/`/acquire`, desktop image on `/contact`/`/reviews`, at the same width) is what got fixed.
+- **Mobile breakpoint consistency across pages**: `/`, `/acquire`, `/contact`, and `/reviews` all use the identical `hidden md:block` / `md:hidden` dual-image CSS-swap, keyed off the same `backgroundImage`/`backgroundImageMobile` pair. The breakpoint is evaluated purely by the browser's CSS media query against current viewport width — never by JS or a server-side check — so a desktop browser resized narrow shows the mobile image identically everywhere, and navigating between pages at that width never flips back to the desktop image. `NavBackground` (`/contact`, `/reviews`) originally had no mobile variant at all and always rendered the desktop `backgroundImage` regardless of viewport — that inconsistency (mobile image on `/`/`/acquire`, desktop image on `/contact`/`/reviews`, at the same width) is what got fixed. There is deliberately no homepage-only mobile image field (a `startingImageMobile` field existed briefly and was removed) — the homepage's "opening" is always the transition video, so its pre-click still image doesn't need to differ from the rest of the site's.
 
 ## GROQ Queries
 
@@ -220,7 +218,7 @@ Homepage (`page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
   siteTitle, siteFavicon,
-  backgroundImage, backgroundImageMobile, startingImageMobile,
+  backgroundImage, backgroundImageMobile,
   transitionVideo { asset-> { url } },
   transitionVideoMobile { asset-> { url } }
 }
@@ -259,8 +257,7 @@ Contact page (`contact/page.tsx`) and Reviews page (`reviews/page.tsx`, identica
 - **Edit content**: `/studio` → Homepage Settings (opens directly — singleton)
 - **Upload book PDF**: Studio → Homepage Settings → Read Online tab → Book PDF → Publish (unused while /read-online is disabled)
 - **Upload background/brush stroke images**: Studio → Homepage Settings → More tab → Background Image / Brush Stroke → Publish
-- **Upload mobile background image**: Studio → Homepage Settings → More tab → Background Image (Mobile) → Publish (optional; used on /acquire, /contact, and /reviews under 768px wide, and on the homepage too if Starting Image (Mobile) is left empty)
-- **Upload mobile starting image**: Studio → Homepage Settings → Hero tab → Starting Image (Mobile) → Publish (optional; homepage-only, under 768px wide — lets the homepage show a different first image from /acquire's mobile background)
+- **Upload mobile background image**: Studio → Homepage Settings → More tab → Background Image (Mobile) → Publish (optional; used on the homepage, /acquire, /contact, and /reviews under 768px wide)
 - **Upload transition video**: Studio → Homepage Settings → Hero tab → Transition Video → Publish (video plays fullscreen at 2x speed when clicking the Enzo image, then navigates to /acquire)
 - **Upload mobile transition video**: Studio → Homepage Settings → Hero tab → Transition Video (Mobile) → Publish (optional; used under 768px wide)
 - **Modify schema**: Edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`
