@@ -88,7 +88,7 @@ export function AcquireSection({
 
         {/* Title + Description + Acquire — block stays centered, text aligns left */}
         <div
-          className="max-w-lg w-full text-left rounded border border-gray-300/40 bg-white/20 backdrop-blur-sm p-6"
+          className="max-w-lg w-full text-left rounded border border-gray-300/40 bg-white/70 backdrop-blur-sm p-6"
           style={{ ...backdropWipeAnim, overflow: 'hidden' }}
         >
           <h1 className="text-3xl font-bold" style={titleAnim}>

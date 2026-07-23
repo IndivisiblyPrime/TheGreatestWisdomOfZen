@@ -3,7 +3,6 @@ import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 export interface SiteSettings {
   siteTitle?: string;
   siteFavicon?: SanityImageSource;
-  bookCoverImage?: SanityImageSource;
   buyButtonText?: string;
   buyButtonUrl?: string;
   moreButtonText?: string;
@@ -28,6 +27,5 @@ export interface SiteSettings {
   };
   backgroundImage?: SanityImageSource;
   backgroundImageMobile?: SanityImageSource;
-  startingImageMobile?: SanityImageSource;
   brushStrokeImage?: SanityImageSource;
 }

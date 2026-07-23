@@ -33,19 +33,11 @@ export const homepageSettings = defineType({
 
     // ─── Hero ─────────────────────────────────────────────────────────────────
     defineField({
-      name: 'bookCoverImage',
-      title: 'Book Cover Image',
-      type: 'image',
-      group: 'hero',
-      description: 'Legacy field — no longer displayed on the homepage.',
-      options: { hotspot: true },
-    }),
-    defineField({
       name: 'transitionVideo',
       title: 'Transition Video',
       type: 'file',
       group: 'hero',
-      description: 'Video shown fullscreen when clicking the book cover image. Plays before navigating to /acquire.',
+      description: 'Video shown fullscreen when clicking the homepage. Plays before navigating to /acquire.',
       options: { accept: 'video/*' },
     }),
     defineField({
@@ -55,14 +47,6 @@ export const homepageSettings = defineType({
       group: 'hero',
       description: 'Optional — shown instead of Transition Video on narrow screens (under 768px wide). Falls back to Transition Video if left empty. Both videos are always downloaded so the correct one can play instantly if the browser is resized.',
       options: { accept: 'video/*' },
-    }),
-    defineField({
-      name: 'startingImageMobile',
-      title: 'Starting Image (Mobile)',
-      type: 'image',
-      group: 'hero',
-      description: 'Optional — the homepage\'s very first image on narrow screens (under 768px wide), shown before Transition Video plays. Only affects the homepage — /acquire always uses Background Image (Mobile) regardless of this field. Falls back to Background Image (Mobile), then Background Image, if left empty.',
-      options: { hotspot: true },
     }),
 
     // ─── Buttons ──────────────────────────────────────────────────────────────
@@ -126,7 +110,7 @@ export const homepageSettings = defineType({
       title: 'Background Image (Mobile)',
       type: 'image',
       group: 'more',
-      description: 'Optional — shown instead of Background Image on narrow screens (under 768px wide), on /acquire. Also used on the homepage if Starting Image (Mobile) is left empty. Falls back to Background Image if left empty.',
+      description: 'Optional — shown instead of Background Image on narrow screens (under 768px wide), on the homepage, /acquire, /contact, and /reviews. Falls back to Background Image if left empty.',
       options: { hotspot: true },
     }),
     defineField({
