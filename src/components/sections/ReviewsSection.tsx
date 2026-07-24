@@ -105,6 +105,8 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
+    // Intentional mount-detection effect (see comment above) — exception to set-state-in-effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady(true)
   }, [])
 

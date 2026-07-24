@@ -3,6 +3,7 @@
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { urlFor } from "@/sanity/lib/image"
 import { ReactNode } from "react"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 interface NavBackgroundProps {
@@ -66,7 +67,7 @@ export function NavBackground({ backgroundImage, backgroundImageMobile, brushStr
           />
         )}
         <div className="absolute inset-0 flex items-center justify-center gap-8">
-          <a href="/" className={linkClass('/')}>Back</a>
+          <Link href="/" className={linkClass('/')}>Back</Link>
           <a href="/acquire" className={linkClass('/acquire')} onClick={() => sessionStorage.setItem('acquire-skip-anim', '1')}>Acquire</a>
           <a href="/reviews" className={linkClass('/reviews')}>Reviews</a>
           <a href="/contact" className={linkClass('/contact')}>Contact</a>

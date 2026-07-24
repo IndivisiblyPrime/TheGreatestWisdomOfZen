@@ -29,7 +29,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description: title,
     icons: settings?.siteFavicon
-      ? { icon: urlFor(settings.siteFavicon).width(64).height(64).url() }
+      ? {
+          icon: urlFor(settings.siteFavicon).width(64).height(64).url(),
+          apple: urlFor(settings.siteFavicon).width(180).height(180).url(),
+        }
       : undefined,
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { urlFor } from "@/sanity/lib/image"
@@ -29,6 +30,9 @@ export function AcquireSection({
   // 'visible'  — revisit, show everything immediately
   const [phase, setPhase] = useState<'hidden' | 'animating' | 'visible'>('hidden')
 
+  // Must read sessionStorage post-mount (server has no access to it), so this
+  // client-only phase transition is an intentional exception to the set-state-in-effect rule.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const skip = sessionStorage.getItem('acquire-skip-anim')
     if (skip) {
@@ -38,6 +42,7 @@ export function AcquireSection({
       setPhase('animating')
     }
   }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function anim(keyframe: string, duration: string, delay: string): React.CSSProperties {
     if (phase === 'visible') return {}
@@ -131,7 +136,7 @@ export function AcquireSection({
           />
         )}
         <div className="absolute inset-0 flex items-center justify-center gap-8" style={navAnim}>
-          <a href="/" className={linkClass('/')}>Back</a>
+          <Link href="/" className={linkClass('/')}>Back</Link>
           <a href="/acquire" className={linkClass('/acquire')} onClick={() => sessionStorage.setItem('acquire-skip-anim', '1')}>Acquire</a>
           <a href="/reviews" className={linkClass('/reviews')}>Reviews</a>
           <a href="/contact" className={linkClass('/contact')}>Contact</a>
