@@ -64,7 +64,7 @@ const reviews: {
   },
   {
     rating: 1,
-    text: "There is nothing in this thing! It is empty!",
+    text: "There is nothing here! It is empty!",
     author: "Verified Purchaser",
     reply: { text: "Ah, you are getting it." },
   },
@@ -134,7 +134,7 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
             {reviews.map((review, i) => (
               <div
                 key={i}
-                className={`relative overflow-hidden rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm p-5 ${review.reply ? 'md:col-span-2' : ''}`}
+                className={`relative overflow-hidden rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm p-5 ${review.reply ? 'md:col-span-2' : 'md:w-[85%] md:mx-auto md:min-h-[200px]'}`}
                 style={revealAnim(90 + i * 70)}
               >
                 <span
