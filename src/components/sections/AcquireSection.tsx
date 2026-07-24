@@ -45,14 +45,14 @@ export function AcquireSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  // Top-down sequence: brush stroke → nav buttons → title → hr → description → Acquire button
-  const brushWipeAnim   = anim('wipeFromLeft', '1080ms', '0ms')
-  const navAnim         = anim('fadeIn',       '660ms',  '690ms')
+  // Sequence: title → hr → description + brush stroke nav (together) → nav buttons
   const backdropWipeAnim = anim('wipeFromLeft', '2040ms', '1250ms')
   const titleAnim       = anim('slideInLeft',  '660ms',  '1250ms')
   const hrAnim          = anim('fadeIn',       '500ms',  '1700ms')
   const descAnim        = anim('slideInLeft',  '660ms',  '2000ms')
   const buyAnim         = anim('fadeIn',       '590ms',  '2000ms')
+  const brushWipeAnim   = anim('wipeFromLeft', '1080ms', '2000ms')
+  const navAnim         = anim('fadeIn',       '660ms',  '2690ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
