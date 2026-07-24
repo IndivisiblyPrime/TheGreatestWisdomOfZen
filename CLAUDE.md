@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; text animates in first, with the brush-stroke nav bar timed to wipe in alongside the closing description line rather than first. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing here! It is empty!") with an in-character author reply.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; the brush-stroke nav bar and the description card perform one synchronized left-to-right wipe (identical timing, finishing together), after which the nav links fade in. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing here! It is empty!") with an in-character author reply.
 
 The background image (used on the homepage, `/acquire`, `/contact`, and `/reviews`) and the homepage transition video each have an optional mobile-specific variant (see "Mobile assets" below) that swaps in below the `md:` breakpoint (768px) via pure CSS — so it reacts live if the browser window is resized, and stays consistent across page navigations at the same width (not just on initial page load).
 
@@ -94,7 +94,7 @@ src/
         ├── Background image: ALWAYS immediately visible (no animation); fixed inset-0 (not absolute — see "Mobile scroll-lock gotcha" below); same desktop/mobile CSS-swap pattern as BookHero
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
         ├── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title at 1250ms, hr at 1700ms, description at 2000ms, button + publisher line at 2000ms (same time as the description)
-        └── Brush stroke nav (fixed 80px, absolute top): wipeFromLeft at 2000ms, buttons fadeIn at 2690ms — timed to start together with the description, not first; buttons fade in 690ms into the wipe, same relative offset as before
+        └── Brush stroke nav (fixed 80px, absolute top): shares the content card's exact wipe — wipeFromLeft 2040ms at 1250ms — so the two sweep in lockstep and finish together at 3290ms; nav buttons fadeIn at 3290ms, right after
               Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
 
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
@@ -123,18 +123,20 @@ src/
 
 Controlled by `sessionStorage.getItem('acquire-skip-anim')` (set when navigating internally via the "Acquire" nav link, so revisits skip the animation). Cleared when browser session ends.
 
-Content animates first, brush stroke nav now joins in partway through (moved off "first" so it lands with the description instead — was jarring appearing before anything else was on screen):
+The brush stroke nav and the text backdrop card perform **one identical wipe** — same keyframe, duration, delay and easing, declared from the shared `WIPE_DURATION`/`WIPE_DELAY` constants in `AcquireSection.tsx`. Keep them referencing those constants: the whole point is that the two sweep left-to-right in lockstep and land together at 3290ms, so hardcoding either one invites drift.
 
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
 | Background image | — | — | — | Always immediately visible, no animation |
-| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/70 backdrop-blur-sm`, same opacity as Contact/Reviews cards) wraps the whole title/description/button block; wipes in left-to-right in sync with the text, finishing as the Acquire button/publisher line settle |
+| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/70 backdrop-blur-sm`, same opacity as Contact/Reviews cards) wraps the whole title/description/button block. Its `clip-path` gates everything inside, so this wipe — not the description's own `slideInLeft` — is what actually finishes revealing the description |
+| Brush stroke nav | `wipeFromLeft` | 2040ms | 1250ms | **Identical to the card wipe by design** (was 1080ms/2000ms, and 1080ms/0ms before that) |
 | Title (h1) | `slideInLeft` | 660ms | 1250ms | |
 | HR divider | `fadeIn` | 500ms | 1700ms | |
-| Description | `slideInLeft` | 660ms | 2000ms | |
+| Description | `slideInLeft` | 660ms | 2000ms | Nominally ends at 2660ms, but stays gated by the card wipe until 3290ms |
 | Acquire button + publisher line | `fadeIn` | 590ms | 2000ms | Starts together with the description, not after it |
-| Brush stroke nav | `wipeFromLeft` | 1080ms | 2000ms | Starts together with the description (moved from 0ms) |
-| Nav buttons | `fadeIn` | 660ms | 2690ms | Still 690ms into the brush stroke's own wipe — same relative offset as before, just shifted later |
+| Nav buttons | `fadeIn` | 660ms | 3290ms | Fires exactly when both wipes complete |
+
+Both wipes were verified in-browser by pausing them via `document.getAnimations()` and scrubbing both to identical `currentTime` values — the computed `clip-path` matched at every sampled point (e.g. 46.853% at 2000ms). Note that "same timing" means same proportional progress, not same pixels/second: the brush stroke spans the full viewport while the card is `max-w-lg`, so matching px/sec would make the card finish far earlier and break the shared landing.
 
 ## Sanity Schema (`homepageSettings.ts`)
 
