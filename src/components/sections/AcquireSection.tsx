@@ -45,14 +45,19 @@ export function AcquireSection({
     return { animation: `${keyframe} ${duration} ease-out ${delay} both` }
   }
 
-  // Sequence: title → hr → description + brush stroke nav (together) → nav buttons
-  const backdropWipeAnim = anim('wipeFromLeft', '2040ms', '1250ms')
+  // The brush stroke nav and the content card share one identical left-to-right wipe —
+  // same keyframe, duration, delay and easing — so they sweep in lockstep and land
+  // together at 3290ms. The card's clip-path gates the text inside it, so that shared
+  // finish is also when the description finishes revealing. Nav links follow right after.
+  const WIPE_DURATION = '2040ms'
+  const WIPE_DELAY    = '1250ms'
+  const backdropWipeAnim = anim('wipeFromLeft', WIPE_DURATION, WIPE_DELAY)
+  const brushWipeAnim    = anim('wipeFromLeft', WIPE_DURATION, WIPE_DELAY)
   const titleAnim       = anim('slideInLeft',  '660ms',  '1250ms')
   const hrAnim          = anim('fadeIn',       '500ms',  '1700ms')
   const descAnim        = anim('slideInLeft',  '660ms',  '2000ms')
   const buyAnim         = anim('fadeIn',       '590ms',  '2000ms')
-  const brushWipeAnim   = anim('wipeFromLeft', '1080ms', '2000ms')
-  const navAnim         = anim('fadeIn',       '660ms',  '2690ms')
+  const navAnim         = anim('fadeIn',       '660ms',  '3290ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
