@@ -122,7 +122,7 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
 
           {/* Overall rating */}
           <div
-            className="mb-6 flex flex-col items-center text-center rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm px-8 py-8"
+            className="mb-6 flex flex-col items-center text-center rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm px-8 py-8 md:w-[90%] md:mx-auto"
             style={revealAnim(0)}
           >
             <p className={`${fraunces.className} font-semibold text-7xl md:text-8xl leading-none`}>
@@ -132,11 +132,11 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
           </div>
 
           {/* Individual reviews */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-y-4 gap-x-3 md:grid-cols-2 md:w-[90%] md:mx-auto">
             {reviews.map((review, i) => (
               <div
                 key={i}
-                className={`relative overflow-hidden rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm p-5 ${review.reply ? 'md:col-span-2' : 'md:w-[85%] md:mx-auto md:min-h-[200px]'}`}
+                className={`relative overflow-hidden rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm p-5 ${review.reply ? 'md:col-span-2' : 'md:min-h-[200px]'}`}
                 style={revealAnim(90 + i * 70)}
               >
                 <span
