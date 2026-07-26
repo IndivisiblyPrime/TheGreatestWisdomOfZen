@@ -93,7 +93,7 @@ src/
   └── AcquireSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation); fixed inset-0 (not absolute — see "Mobile scroll-lock gotcha" below); same desktop/mobile CSS-swap pattern as BookHero
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
-        ├── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title at 1250ms, hr at 1700ms, description at 2000ms, button + publisher line at 2000ms (same time as the description)
+        ├── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title, description, Acquire button and publisher line all share ONE identical reveal — `slideInLeft` 660ms at 1250ms (from the shared `TEXT_DURATION`/`TEXT_DELAY` constants) — so they slide in together as a single motion. The hr divider is the lone exception: `fadeIn` 500ms at 1700ms
         └── Brush stroke nav (fixed 80px, absolute top): shares the content card's exact wipe — wipeFromLeft 2040ms at 1250ms — so the two sweep in lockstep and finish together at 3290ms; nav buttons fadeIn at 3290ms, right after
               Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
 
@@ -123,20 +123,23 @@ src/
 
 Controlled by `sessionStorage.getItem('acquire-skip-anim')` (set when navigating internally via the "Acquire" nav link, so revisits skip the animation). Cleared when browser session ends.
 
-The brush stroke nav and the text backdrop card perform **one identical wipe** — same keyframe, duration, delay and easing, declared from the shared `WIPE_DURATION`/`WIPE_DELAY` constants in `AcquireSection.tsx`. Keep them referencing those constants: the whole point is that the two sweep left-to-right in lockstep and land together at 3290ms, so hardcoding either one invites drift.
+Two sets of elements each share **one identical animation**, both driven by shared constants in `AcquireSection.tsx` so paired elements can't drift apart:
+
+- **The wipe pair** (`WIPE_DURATION`/`WIPE_DELAY`): the brush stroke nav and the text backdrop card perform the same left-to-right `wipeFromLeft` in lockstep, landing together at 3290ms.
+- **The text reveal group** (`TEXT_DURATION`/`TEXT_DELAY`): the title, description, Acquire button and publisher line all use the same `slideInLeft` 660ms at 1250ms, so they slide in together as a single motion (per request — the description / Acquire / publisher match the title exactly). `buyAnim` drives both the Acquire button and the publisher line.
 
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
 | Background image | — | — | — | Always immediately visible, no animation |
-| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/70 backdrop-blur-sm`, same opacity as Contact/Reviews cards) wraps the whole title/description/button block. Its `clip-path` gates everything inside, so this wipe — not the description's own `slideInLeft` — is what actually finishes revealing the description |
+| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/70 backdrop-blur-sm`, same opacity as Contact/Reviews cards) wraps the whole title/description/button block. Its `clip-path` gates everything inside, so this wipe — not the text's own `slideInLeft` — is what actually finishes revealing the content at 3290ms |
 | Brush stroke nav | `wipeFromLeft` | 2040ms | 1250ms | **Identical to the card wipe by design** (was 1080ms/2000ms, and 1080ms/0ms before that) |
-| Title (h1) | `slideInLeft` | 660ms | 1250ms | |
-| HR divider | `fadeIn` | 500ms | 1700ms | |
-| Description | `slideInLeft` | 660ms | 2000ms | Nominally ends at 2660ms, but stays gated by the card wipe until 3290ms |
-| Acquire button + publisher line | `fadeIn` | 590ms | 2000ms | Starts together with the description, not after it |
+| Title (h1) | `slideInLeft` | 660ms | 1250ms | Text reveal group |
+| Description | `slideInLeft` | 660ms | 1250ms | Text reveal group — matches the title exactly (was 660ms/2000ms) |
+| Acquire button + publisher line | `slideInLeft` | 660ms | 1250ms | Text reveal group — matches the title exactly (was `fadeIn` 590ms/2000ms) |
+| HR divider | `fadeIn` | 500ms | 1700ms | Deliberately NOT in the text reveal group — the lone element on its own timing |
 | Nav buttons | `fadeIn` | 660ms | 3290ms | Fires exactly when both wipes complete |
 
-Both wipes were verified in-browser by pausing them via `document.getAnimations()` and scrubbing both to identical `currentTime` values — the computed `clip-path` matched at every sampled point (e.g. 46.853% at 2000ms). Note that "same timing" means same proportional progress, not same pixels/second: the brush stroke spans the full viewport while the card is `max-w-lg`, so matching px/sec would make the card finish far earlier and break the shared landing.
+The text reveal group's own `slideInLeft` finishes at 1910ms, but every element stays gated by the card's `clip-path` wipe until it completes at 3290ms, so what you actually see is the shared left-to-right reveal. The wipe pair was verified in-browser by pausing both via `document.getAnimations()` and scrubbing to identical `currentTime` values — the computed `clip-path` matched at every sampled point (e.g. 46.853% at 2000ms). The text reveal group was verified via `getComputedStyle().animation` — all four elements returned the identical `0.66s ease-out 1.25s both slideInLeft`. Note that "same timing" for the wipe pair means same proportional progress, not same pixels/second: the brush stroke spans the full viewport while the card is `max-w-lg`, so matching px/sec would make the card finish far earlier and break the shared landing.
 
 ## Sanity Schema (`homepageSettings.ts`)
 
