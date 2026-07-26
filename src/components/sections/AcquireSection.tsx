@@ -58,11 +58,17 @@ export function AcquireSection({
   const WIPE_DELAY    = '1250ms'
   const backdropWipeAnim = anim('wipeFromLeft', WIPE_DURATION, WIPE_DELAY)
   const brushWipeAnim    = anim('wipeFromLeft', WIPE_DURATION, WIPE_DELAY)
-  const titleAnim       = anim('slideInLeft',  '660ms',  '1250ms')
-  const hrAnim          = anim('fadeIn',       '500ms',  '1700ms')
-  const descAnim        = anim('slideInLeft',  '660ms',  '2000ms')
-  const buyAnim         = anim('fadeIn',       '590ms',  '2000ms')
-  const navAnim         = anim('fadeIn',       '660ms',  '3290ms')
+  // Title, description, Acquire button and publisher line share ONE identical reveal —
+  // same keyframe, duration and delay — so they all slide in together as a single motion,
+  // matching the title exactly (per request). Keep them on these shared constants so they
+  // can't drift apart. (buyAnim drives both the Acquire button and the publisher line.)
+  const TEXT_DURATION = '660ms'
+  const TEXT_DELAY    = '1250ms'
+  const titleAnim       = anim('slideInLeft', TEXT_DURATION, TEXT_DELAY)
+  const descAnim        = anim('slideInLeft', TEXT_DURATION, TEXT_DELAY)
+  const buyAnim         = anim('slideInLeft', TEXT_DURATION, TEXT_DELAY)
+  const hrAnim          = anim('fadeIn',      '500ms',  '1700ms')
+  const navAnim         = anim('fadeIn',      '660ms',  '3290ms')
 
   return (
     <div className="relative min-h-screen overflow-hidden">
