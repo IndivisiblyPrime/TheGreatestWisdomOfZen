@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; the brush-stroke nav bar and the description card perform one synchronized left-to-right wipe (identical timing, finishing together), after which the nav links fade in. Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing here! It is empty!") with an in-character author reply.
+**The Greatest Wisdom of Zen** — a minimal Next.js + Sanity CMS site for the book. No navbar, no footer on the homepage. Full-viewport-height hero shows the background image (same image as /acquire); cursor is always pointer; clicking plays a fullscreen transition video (if set in Sanity, at 2x speed) then navigates to `/acquire` seamlessly, or navigates directly if no video is configured. The `/acquire` page loads with the background immediately visible; the brush-stroke nav bar and the description card perform one synchronized left-to-right wipe (identical timing, finishing together), after which the nav links fade in. `/acquire`, `/reviews` and `/contact` all share the **"Ink & paper"** treatment — warm paper cards tinted to sit *in* the background photograph rather than on top of it, warm ink type, Fraunces display + EB Garamond body (see the Design System section below). Contact is its own dedicated page. `/reviews` is a joke reviews page (the book is blank — that's the gag): hardcoded 4.5/5 rating with seven reviews, six 5-star jokes and one 1-star ("There is nothing here! It is empty!") with an in-character author reply.
 
 The background image (used on the homepage, `/acquire`, `/contact`, and `/reviews`) and the homepage transition video each have an optional mobile-specific variant (see "Mobile assets" below) that swaps in below the `md:` breakpoint (768px) via pure CSS — so it reacts live if the browser window is resized, and stays consistent across page navigations at the same width (not just on initial page load).
 
@@ -71,9 +71,52 @@ src/
 │       ├── homepageSettings.ts        # TGWOZ schema (5 groups)
 │       └── heroSection.ts             # Legacy — unused, can be removed later
 └── lib/
+    ├── fonts.ts                       # Shared next/font instances — Fraunces (VARIABLE, opsz axis) + EB Garamond
+    ├── theme.ts                       # "Ink & paper" design tokens as literal Tailwind class strings
     ├── types.ts                       # SiteSettings interface
     └── utils.ts                       # cn() utility
 ```
+
+## Design System: "Ink & paper"
+
+`/acquire`, `/reviews` and `/contact` share one surface treatment, defined in `src/lib/theme.ts`.
+The pages sit on a warm sand photograph; a white card floats on top of that and the seam shows,
+so every card is tinted to paper instead and settles into the image. Text is warm ink, never pure black.
+
+| Token | Value | Used for |
+|-------|-------|----------|
+| `inkCard` | `rounded-sm border-[#3c301e]/20 bg-[#faf5ec]/85 backdrop-blur-sm shadow-[0_1px_30px_...]` | Every card on every page |
+| `inkRule` | `border-[#3c301e]/30` | Hairline dividers inside cards |
+| `inkHeading` | `text-[#221d16]` | Headings |
+| `inkBody` | `text-[#3a332a]` | Running copy |
+| `inkMuted` | `text-[#8b8172]` | Colophons, attributions |
+| `inkLabel` | `text-[11px] uppercase tracking-[0.14em] text-[#8b8172]` | Field labels, review bylines |
+| `inkEyebrow` | `text-[11px] uppercase tracking-[0.16em] text-[#5c5346]` | Card-level headings (darker than `inkLabel` so a card title doesn't read as another field label) |
+| `inkButton` | solid `#1f1a13` on `#f7f2e9`, uppercase `tracking-[0.13em]`, square; inverts to outline on hover | All CTAs |
+| `inkInput` | `border-b border-[#3c301e]/25`, no other border; focus darkens the underline | All form inputs |
+| `inkNavLink` | `text-white text-[11px] uppercase tracking-[0.18em]` | Brush-stroke nav links |
+| `inkSuccess` / `inkError` | `#4a6b4f` / `#8f3a2a` | Form status messages — warmed toward the palette but still unmistakably success/failure |
+
+**These are complete literal class strings on purpose.** Tailwind scans source files for class-name
+candidates, so composing them by interpolating colour constants would leave the utilities ungenerated.
+Add to the strings; don't build them from parts.
+
+### Fonts (`src/lib/fonts.ts`)
+
+- **Fraunces** — display: headings, the `/reviews` rating, decorative quote marks, colophons. Echoes the serif on the book cover.
+- **EB Garamond** — body: all running copy. Reads like the interior of a printed book, which is the joke.
+
+**Fraunces is loaded as the _variable_ font (`axes: ["opsz"]`, no `weight`) and this matters.**
+Pinning `weight` makes next/font ship static instances with the optical size baked in at its *text*
+default, which renders noticeably wider and chunkier — enough that "The Greatest Wisdom of Zen" stopped
+fitting on one line on `/acquire` at 34px. Display-set headings therefore apply
+`style={{ fontVariationSettings: DISPLAY_OPSZ }}` (`'opsz' 100`) to get the narrower, higher-contrast
+display cut. There is no Tailwind utility for `font-variation-settings`, so it has to be an inline style.
+The `/reviews` "4.5" pins it too — otherwise its letterforms visibly change shape across the
+`text-7xl` → `md:text-8xl` breakpoint, since the axis defaults to tracking font-size.
+
+Form **inputs deliberately stay sans** (the inherited Geist) rather than Garamond: emails, phone numbers
+and typed data read better in a sans, and it draws a clean line between "text you read" and "text you enter".
 
 ## Page Layout
 
@@ -93,13 +136,16 @@ src/
   └── AcquireSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation); fixed inset-0 (not absolute — see "Mobile scroll-lock gotcha" below); same desktop/mobile CSS-swap pattern as BookHero
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
+        ├── Styling: "Ink & paper" (see Design System above). Card is `inkCard` + `p-6 md:p-9`; title is Fraunces 34px at `DISPLAY_OPSZ`; description is EB Garamond 19px/1.62; Acquire is `inkButton`; colophon is Fraunces italic 13px.
+        ├── Width is PINNED at `max-w-lg` and must stay there — the card sits in the gap between the book and the branch in the background photo, so it may grow taller but never wider. The description was sized up to 19px for readability on that basis.
+        ├── The content wrapper's `py-24 md:py-12` is load-bearing, not decorative: on a short phone (375×667) the card is taller than the viewport, and without it the flex centering pulls the card's top edge under the 80px nav and hides the title.
         ├── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title, description, Acquire button and publisher line all share ONE identical reveal — `slideInLeft` 660ms at 1250ms (from the shared `TEXT_DURATION`/`TEXT_DELAY` constants) — so they slide in together as a single motion. The hr divider is the lone exception: `fadeIn` 500ms at 1700ms
         └── Brush stroke nav (fixed 80px, absolute top): shares the content card's exact wipe — wipeFromLeft 2040ms at 1250ms — so the two sweep in lockstep and finish together at 3290ms; nav buttons fadeIn at 3290ms, right after
               Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
 
 /more — redirects (permanent) to /acquire; kept for old links/bookmarks
 
-/reviews uses NavBackground (same shell as /contact):
+/reviews uses NavBackground (same shell as /contact). Styled "Ink & paper" (see Design System above): every card is `inkCard`, review text is EB Garamond 17px/1.55, bylines are `inkLabel`, stars are `fill-[#1f1a13]` on `fill-[#d8cfbe]`, the quote glyph is `text-[#3c301e]/15`. **All widths are unchanged from the pre-ink version and must stay that way** — `max-w-2xl`, `md:w-[90%] md:mx-auto`, `grid gap-y-4 gap-x-3 md:grid-cols-2`, `p-5`. Only the paired cards' min-height moved (200px → 212px), because Garamond at 17px makes the tallest card (Lao Tzu, measured at 1440px viewport) 212px; sizing the floor to the measured tallest is the existing convention, so re-measure at 1440px if the review copy changes.
   └── ReviewsSection: centered max-w-2xl column (deliberately narrower than the old max-w-3xl — on a laptop-width viewport, max-w-3xl left barely any margin before the background photo's book cover/rocks started showing at the edges; max-w-2xl gives real breathing room while still fitting 2 cards per row above the md: breakpoint). Header card (rounded-lg, border-black/10, bg-white/70 backdrop-blur, px-8 py-8) holds a large "4.5" in Fraunces (serif — echoes the book cover's own lettering) with an SVG star row beneath, no spelled-out "out of 5"/review count (deliberately terse). Below that, seven hardcoded joke reviews render as cards in a plain `grid gap-y-4 gap-x-3 md:grid-cols-2` (single column on mobile, using the default `gap-y-4` for vertical spacing there too) — same rounded/soft-border/glass treatment as the header card and as /acquire's content card, each with a decorative oversized Fraunces closing-quote mark inset fully inside the card (top-2 right-4 — do not use a negative top offset here, see note below). Above `md:`, the header card and the reviews grid both get `md:w-[90%] md:mx-auto` — applied at the row/header level, not per-card — so every row's left/right edges line up: the two 5-star cards that pair up two-per-row (`md:min-h-[200px]`, no per-card width/centering of their own) fill their grid columns edge-to-edge with only the grid's own `gap-x-3` between them, and the one-star/reply card (`md:col-span-2`) spans the same already-narrowed grid width. (Previously each paired card was individually narrowed via `md:w-[85%] md:mx-auto`, which put much more empty space between the two cards on a row than intended and left the header/one-star cards wider than the paired row's combined width, misaligning edges — fixed by narrowing once at the row level instead of per-card.) The shared 200px min-height on the paired cards keeps all six level despite differing review lengths, sized to fit the tallest (Lao Tzu, at 1440px width) rather than an arbitrary round number. This intentionally reintroduces a fixed-height floor in a narrower scope than an earlier version that forced every row (this one included) to a 240px minimum and was removed because it left a lot of dead space below short reviews' text — the current min-height only applies to the paired cards, not the full-width row, so that dead-space problem doesn't return. Card padding is `p-5` (was `p-6`). Six 5-star reviews + one 1-star ("There is nothing here! It is empty!", 3rd, `md:col-span-2` so its indented reply has room) with reply "Ah, you are getting it." signed "— Author of The Greatest Wisdom of Zen". Order (top to bottom): Lao Tzu, Margaret (Book Club President), the 1-star/reply, A Devoted Student, The Dalai Lama, An Enlightened Customer, A Former Seeker. Cards fade/slide in with a short staggered entrance on mount (`fadeSlideUp` keyframe in globals.css). Stars are inline SVGs (see `STAR_PATH`/`StarIcon` in ReviewsSection.tsx) with precise percentage clip-path fill, not the "★" text glyph — crisper at large sizes and consistent across browsers. No Sanity content beyond background/brush images.
 
   **Quote-mark clipping gotcha:** the decorative quote glyph must sit fully inside the card's box (positive `top`/inset), not straddle the edge with a negative offset. A text span's line-box is taller than the glyph's visible ink, and the ink sits near the top of that box — a negative `top` (meant to let the glyph "bleed" off the corner) pulls most of the box above the card's `overflow-hidden` clip line while the ink (concentrated near the top of the box) gets disproportionately clipped, reading as "sitting outside the card" rather than a clean bleed. Verified by comparing `getBoundingClientRect()` of the card vs. the glyph span directly, not by eyeballing a screenshot.
@@ -110,7 +156,7 @@ src/
   ├── Background image: fixed inset-0 z-0 (fixed, not absolute); same desktop/mobile CSS-swap as BookHero/AcquireSection via backgroundImage/backgroundImageMobile
   ├── Brush stroke nav: same image, fixed 80px at top, immediately visible
   │     Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
-  └── Content: SubscribeForm + ContactForm (bg-white/70 cards, no border on inputs beyond border-b)
+  └── Content: SubscribeForm + ContactForm — "Ink & paper" (see Design System above): `inkCard` + `p-6`, `inkEyebrow` card headings, `inkLabel` field labels, `inkInput` (border-b only), `inkButton` submits, `inkSuccess`/`inkError` status lines. Intro line is EB Garamond 18px; inputs stay sans on purpose.
 ```
 
 ### Re-enabling /read-online
@@ -131,7 +177,7 @@ Two sets of elements each share **one identical animation**, both driven by shar
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
 | Background image | — | — | — | Always immediately visible, no animation |
-| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Clear/blurred card (`bg-white/70 backdrop-blur-sm`, same opacity as Contact/Reviews cards) wraps the whole title/description/button block. Its `clip-path` gates everything inside, so this wipe — not the text's own `slideInLeft` — is what actually finishes revealing the content at 3290ms |
+| Text backdrop card | `wipeFromLeft` | 2040ms | 1250ms | Warm paper card (`inkCard`, same treatment as Contact/Reviews cards) wraps the whole title/description/button block. Its `clip-path` gates everything inside, so this wipe — not the text's own `slideInLeft` — is what actually finishes revealing the content at 3290ms |
 | Brush stroke nav | `wipeFromLeft` | 2040ms | 1250ms | **Identical to the card wipe by design** (was 1080ms/2000ms, and 1080ms/0ms before that) |
 | Title (h1) | `slideInLeft` | 660ms | 1250ms | Text reveal group |
 | Description | `slideInLeft` | 660ms | 1250ms | Text reveal group — matches the title exactly (was 660ms/2000ms) |
@@ -203,14 +249,15 @@ All vars except `CONTACT_FROM_EMAIL` are already configured in Vercel production
 - Publishing in Studio → live site updates immediately (no Vercel redeploy needed)
 - Code changes require `git push origin main` → Vercel auto-deploys
 
-## Design System
+## Design System — mechanics & layout
 
-- **Theme**: Minimal black & white — white background, black text/borders
-- **Buttons** (PDF nav, buy links): `border border-black px-6 py-2 text-sm`, inverts on hover
-- **Acquire button** (`/acquire`): starts `bg-white text-black`, inverts to `bg-black text-white` on hover
-- **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top, white text links (`text-white text-sm font-medium hover:opacity-70`); links: Back / Acquire / Reviews / Contact (Read Online link removed while disabled). The current page's link gets `underline underline-offset-4` (via `usePathname()` compared against each link's `href`) — implemented independently in both `NavBackground.tsx` and `AcquireSection.tsx` since the latter doesn't reuse the former.
+(For colour/type tokens see **Design System: "Ink & paper"** further up.)
+
+- **Theme**: "Ink & paper" — warm paper cards on the sand photograph, warm ink type, Fraunces + EB Garamond. See the **Design System: "Ink & paper"** section above for the full token table; this section covers the mechanics that aren't tokens. (Superseded the earlier minimal black & white / Geist-everywhere look, which had a white card visibly seaming against the warm background photo.)
+- **Buttons**: all CTAs use `inkButton` — solid ink, uppercase tracked, square corners, inverts to outline on hover. The PDF nav buttons on the disabled `/read-online` still use the old `border border-black px-6 py-2 text-sm` style.
+- **Nav bar** (all inner pages): fixed `height: 80px` brush stroke image strip at absolute top; links use `inkNavLink`; links: Back / Acquire / Reviews / Contact (Read Online link removed while disabled). The current page's link gets `underline underline-offset-4` (via `usePathname()` compared against each link's `href`) — implemented independently in both `NavBackground.tsx` and `AcquireSection.tsx` since the latter doesn't reuse the former, so **nav changes must be made in both files** (they now share the `inkNavLink` token, but each builds its own `linkClass()`).
 - **Nav bar height**: always exactly 80px regardless of viewport — uses `style={{ height: '80px' }}` (not Tailwind class) and image uses inline `objectFit: 'cover'` to prevent height scaling
-- **Contact/Subscribe forms**: each sits in a `rounded border border-gray-300/40 bg-white/70 backdrop-blur-sm` card (opacity matched to the reviews cards — was `bg-white/20` and read as too see-through against the busy background photo). Inputs have no border of their own beyond `border-b`, section headings use `text-xs uppercase tracking-wide text-neutral-500`. The subscribe form is `flex-col` (email input full-width, button full-width below it) under `sm:` and `flex-row` (side by side) at `sm:` and up — stacking it was a deliberate mobile fix, not a bug.
+- **Contact/Subscribe forms**: each sits in an `inkCard` (previously `bg-white/70`, and `bg-white/20` before that, which read as too see-through against the busy background photo). Inputs have no border of their own beyond `border-b`. The subscribe form is `flex-col` (email input full-width, button full-width below it) under `sm:` and `flex-row` (side by side) at `sm:` and up — stacking it was a deliberate mobile fix, not a bug.
 - **PDF reader**: `react-pdf` v10 (`PdfReader.tsx`, `'use client'`), worker loaded from unpkg CDN matching installed pdfjs-dist version; ResizeObserver measures container width and passes it to `Page` `width` prop so PDF fills container with no white space to the right
 - **Nav bar image**: brush stroke is an `<img>` with `height: 80px; width: 100%; objectFit: cover` (not CSS background-image) so height is truly fixed at 80px regardless of viewport width — shows the source art's full width as-is (frayed left edge and all; a deliberate look, not a bug)
 - **View transitions**: `document.startViewTransition` wraps the homepage → /acquire navigation when supported by the browser

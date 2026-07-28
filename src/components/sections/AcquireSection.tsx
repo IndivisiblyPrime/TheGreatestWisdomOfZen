@@ -5,6 +5,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { urlFor } from "@/sanity/lib/image"
+import { fraunces, garamond } from "@/lib/fonts"
+import { inkCard, inkRule, inkHeading, inkBody, inkMuted, inkButton, inkNavLink, DISPLAY_OPSZ } from "@/lib/theme"
 
 interface AcquireSectionProps {
   bookDescription?: string
@@ -24,7 +26,7 @@ export function AcquireSection({
   const mobileImage = backgroundImageMobile || backgroundImage
   const pathname = usePathname()
   const linkClass = (href: string) =>
-    `text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap ${pathname === href ? 'underline underline-offset-4' : ''}`
+    `${inkNavLink} ${pathname === href ? 'underline underline-offset-4' : ''}`
   // 'hidden'   — before client mount (SSR), everything opacity:0
   // 'animating' — first visit, run the full sequence
   // 'visible'  — revisit, show everything immediately
@@ -99,31 +101,38 @@ export function AcquireSection({
         )}
       </div>
 
-      {/* Content — centered */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen px-8">
+      {/* Content — centered. The vertical padding is load-bearing on short phones: the card
+          is taller than the viewport there, and without it the flex centering pulls the card's
+          top edge under the 80px brush-stroke nav and hides the title. */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-6 md:px-8 py-24 md:py-12">
 
-        {/* Title + Description + Acquire — block stays centered, text aligns left */}
+        {/* Title + Description + Acquire — block stays centered, text aligns left.
+            Width is deliberately pinned at max-w-lg: the card sits in the gap between the
+            book and the branch in the background photo, so it can grow taller but not wider. */}
         <div
-          className="max-w-lg w-full text-left rounded border border-gray-300/40 bg-white/70 backdrop-blur-sm p-6"
+          className={`max-w-lg w-full text-left ${inkCard} p-6 md:p-9`}
           style={{ ...backdropWipeAnim, overflow: 'hidden' }}
         >
-          <h1 className="text-3xl font-bold" style={titleAnim}>
+          <h1
+            className={`${fraunces.className} text-[34px] font-medium leading-[1.18] ${inkHeading}`}
+            style={{ ...titleAnim, fontVariationSettings: DISPLAY_OPSZ }}
+          >
             The Greatest Wisdom of Zen
           </h1>
-          <hr className="border-black my-4" style={hrAnim} />
+          <hr className={`${inkRule} my-5`} style={hrAnim} />
           {bookDescription && (
-            <p className="text-sm leading-relaxed text-neutral-800 whitespace-pre-wrap" style={descAnim}>
+            <p className={`${garamond.className} text-[19px] leading-[1.62] ${inkBody} whitespace-pre-wrap`} style={descAnim}>
               {bookDescription}
             </p>
           )}
           <a
             href={buyButtonUrl}
-            className="mt-6 inline-block border border-black bg-white text-black px-6 py-2 text-sm hover:bg-black hover:text-white transition-colors"
+            className={`mt-7 ${inkButton} px-[26px] py-3 text-[12.5px]`}
             style={buyAnim}
           >
             Acquire
           </a>
-          <p className="mt-3 text-sm italic text-neutral-700" style={buyAnim}>
+          <p className={`${fraunces.className} mt-[18px] text-[13px] italic ${inkMuted}`} style={buyAnim}>
             Published by Neti Neti LLC
           </p>
         </div>

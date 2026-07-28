@@ -1,15 +1,10 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Fraunces } from "next/font/google"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { NavBackground } from "./NavBackground"
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["500", "600"],
-  style: ["normal", "italic"],
-})
+import { fraunces, garamond } from "@/lib/fonts"
+import { inkCard, inkHeading, inkBody, inkLabel, DISPLAY_OPSZ } from "@/lib/theme"
 
 // ─── Stars ─────────────────────────────────────────────────────────────────────
 // SVG stars (crisper at large display sizes than a font glyph) with precise
@@ -20,12 +15,12 @@ const STAR_PATH = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.6
 function StarIcon({ fillPercent }: { fillPercent: number }) {
   return (
     <span className="relative inline-block h-[1em] w-[1em] shrink-0 align-middle">
-      <svg viewBox="0 0 24 24" className="absolute inset-0 h-full w-full fill-neutral-300">
+      <svg viewBox="0 0 24 24" className="absolute inset-0 h-full w-full fill-[#d8cfbe]">
         <path d={STAR_PATH} />
       </svg>
       <svg
         viewBox="0 0 24 24"
-        className="absolute inset-0 h-full w-full fill-black"
+        className="absolute inset-0 h-full w-full fill-[#1f1a13]"
         style={{ clipPath: `inset(0 ${100 - fillPercent}% 0 0)` }}
       >
         <path d={STAR_PATH} />
@@ -122,10 +117,15 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
 
           {/* Overall rating */}
           <div
-            className="mb-6 flex flex-col items-center text-center rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm px-8 py-8 md:w-[90%] md:mx-auto"
+            className={`mb-6 flex flex-col items-center text-center ${inkCard} px-8 py-8 md:w-[90%] md:mx-auto`}
             style={revealAnim(0)}
           >
-            <p className={`${fraunces.className} font-semibold text-7xl md:text-8xl leading-none`}>
+            {/* opsz pinned: Fraunces' optical size otherwise tracks font-size, so the
+                letterforms would visibly change shape across the text-7xl/text-8xl breakpoint. */}
+            <p
+              className={`${fraunces.className} font-semibold text-7xl md:text-8xl leading-none ${inkHeading}`}
+              style={{ fontVariationSettings: DISPLAY_OPSZ }}
+            >
               4.5
             </p>
             <Stars rating={4.5} className="mt-5 text-2xl md:text-3xl" />
@@ -136,30 +136,30 @@ export function ReviewsSection({ backgroundImage, backgroundImageMobile, brushSt
             {reviews.map((review, i) => (
               <div
                 key={i}
-                className={`relative overflow-hidden rounded-lg border border-black/10 bg-white/70 backdrop-blur-sm p-5 ${review.reply ? 'md:col-span-2' : 'md:min-h-[200px]'}`}
+                className={`relative overflow-hidden ${inkCard} p-5 ${review.reply ? 'md:col-span-2' : 'md:min-h-[212px]'}`}
                 style={revealAnim(90 + i * 70)}
               >
                 <span
                   aria-hidden="true"
-                  className={`${fraunces.className} pointer-events-none select-none absolute top-2 right-4 italic text-5xl leading-none text-black/10`}
+                  className={`${fraunces.className} pointer-events-none select-none absolute top-2 right-4 italic text-5xl leading-none text-[#3c301e]/15`}
                 >
                   &rdquo;
                 </span>
 
                 <Stars rating={review.rating} className="text-base" />
-                <p className="mt-3 text-sm leading-relaxed text-neutral-800 max-w-md">
+                <p className={`${garamond.className} mt-3 text-[17px] leading-[1.55] ${inkBody} max-w-md`}>
                   &ldquo;{review.text}&rdquo;
                 </p>
-                <p className="mt-3 text-xs uppercase tracking-wide text-neutral-500">
+                <p className={`mt-3 ${inkLabel}`}>
                   — {review.author}
                 </p>
 
                 {review.reply && (
-                  <div className="mt-4 ml-5 border-l border-black/15 pl-4">
-                    <p className="text-sm leading-relaxed text-neutral-800">
+                  <div className="mt-4 ml-5 border-l border-[#3c301e]/25 pl-4">
+                    <p className={`${garamond.className} text-[17px] leading-[1.55] ${inkBody}`}>
                       &ldquo;{review.reply.text}&rdquo;
                     </p>
-                    <p className="mt-2 text-xs uppercase tracking-wide text-neutral-500">
+                    <p className={`mt-2 ${inkLabel}`}>
                       — Author of The Greatest Wisdom of Zen
                     </p>
                   </div>
