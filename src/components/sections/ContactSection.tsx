@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { NavBackground } from "./NavBackground"
+import { garamond } from "@/lib/fonts"
+import { inkCard, inkBody, inkLabel, inkEyebrow, inkButton, inkInput, inkSuccess, inkError } from "@/lib/theme"
 
 // ─── Contact Form ──────────────────────────────────────────────────────────────
 
@@ -41,7 +43,7 @@ function ContactForm() {
 
   if (status === "sent") {
     return (
-      <p className="text-sm text-green-700">
+      <p className={`${garamond.className} text-[17px] ${inkSuccess}`}>
         Message sent! I&apos;ll get back to you soon.
       </p>
     )
@@ -51,7 +53,7 @@ function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+          <label className={`mb-1 block ${inkLabel}`}>
             Name
           </label>
           <input
@@ -60,12 +62,12 @@ function ContactForm() {
             required
             value={form.name}
             onChange={handleChange}
-            className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className={`${inkInput} text-[15px]`}
             placeholder="Your name"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+          <label className={`mb-1 block ${inkLabel}`}>
             Email
           </label>
           <input
@@ -74,13 +76,13 @@ function ContactForm() {
             required
             value={form.email}
             onChange={handleChange}
-            className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+            className={`${inkInput} text-[15px]`}
             placeholder="your@email.com"
           />
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+        <label className={`mb-1 block ${inkLabel}`}>
           Phone <span className="normal-case text-neutral-400">(optional)</span>
         </label>
         <input
@@ -88,12 +90,12 @@ function ContactForm() {
           name="phone"
           value={form.phone}
           onChange={handleChange}
-          className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className={`${inkInput} text-[15px]`}
           placeholder="+1 (555) 000-0000"
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+        <label className={`mb-1 block ${inkLabel}`}>
           Subject
         </label>
         <input
@@ -102,12 +104,12 @@ function ContactForm() {
           required
           value={form.subject}
           onChange={handleChange}
-          className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className={`${inkInput} text-[15px]`}
           placeholder="Subject"
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
+        <label className={`mb-1 block ${inkLabel}`}>
           Message
         </label>
         <textarea
@@ -116,19 +118,19 @@ function ContactForm() {
           rows={4}
           value={form.message}
           onChange={handleChange}
-          className="w-full resize-none border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none"
+          className={`${inkInput} resize-none text-[15px]`}
           placeholder="Your message..."
         />
       </div>
       {status === "error" && (
-        <p className="text-sm text-red-600">
+        <p className={`${garamond.className} text-[17px] ${inkError}`}>
           Something went wrong. Please try again.
         </p>
       )}
       <button
         type="submit"
         disabled={status === "sending"}
-        className="border border-black px-8 py-3 text-base transition-colors hover:bg-black hover:text-white disabled:opacity-50"
+        className={`${inkButton} px-8 py-3 text-[12.5px]`}
       >
         {status === "sending" ? "Sending…" : "Send Message"}
       </button>
@@ -160,7 +162,7 @@ function SubscribeForm() {
   }
 
   if (status === "sent") {
-    return <p className="text-sm text-green-700">You&apos;re subscribed!</p>
+    return <p className={`${garamond.className} text-[17px] ${inkSuccess}`}>You&apos;re subscribed!</p>
   }
 
   return (
@@ -170,16 +172,16 @@ function SubscribeForm() {
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="w-full border-b border-gray-300 bg-transparent px-0 py-2 text-sm text-black placeholder-neutral-400 focus:outline-none sm:flex-1"
+        className={`${inkInput} text-[15px] sm:flex-1`}
         placeholder="your@email.com"
       />
       {status === "error" && (
-        <p className="text-sm text-red-600">Error. Try again.</p>
+        <p className={`${garamond.className} text-[17px] ${inkError}`}>Error. Try again.</p>
       )}
       <button
         type="submit"
         disabled={status === "sending"}
-        className="w-full border border-black px-6 py-2 text-sm transition-colors hover:bg-black hover:text-white disabled:opacity-50 sm:w-auto"
+        className={`${inkButton} w-full px-6 py-3 text-[12.5px] sm:w-auto`}
       >
         {status === "sending" ? "…" : "Subscribe"}
       </button>
@@ -199,14 +201,14 @@ export function ContactSection({ backgroundImage, backgroundImageMobile, brushSt
   return (
     <NavBackground backgroundImage={backgroundImage} backgroundImageMobile={backgroundImageMobile} brushStrokeImage={brushStrokeImage}>
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
-        <p className="mb-8 text-sm text-neutral-600 text-center">Fill out the forms below to get in contact with Neti Neti LLC</p>
+        <p className={`${garamond.className} mb-8 text-[18px] ${inkBody} text-center`}>Fill out the forms below to get in contact with Neti Neti LLC</p>
         <div className="space-y-8 max-w-lg w-full">
-          <div className="rounded border border-gray-300/40 bg-white/70 backdrop-blur-sm p-6">
-            <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Join the mailing list <span className="normal-case tracking-normal">(zero spam or marketing emails)</span></p>
+          <div className={`${inkCard} p-6`}>
+            <p className={`mb-3 ${inkEyebrow}`}>Join the mailing list <span className="normal-case tracking-normal text-[#8b8172]">(zero spam or marketing emails)</span></p>
             <SubscribeForm />
           </div>
-          <div className="rounded border border-gray-300/40 bg-white/70 backdrop-blur-sm p-6">
-            <p className="mb-3 text-xs uppercase tracking-wide text-neutral-500">Contact</p>
+          <div className={`${inkCard} p-6`}>
+            <p className={`mb-3 ${inkEyebrow}`}>Contact</p>
             <ContactForm />
           </div>
         </div>

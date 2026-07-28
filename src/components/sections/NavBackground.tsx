@@ -5,6 +5,7 @@ import { urlFor } from "@/sanity/lib/image"
 import { ReactNode } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { inkNavLink } from "@/lib/theme"
 
 interface NavBackgroundProps {
   backgroundImage?: SanityImageSource
@@ -17,7 +18,7 @@ interface NavBackgroundProps {
 export function NavBackground({ backgroundImage, backgroundImageMobile, brushStrokeImage, children }: NavBackgroundProps) {
   const pathname = usePathname()
   const linkClass = (href: string) =>
-    `text-white text-sm font-medium hover:opacity-70 transition-opacity whitespace-nowrap ${pathname === href ? 'underline underline-offset-4' : ''}`
+    `${inkNavLink} ${pathname === href ? 'underline underline-offset-4' : ''}`
   const mobileImage = backgroundImageMobile || backgroundImage
 
   return (
