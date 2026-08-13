@@ -201,7 +201,7 @@ export function ContactSection({ backgroundImage, backgroundImageMobile, brushSt
   return (
     <NavBackground backgroundImage={backgroundImage} backgroundImageMobile={backgroundImageMobile} brushStrokeImage={brushStrokeImage}>
       <section className="w-full px-8 py-12 md:px-16 flex flex-col items-center">
-        <p className={`${garamond.className} mb-8 text-[18px] ${inkBody} text-center`}>Fill out the forms below to get in contact with Neti Neti LLC</p>
+        <p className={`${garamond.className} mb-8 text-[18px] ${inkBody} text-center`}>Fill out the forms below to get in contact</p>
         <div className="space-y-8 max-w-lg w-full">
           <div className={`${inkCard} p-6`}>
             <p className={`mb-3 ${inkEyebrow}`}>Join the mailing list <span className="normal-case tracking-normal text-[#8b8172]">(zero spam or marketing emails)</span></p>
