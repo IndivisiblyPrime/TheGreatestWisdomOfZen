@@ -69,29 +69,43 @@ export function BookHero({
       onClick={handleClick}
       style={{ cursor: 'pointer' }}
     >
-      {/* Background image — fallback while video loads, or when no video. Desktop/mobile variants swap via CSS, so they stay in sync with a resized browser. */}
-      <div className="absolute inset-0 z-0 hidden md:block">
-        {backgroundImage ? (
-          <img
-            src={urlFor(backgroundImage).width(1800).url()}
-            alt=""
-            className="w-full h-full object-cover object-center"
-          />
-        ) : (
-          <div className="w-full h-full bg-neutral-100" />
-        )}
-      </div>
-      <div className="absolute inset-0 z-0 md:hidden">
-        {mobileImage ? (
-          <img
-            src={urlFor(mobileImage).width(1200).url()}
-            alt=""
-            className="w-full h-full object-cover object-center"
-          />
-        ) : (
-          <div className="w-full h-full bg-neutral-100" />
-        )}
-      </div>
+      {/* Black backdrop — sits behind everything so there's never a gap for the background
+          photo to flash through while a video's first frame is still decoding. Only ever
+          visible for the imperceptible instant before the video paints. */}
+      <div className="absolute inset-0 z-0 bg-black" />
+
+      {/* Background image — ONLY the true fallback when no video is configured for this
+          breakpoint. Deliberately never rendered underneath a video: video elements paint
+          nothing until their first frame decodes, and this image loads/paints instantly, so
+          rendering it unconditionally caused a brief flash of the photo before the video
+          appeared. Desktop/mobile variants swap via CSS, so they stay in sync with a resized
+          browser. */}
+      {!transitionVideoUrl && (
+        <div className="absolute inset-0 z-0 hidden md:block">
+          {backgroundImage ? (
+            <img
+              src={urlFor(backgroundImage).width(1800).url()}
+              alt=""
+              className="w-full h-full object-cover object-center"
+            />
+          ) : (
+            <div className="w-full h-full bg-neutral-100" />
+          )}
+        </div>
+      )}
+      {!mobileVideoUrl && (
+        <div className="absolute inset-0 z-0 md:hidden">
+          {mobileImage ? (
+            <img
+              src={urlFor(mobileImage).width(1200).url()}
+              alt=""
+              className="w-full h-full object-cover object-center"
+            />
+          ) : (
+            <div className="w-full h-full bg-neutral-100" />
+          )}
+        </div>
+      )}
 
       {/* Video — always rendered when available, paused on first frame until clicked.
           #t=0.001 forces iOS Safari to seek + paint the first frame on load (mobile fix).
