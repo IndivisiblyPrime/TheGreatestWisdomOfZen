@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { urlFor } from "@/sanity/lib/image"
 import { fraunces, garamond } from "@/lib/fonts"
-import { inkCard, inkRule, inkHeading, inkBody, inkMuted, inkButton, inkNavLink, DISPLAY_OPSZ } from "@/lib/theme"
+import { inkCard, inkRule, inkHeading, inkBody, inkButton, inkNavLink, DISPLAY_OPSZ } from "@/lib/theme"
 
 interface AcquireSectionProps {
   bookDescription?: string
@@ -60,10 +60,10 @@ export function AcquireSection({
   const WIPE_DELAY    = '1250ms'
   const backdropWipeAnim = anim('wipeFromLeft', WIPE_DURATION, WIPE_DELAY)
   const brushWipeAnim    = anim('wipeFromLeft', WIPE_DURATION, WIPE_DELAY)
-  // Title, description, Acquire button and publisher line share ONE identical reveal —
+  // Title, description and Acquire button share ONE identical reveal —
   // same keyframe, duration and delay — so they all slide in together as a single motion,
   // matching the title exactly (per request). Keep them on these shared constants so they
-  // can't drift apart. (buyAnim drives both the Acquire button and the publisher line.)
+  // can't drift apart.
   const TEXT_DURATION = '660ms'
   const TEXT_DELAY    = '1250ms'
   const titleAnim       = anim('slideInLeft', TEXT_DURATION, TEXT_DELAY)
@@ -132,9 +132,6 @@ export function AcquireSection({
           >
             Acquire
           </a>
-          <p className={`${fraunces.className} mt-[18px] text-[13px] italic ${inkMuted}`} style={buyAnim}>
-            Published by Neti Neti LLC
-          </p>
         </div>
       </div>
 

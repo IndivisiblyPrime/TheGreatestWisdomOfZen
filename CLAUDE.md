@@ -136,10 +136,10 @@ and typed data read better in a sans, and it draws a clean line between "text yo
   └── AcquireSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation); fixed inset-0 (not absolute — see "Mobile scroll-lock gotcha" below); same desktop/mobile CSS-swap pattern as BookHero
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
-        ├── Styling: "Ink & paper" (see Design System above). Card is `inkCard` + `p-6 md:p-9`; title is Fraunces 34px at `DISPLAY_OPSZ`; description is EB Garamond 19px/1.62; Acquire is `inkButton`; colophon is Fraunces italic 13px.
+        ├── Styling: "Ink & paper" (see Design System above). Card is `inkCard` + `p-6 md:p-9`; title is Fraunces 34px at `DISPLAY_OPSZ`; description is EB Garamond 19px/1.62; Acquire is `inkButton`.
         ├── Width is PINNED at `max-w-lg` and must stay there — the card sits in the gap between the book and the branch in the background photo, so it may grow taller but never wider. The description was sized up to 19px for readability on that basis.
         ├── The content wrapper's `py-24 md:py-12` is load-bearing, not decorative: on a short phone (375×667) the card is taller than the viewport, and without it the flex centering pulls the card's top edge under the 80px nav and hides the title.
-        ├── Content (title + hr + description + Acquire button + publisher line): left-aligned text inside a centered max-w-lg block; title, description, Acquire button and publisher line all share ONE identical reveal — `slideInLeft` 660ms at 1250ms (from the shared `TEXT_DURATION`/`TEXT_DELAY` constants) — so they slide in together as a single motion. The hr divider is the lone exception: `fadeIn` 500ms at 1700ms
+        ├── Content (title + hr + description + Acquire button): left-aligned text inside a centered max-w-lg block; title, description and Acquire button all share ONE identical reveal — `slideInLeft` 660ms at 1250ms (from the shared `TEXT_DURATION`/`TEXT_DELAY` constants) — so they slide in together as a single motion. The hr divider is the lone exception: `fadeIn` 500ms at 1700ms
         └── Brush stroke nav (fixed 80px, absolute top): shares the content card's exact wipe — wipeFromLeft 2040ms at 1250ms — so the two sweep in lockstep and finish together at 3290ms; nav buttons fadeIn at 3290ms, right after
               Back → / | Acquire → /acquire | Reviews → /reviews | Contact → /contact
 
@@ -172,7 +172,7 @@ Controlled by `sessionStorage.getItem('acquire-skip-anim')` (set when navigating
 Two sets of elements each share **one identical animation**, both driven by shared constants in `AcquireSection.tsx` so paired elements can't drift apart:
 
 - **The wipe pair** (`WIPE_DURATION`/`WIPE_DELAY`): the brush stroke nav and the text backdrop card perform the same left-to-right `wipeFromLeft` in lockstep, landing together at 3290ms.
-- **The text reveal group** (`TEXT_DURATION`/`TEXT_DELAY`): the title, description, Acquire button and publisher line all use the same `slideInLeft` 660ms at 1250ms, so they slide in together as a single motion (per request — the description / Acquire / publisher match the title exactly). `buyAnim` drives both the Acquire button and the publisher line.
+- **The text reveal group** (`TEXT_DURATION`/`TEXT_DELAY`): the title, description and Acquire button all use the same `slideInLeft` 660ms at 1250ms, so they slide in together as a single motion (per request — the description / Acquire match the title exactly).
 
 | Element | Keyframe | Duration | Delay | Notes |
 |---------|----------|----------|-------|-------|
@@ -181,7 +181,7 @@ Two sets of elements each share **one identical animation**, both driven by shar
 | Brush stroke nav | `wipeFromLeft` | 2040ms | 1250ms | **Identical to the card wipe by design** (was 1080ms/2000ms, and 1080ms/0ms before that) |
 | Title (h1) | `slideInLeft` | 660ms | 1250ms | Text reveal group |
 | Description | `slideInLeft` | 660ms | 1250ms | Text reveal group — matches the title exactly (was 660ms/2000ms) |
-| Acquire button + publisher line | `slideInLeft` | 660ms | 1250ms | Text reveal group — matches the title exactly (was `fadeIn` 590ms/2000ms) |
+| Acquire button | `slideInLeft` | 660ms | 1250ms | Text reveal group — matches the title exactly (was `fadeIn` 590ms/2000ms) |
 | HR divider | `fadeIn` | 500ms | 1700ms | Deliberately NOT in the text reveal group — the lone element on its own timing |
 | Nav buttons | `fadeIn` | 660ms | 3290ms | Fires exactly when both wipes complete |
 
