@@ -3,6 +3,7 @@
 import { urlFor } from "@/sanity/lib/image"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { useRef, useState, useEffect, useCallback } from "react"
+import { preload } from "react-dom"
 import { useRouter } from "next/navigation"
 
 interface BookHeroProps {
@@ -25,16 +26,48 @@ export function BookHero({
   const mobileVideoRef = useRef<HTMLVideoElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [showPrompt, setShowPrompt] = useState(false)
+  // Whether each <video> has buffered its full duration. Gates both playback and the
+  // "Click to continue" prompt — see handleClick and the prompt-timer effect below.
+  const [videoReady, setVideoReady] = useState({ desktop: false, mobile: false })
 
   const mobileVideoUrl = transitionVideoMobileUrl || transitionVideoUrl
   const mobileImage = backgroundImageMobile || backgroundImage
+  // mobileVideoUrl always falls back to transitionVideoUrl, so whenever a video is
+  // configured at all, both <video> elements are mounted and both must become ready.
+  const videosReady = videoReady.desktop && videoReady.mobile
 
-  // Show "Click to continue" after 5 seconds of no interaction
+  // Poll buffered/readyState directly rather than relying on the 'canplaythrough' event:
+  // verified in testing that a video can sit at readyState 4 with `buffered` covering its
+  // entire duration (i.e. fully downloaded) while 'canplaythrough' never fires — a known
+  // unreliability with that event. Gating exclusively on it would permanently block clicking
+  // in that case. Polling buffered/readyState directly converges regardless of which events
+  // the browser does or doesn't fire.
   useEffect(() => {
     if (!transitionVideoUrl) return
+    const isFullyBuffered = (v: HTMLVideoElement | null) => {
+      if (!v || !v.duration || Number.isNaN(v.duration)) return false
+      return v.readyState >= 4 || (v.buffered.length > 0 && v.buffered.end(v.buffered.length - 1) >= v.duration - 0.25)
+    }
+    const check = () => {
+      setVideoReady((r) => {
+        const desktop = r.desktop || isFullyBuffered(desktopVideoRef.current)
+        const mobile = r.mobile || isFullyBuffered(mobileVideoRef.current)
+        return desktop === r.desktop && mobile === r.mobile ? r : { desktop, mobile }
+      })
+    }
+    check()
+    const interval = setInterval(check, 300)
+    return () => clearInterval(interval)
+  }, [transitionVideoUrl])
+
+  // Show "Click to continue" once the video is fully buffered, then after 5s of no
+  // interaction. Waiting for readiness first means the prompt never invites a click that
+  // would do nothing (or worse, start playback that immediately stalls mid-buffer).
+  useEffect(() => {
+    if (!transitionVideoUrl || !videosReady) return
     timerRef.current = setTimeout(() => setShowPrompt(true), 5000)
     return () => clearTimeout(timerRef.current)
-  }, [transitionVideoUrl])
+  }, [transitionVideoUrl, videosReady])
 
   // Preload /acquire's route + background/brush images as soon as the homepage mounts, so
   // the video → /acquire handoff never has to wait on a fetch. Without this, the background
@@ -43,20 +76,16 @@ export function BookHero({
   // the browser has never requested it), and the route itself was never prefetched either,
   // since the click handler is a plain onClick rather than a <Link> that Next auto-prefetches.
   // Either gap paints as the page's white background for a beat, i.e. exactly the flash this
-  // fixes. Preloading is safe to run unconditionally (even without a video) since a cached
-  // image is a no-op refetch.
+  // fixes. Uses react-dom's `preload()` resource hint rather than `new Image()` — a bare
+  // `new Image()` with no retained reference can be garbage-collected mid-download, which
+  // silently cancels the fetch in some browsers; `preload()` inserts a real <link> the
+  // browser (and React) owns for the page's lifetime, so it can't be GC'd out from under us.
+  // Runs unconditionally (even without a video) since a cached/preloaded resource is a no-op.
   useEffect(() => {
     router.prefetch('/acquire')
-    const urls = [
-      backgroundImage ? urlFor(backgroundImage).width(1800).url() : undefined,
-      backgroundImageMobile ? urlFor(backgroundImageMobile).width(1200).url() : undefined,
-      brushStrokeImage ? urlFor(brushStrokeImage).width(1800).url() : undefined,
-    ]
-    urls.forEach((url) => {
-      if (!url) return
-      const img = new window.Image()
-      img.src = url
-    })
+    if (backgroundImage) preload(urlFor(backgroundImage).width(1800).url(), { as: 'image' })
+    if (backgroundImageMobile) preload(urlFor(backgroundImageMobile).width(1200).url(), { as: 'image' })
+    if (brushStrokeImage) preload(urlFor(brushStrokeImage).width(1800).url(), { as: 'image' })
   }, [router, backgroundImage, backgroundImageMobile, brushStrokeImage])
 
   const navigateToAcquire = useCallback(() => {
@@ -75,6 +104,10 @@ export function BookHero({
   }, [])
 
   const handleClick = useCallback(() => {
+    // Ignore clicks until the video is fully buffered — starting playback on a half-buffered
+    // video causes it to freeze mid-scene waiting on more data, which reads as broken.
+    // Once ready, clicking is a no-op if already playing/played.
+    if (transitionVideoUrl && !videosReady) return
     clearTimeout(timerRef.current)
     setShowPrompt(false)
     if (transitionVideoUrl) {
@@ -86,7 +119,7 @@ export function BookHero({
     } else {
       navigateToAcquire()
     }
-  }, [transitionVideoUrl, getActiveVideoRef, navigateToAcquire])
+  }, [transitionVideoUrl, videosReady, getActiveVideoRef, navigateToAcquire])
 
   return (
     <div
