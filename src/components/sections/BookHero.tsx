@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 interface BookHeroProps {
   backgroundImage?: SanityImageSource
   backgroundImageMobile?: SanityImageSource
+  brushStrokeImage?: SanityImageSource
   transitionVideoUrl?: string
   transitionVideoMobileUrl?: string
 }
@@ -15,6 +16,7 @@ interface BookHeroProps {
 export function BookHero({
   backgroundImage,
   backgroundImageMobile,
+  brushStrokeImage,
   transitionVideoUrl,
   transitionVideoMobileUrl,
 }: BookHeroProps) {
@@ -33,6 +35,29 @@ export function BookHero({
     timerRef.current = setTimeout(() => setShowPrompt(true), 5000)
     return () => clearTimeout(timerRef.current)
   }, [transitionVideoUrl])
+
+  // Preload /acquire's route + background/brush images as soon as the homepage mounts, so
+  // the video → /acquire handoff never has to wait on a fetch. Without this, the background
+  // image on /acquire is a cold fetch the moment the video ends (it's deliberately NOT
+  // rendered on the homepage when a video is playing — see the "no-flash" note below — so
+  // the browser has never requested it), and the route itself was never prefetched either,
+  // since the click handler is a plain onClick rather than a <Link> that Next auto-prefetches.
+  // Either gap paints as the page's white background for a beat, i.e. exactly the flash this
+  // fixes. Preloading is safe to run unconditionally (even without a video) since a cached
+  // image is a no-op refetch.
+  useEffect(() => {
+    router.prefetch('/acquire')
+    const urls = [
+      backgroundImage ? urlFor(backgroundImage).width(1800).url() : undefined,
+      backgroundImageMobile ? urlFor(backgroundImageMobile).width(1200).url() : undefined,
+      brushStrokeImage ? urlFor(brushStrokeImage).width(1800).url() : undefined,
+    ]
+    urls.forEach((url) => {
+      if (!url) return
+      const img = new window.Image()
+      img.src = url
+    })
+  }, [router, backgroundImage, backgroundImageMobile, brushStrokeImage])
 
   const navigateToAcquire = useCallback(() => {
     if ('startViewTransition' in document) {
