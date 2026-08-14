@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 
+/** The message goes out as HTML, so anything a stranger typed has to be inert. */
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
+
 export async function POST(req: NextRequest) {
   const { name, email, subject, message } = await req.json()
 
@@ -23,13 +33,21 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({
       from,
       to,
+      // Hitting reply in the inbox answers the reader, not Resend. Without this
+      // a reply went to zen@breathebonsai.com, which is a send-only address —
+      // nobody reads it, so a reader who wrote in could never be answered.
+      reply_to: email,
       subject: subject ? `[Contact] ${subject}` : "[Contact] New message",
+      // All three sites send from breathebonsai.com, so the address can't say
+      // which one this came from — name the site in the body.
       html: `
-        <p><strong>From:</strong> ${name} &lt;${email}&gt;</p>
-        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>From:</strong> ${escapeHtml(name ?? "Anonymous")} &lt;${escapeHtml(email ?? "")}&gt;</p>
+        <p><strong>Subject:</strong> ${escapeHtml(subject ?? "")}</p>
+        <p><strong>Sent from:</strong> thegreatestwisdomofzen.com</p>
         <hr />
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${escapeHtml(message ?? "").replace(/\n/g, "<br>")}</p>
       `,
+      text: `From: ${name ?? "Anonymous"} <${email ?? ""}>\nSubject: ${subject ?? ""}\nSent from: thegreatestwisdomofzen.com\n\n${message ?? ""}`,
     }),
   })
 
