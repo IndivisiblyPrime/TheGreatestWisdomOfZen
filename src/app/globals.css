@@ -123,8 +123,31 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    /* Warm sand, sampled as the average tone of the background photograph
+       (desktop #e5cdb3 / mobile #ead0b1). Deliberately NOT the white `bg-background`
+       token: body's background propagates to the viewport canvas, which is painted
+       beneath everything, so it is what shows through during any momentary gap —
+       an image still decoding, a client-side route swap, a compositing seam. Against
+       the warm photo, white read as a hard flash (blue channel 179 → 255); this tone
+       makes the same gap imperceptible. The `--background` token itself is left white
+       for the shadcn components that reference it. */
+    background-color: #e7ceb2;
   }
+}
+
+/* View-transition backstop. The homepage → /acquire navigation deliberately does NOT
+   use document.startViewTransition (see BookHero), because the outgoing video's last
+   frame and /acquire's background are the same image — a cross-fade between identical
+   frames can only ever be a no-op or an artifact. This neutralises the UA's default
+   250ms root cross-fade should anything else ever start one, so it cuts instantly
+   instead of dipping toward the canvas colour. Chrome guards that dip with
+   `mix-blend-mode: plus-lighter` on an isolated image-pair; not every engine does,
+   which is what made this flash reproduce on Safari but never on Chrome. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 @keyframes wipeFromLeft {
