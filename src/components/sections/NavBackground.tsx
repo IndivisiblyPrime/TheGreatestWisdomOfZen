@@ -22,12 +22,12 @@ export function NavBackground({ backgroundImage, backgroundImageMobile, brushStr
   const mobileImage = backgroundImageMobile || backgroundImage
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-[var(--app-h)] overflow-hidden">
 
       {/* Background — fixed to viewport so tall content (e.g. PDF) doesn't scale it. Same
           desktop/mobile CSS-swap pattern as BookHero/AcquireSection, so the breakpoint is
           driven purely by current viewport width, consistently, on every page. */}
-      <div className="fixed inset-0 z-0 hidden md:block">
+      <div className="fixed inset-x-0 top-0 h-[var(--app-h)] z-0 hidden md:block">
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
@@ -38,7 +38,7 @@ export function NavBackground({ backgroundImage, backgroundImageMobile, brushStr
           <div className="w-full h-full bg-neutral-100" />
         )}
       </div>
-      <div className="fixed inset-0 z-0 md:hidden">
+      <div className="fixed inset-x-0 top-0 h-[var(--app-h)] z-0 md:hidden">
         {mobileImage ? (
           <img
             src={urlFor(mobileImage).width(1200).url()}
@@ -51,7 +51,7 @@ export function NavBackground({ backgroundImage, backgroundImageMobile, brushStr
       </div>
 
       {/* Content — padded below the 80px nav bar */}
-      <div className="relative z-10 min-h-screen" style={{ paddingTop: '80px' }}>
+      <div className="relative z-10 min-h-[var(--app-h)]" style={{ paddingTop: '80px' }}>
         {children}
       </div>
 

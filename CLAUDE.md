@@ -124,12 +124,24 @@ The `/reviews` "4.5" pins it too — otherwise its letterforms visibly change sh
 Form **inputs deliberately stay sans** (the inherited Geist) rather than Garamond: emails, phone numbers
 and typed data read better in a sans, and it draws a clean line between "text you read" and "text you enter".
 
+## Viewport height (`--app-h`)
+
+Every full-screen layer on the site sizes off `--app-h` — never `100vh`, Tailwind's `min-h-screen`, or a bare `fixed inset-0`. That covers `BookHero`'s shell and the fixed background layers plus `min-h-screen` wrappers in `AcquireSection` and `NavBackground`.
+
+**The bug this fixes** (Jack, 2026-09-08): on mobile a band of the body colour appeared between the page and the browser's bottom bar, clearing on reload or after a long scroll. Two causes compounding — on iOS `100vh` resolves to the toolbar-*hidden* height, 100–150px taller than what's on screen while the toolbars are up; and iOS only re-resolves `position: fixed` layers at scroll-end or on layout, neither of which this site produces (the homepage is a fixed, overscroll-none shell and `/acquire` is one viewport tall). So when the chrome settled into a different height after load, the layers kept their stale size and the strip they no longer covered was never painted — showing the canvas, i.e. `body`'s `#e7ceb2`. The same bug and the same fix are on jackharvey.me.
+
+`globals.css` defaults `--app-h` to `100dvh` (with a `100vh` `@supports` fallback); **`src/components/ViewportSync.tsx`**, mounted in the root layout, overwrites it with the measured `window.innerHeight`. The measurement is not redundant — *writing the property is itself the layout trigger* iOS otherwise skips. It measures `innerHeight` rather than `visualViewport.height` because only the latter also shrinks on pinch-zoom, which would collapse the shell to the zoom window; zoomed viewports are skipped outright. It listens to `visualViewport`'s `resize` (what fires as the toolbars animate), window `resize`/`orientationchange`, and `pageshow` (bfcache restores) — deliberately not `visualViewport`'s `scroll`, which fires continuously and adds nothing.
+
+The root layout also sets `viewportFit: 'cover'` (lets the background photo run under the notch and home indicator) and `interactiveWidget: 'resizes-content'` (stops an opening keyboard on `/contact` from recreating the same mismatch).
+
+`body`'s deliberate warm-sand `background-color` is the second half of this: it is what shows through any frame that still slips past, and is why the gap read as sand rather than white. Don't "tidy" it to `bg-background`.
+
 ## Page Layout
 
 ```
 / (Homepage)
   └── BookHero ('use client')
-        — fixed inset-0 overflow-hidden overscroll-none (not relative h-screen — see "Mobile scroll-lock gotcha" below); shows backgroundImage on desktop (same image as /acquire) ONLY when no transition video is configured for that breakpoint — see "No-flash background/video layering" below
+        — fixed inset-x-0 top-0 h-[var(--app-h)] overflow-hidden overscroll-none (not relative h-screen — see "Mobile scroll-lock gotcha" below; not inset-0 either — see "Viewport height (--app-h)" below); shows backgroundImage on desktop (same image as /acquire) ONLY when no transition video is configured for that breakpoint — see "No-flash background/video layering" below
         — cursor is always pointer — whole screen is clickable
         — click → if transitionVideoUrl: fixed inset-0 z-50 video overlay, playbackRate set to 2x → onEnded navigates to /acquire
         — click → if no video: router.push('/acquire') (a plain hard cut — NOT a view transition, see "No white flash at the video → /acquire cut" below)

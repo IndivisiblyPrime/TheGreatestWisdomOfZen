@@ -184,7 +184,7 @@ export function BookHero({
 
   return (
     <div
-      className="fixed inset-0 overflow-hidden overscroll-none"
+      className="fixed inset-x-0 top-0 h-[var(--app-h)] overflow-hidden overscroll-none"
       onClick={handleClick}
       style={{ cursor: 'pointer' }}
     >

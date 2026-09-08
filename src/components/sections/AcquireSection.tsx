@@ -73,12 +73,12 @@ export function AcquireSection({
   const navAnim         = anim('fadeIn',      '660ms',  '3290ms')
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-[var(--app-h)] overflow-hidden">
 
       {/* Background — fixed to viewport (not absolute) so it can't stretch/re-crop if content
-          overflows min-h-screen; desktop/mobile variants swap via CSS so they stay in sync with a
+          overflows min-h-[var(--app-h)]; desktop/mobile variants swap via CSS so they stay in sync with a
           resized browser. */}
-      <div className="fixed inset-0 z-0 hidden md:block">
+      <div className="fixed inset-x-0 top-0 h-[var(--app-h)] z-0 hidden md:block">
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
@@ -89,7 +89,7 @@ export function AcquireSection({
           <div className="w-full h-full bg-neutral-100" />
         )}
       </div>
-      <div className="fixed inset-0 z-0 md:hidden">
+      <div className="fixed inset-x-0 top-0 h-[var(--app-h)] z-0 md:hidden">
         {mobileImage ? (
           <img
             src={urlFor(mobileImage).width(1200).url()}
@@ -104,7 +104,7 @@ export function AcquireSection({
       {/* Content — centered. The vertical padding is load-bearing on short phones: the card
           is taller than the viewport there, and without it the flex centering pulls the card's
           top edge under the 80px brush-stroke nav and hides the title. */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen px-6 md:px-8 py-24 md:py-12">
+      <div className="relative z-10 flex items-center justify-center min-h-[var(--app-h)] px-6 md:px-8 py-24 md:py-12">
 
         {/* Title + Description + Acquire — block stays centered, text aligns left.
             Width is deliberately pinned at max-w-lg: the card sits in the gap between the

@@ -115,6 +115,23 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Visible viewport height, used by every full-screen layer on the site instead of
+   `100vh` / Tailwind's `min-h-screen`. On iOS `100vh` resolves to the toolbar-HIDDEN
+   height — 100-150px taller than what is on screen while the toolbars are up — so a
+   layer sized with it disagrees with the visible area from the moment it loads.
+   `100dvh` tracks the real one and follows the chrome as it animates.
+
+   ViewportSync (root layout) overwrites this with the measured height in px; see that
+   file for why the measurement is still needed once `dvh` is in place. */
+:root {
+  --app-h: 100dvh;
+}
+@supports not (height: 100dvh) {
+  :root {
+    --app-h: 100vh;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
