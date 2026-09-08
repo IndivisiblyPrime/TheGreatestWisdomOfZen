@@ -6,14 +6,9 @@ export async function POST(request: NextRequest) {
   const secret = request.nextUrl.searchParams.get('secret')
   const envSecret = process.env.REVALIDATE_SECRET
 
-  // Debug logging (remove after fixing)
-  console.log('Revalidate debug:', {
-    receivedSecretLength: secret?.length ?? 0,
-    envSecretLength: envSecret?.length ?? 0,
-    envSecretExists: !!envSecret,
-    secretsMatch: secret === envSecret,
-  })
-
+  // Deliberately no logging of the secret or its metadata. A previous version
+  // logged both lengths plus whether they matched, which is an oracle: it tells
+  // anyone with log access how long the expected secret is and confirms a hit.
   if (secret !== envSecret) {
     return NextResponse.json(
       { message: 'Invalid token' },

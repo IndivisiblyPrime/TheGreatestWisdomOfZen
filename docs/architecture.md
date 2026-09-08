@@ -237,7 +237,10 @@ export interface SiteSettings {
 ## ISR / Revalidation
 
 - Pages use `export const revalidate = 60` — auto-refresh every 60 seconds as a fallback
-- Sanity webhook (ID: `ibtJnljD4nkDRklM`) fires on any document create/update/delete → POSTs to `https://thegreatestwisdomofzen.com/api/revalidate?secret=...` → instantly revalidates `/`, `/acquire`, `/more`, `/contact`, `/reviews`
+- Sanity webhook (ID: `ibtJnljD4nkDRklM`, "TGWOZ ISR revalidate") fires on any document create/update/delete → POSTs to `https://thegreatestwisdomofzen.com/api/revalidate?secret=...` → instantly revalidates `/`, `/acquire`, `/more`, `/contact`, `/reviews`
+- **The shared secret lives in exactly two places** and must match: the `REVALIDATE_SECRET` env var on Vercel (Production), and the `?secret=` query param in that webhook's URL. Neither belongs in the repo — an earlier version of `CLAUDE.md` committed the literal value, which is why it was rotated on 2026-09-08. Read the current webhook with `GET https://api.sanity.io/v2021-10-04/hooks/projects/00tez3yv` and update it with `PATCH .../hooks/projects/00tez3yv/<hookId>` (note: `PUT` 404s on that path).
+- **Rotating it:** replace the Vercel env var, redeploy production so the new value is live, then PATCH the webhook URL. There is a short window between those steps where instant revalidation 401s; the `revalidate = 60` fallback still refreshes content, so it degrades rather than breaks. Verify by POSTing to the endpoint with the old secret (expect 401) and the new one (expect 200).
+- `route.ts` deliberately logs nothing about the secret. It once logged both lengths and whether they matched, which is an oracle for anyone with log access.
 - Publishing in Studio → live site updates immediately (no Vercel redeploy needed)
 - Code changes require `git push origin main` → Vercel auto-deploys
 
