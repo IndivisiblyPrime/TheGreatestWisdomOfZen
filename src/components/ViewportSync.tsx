@@ -1,62 +1,109 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 /**
- * Keeps `--app-h` equal to the height that is actually visible on screen, so every
- * full-screen layer on the site can size off one honest number.
+ * Keeps `--app-h` equal to the height that is actually visible on screen.
  *
- * Why this exists at all, given globals.css already defaults `--app-h` to `100dvh`:
- * `dvh` fixes the *value* but not the *timing*. iOS only re-resolves the size of
- * `position: fixed` layers at scroll-end or on layout, and this site has no scrollable
- * document to produce either — the homepage is a fixed, overscroll-none shell, and
- * /acquire is one viewport tall. So when the browser chrome settles into a different
- * height shortly after load (or after a bfcache restore, or a tab switch), the fixed
- * layers keep the size they were laid out at, and the strip they no longer cover is
- * simply never painted — it shows the page canvas, i.e. body's warm sand. That is the
- * gap reported at the bottom of the page on mobile, which a reload or a long scroll
- * clears because both force the layout iOS skipped.
+ * The rule this file exists to enforce: **`100dvh` is authoritative, and JS only
+ * intervenes when the engine is measurably wrong.**
  *
- * Writing this custom property IS that missing layout trigger, which is the real reason
- * the effect is here rather than trusting `dvh` alone.
+ * That is a correction of the first version (2026-09-08), which unconditionally wrote
+ * `window.innerHeight` into `--app-h` on every viewport event. It made the gap it was
+ * meant to fix *more* likely, and here is why: `100dvh` is recomputed continuously by
+ * the browser, so it is correct by construction at every instant. A pixel snapshot is
+ * correct only until the next change. Writing one as an inline style on `<html>`
+ * permanently replaces the self-maintaining value with a static one — so when iOS fired
+ * `resize` repeatedly *through* its toolbar animation and the last event carried an
+ * intermediate height, that intermediate value was latched forever, and `dvh` could no
+ * longer rescue it. The blank strip came back (Jack, 2026-09-09).
  *
- * The measurement is `window.innerHeight`, not `visualViewport.height`, on purpose:
- * the two agree as the toolbars animate, but only the latter also shrinks when the user
- * pinch-zooms in — which would collapse the shell to the size of the zoom window.
- * visualViewport is still the better *signal*, so it drives the listener while
- * innerHeight supplies the value; a zoomed-in viewport is skipped outright.
+ * So: sample only once the viewport has stopped moving, hand the value back to `dvh`
+ * first, and re-apply an override only if `dvh` still disagrees with the real visible
+ * height. In the normal case nothing is overridden at all.
+ *
+ * The `removeProperty` is doing two jobs — it restores `dvh`, and the style mutation is
+ * itself the relayout iOS otherwise skips on a page with no scrollable document, which
+ * was the original diagnosis and still holds.
+ *
+ * `window.innerHeight` remains the reference rather than `visualViewport.height`: the
+ * two agree as the toolbars animate, but only the latter also shrinks under pinch-zoom,
+ * which would collapse the shell to the zoom window. Zoomed viewports are skipped.
  */
 export function ViewportSync() {
+  // Rendered below at exactly `100dvh`. Its measured height is what `dvh` currently
+  // resolves to — the only way to ask the engine that question directly.
+  const probeRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const root = document.documentElement
+    const probe = probeRef.current
+    if (!probe) return
 
-    const apply = () => {
-      // Mid-pinch-zoom, innerHeight is stale and visualViewport is misleading; the
-      // chrome cannot resize while zoomed anyway, so there is nothing to re-sync.
+    let settleTimer: ReturnType<typeof setTimeout> | undefined
+    let raf = 0
+
+    const measure = () => {
       if ((window.visualViewport?.scale ?? 1) > 1) return
-      root.style.setProperty('--app-h', `${Math.round(window.innerHeight)}px`)
+
+      // Hand control back to `dvh` and let it re-resolve.
+      root.style.removeProperty('--app-h')
+
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const want = window.innerHeight
+        const got = probe.getBoundingClientRect().height
+        // Sub-pixel disagreement is normal on fractional device ratios; 1px of
+        // tolerance keeps us from thrashing an override on and off.
+        if (want > 0 && Math.abs(got - want) > 1) {
+          root.style.setProperty('--app-h', `${Math.round(want)}px`)
+        }
+        // A browser with no `dvh` support leaves the probe at 0, so it lands here
+        // too and JS supplies the height outright — which is the old `100vh`
+        // fallback's job, done with a real measurement instead.
+      })
     }
 
-    apply()
+    const schedule = () => {
+      clearTimeout(settleTimer)
+      // Long enough to outlast an iOS toolbar animation. Sampling mid-flight is
+      // precisely the mistake that caused the regression described above.
+      settleTimer = setTimeout(measure, 250)
+    }
 
-    // `resize` on visualViewport is what actually fires as iOS animates its toolbars;
-    // window resize covers desktop and orientation, and pageshow covers bfcache
-    // restores, where the page can come back sized for whatever the chrome was doing
-    // when it was frozen. Deliberately NOT visualViewport's `scroll` — it fires
-    // continuously and adds nothing here.
+    measure()
+
     const vv = window.visualViewport
-    vv?.addEventListener('resize', apply)
-    window.addEventListener('resize', apply)
-    window.addEventListener('orientationchange', apply)
-    window.addEventListener('pageshow', apply)
+    vv?.addEventListener('resize', schedule)
+    window.addEventListener('resize', schedule)
+    window.addEventListener('orientationchange', schedule)
+    // bfcache restores can come back sized for whatever the chrome was doing when
+    // the page was frozen.
+    window.addEventListener('pageshow', schedule)
 
     return () => {
-      vv?.removeEventListener('resize', apply)
-      window.removeEventListener('resize', apply)
-      window.removeEventListener('orientationchange', apply)
-      window.removeEventListener('pageshow', apply)
+      clearTimeout(settleTimer)
+      cancelAnimationFrame(raf)
+      vv?.removeEventListener('resize', schedule)
+      window.removeEventListener('resize', schedule)
+      window.removeEventListener('orientationchange', schedule)
+      window.removeEventListener('pageshow', schedule)
     }
   }, [])
 
-  return null
+  return (
+    <div
+      ref={probeRef}
+      aria-hidden
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: 0,
+        height: '100dvh',
+        visibility: 'hidden',
+        pointerEvents: 'none',
+      }}
+    />
+  )
 }
