@@ -7,6 +7,7 @@ import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { urlFor } from "@/sanity/lib/image"
 import { fraunces, garamond } from "@/lib/fonts"
 import { inkCard, inkRule, inkHeading, inkBody, inkButton, inkNavLink, DISPLAY_OPSZ } from "@/lib/theme"
+import { COVER_PHOTO_ALT } from "@/lib/site"
 
 interface AcquireSectionProps {
   bookDescription?: string
@@ -82,7 +83,7 @@ export function AcquireSection({
         {backgroundImage ? (
           <img
             src={urlFor(backgroundImage).width(1800).url()}
-            alt=""
+            alt={COVER_PHOTO_ALT}
             className="w-full h-full object-cover object-center"
           />
         ) : (

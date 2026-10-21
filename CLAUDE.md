@@ -26,10 +26,10 @@
 ## Layout
 
 ```
-src/app/         routes (/, /acquire, /contact, /reviews, /more, /studio) + api/
-src/components/  sections/ — one component per page; ViewportSync.tsx
+src/app/         routes (/, /acquire, /contact, /reviews, /more, /studio) + api/, robots.ts, sitemap.ts
+src/components/  sections/ — one component per page; ViewportSync.tsx, JsonLd.tsx
 src/sanity/      client, image/live helpers, singleton structure, schemaTypes/
-src/lib/         fonts.ts, theme.ts (design tokens), types.ts, utils.ts
+src/lib/         fonts.ts, theme.ts (design tokens), site.ts (page titles, search descriptions, link previews), types.ts, utils.ts
 ```
 
 ## Environment Variables

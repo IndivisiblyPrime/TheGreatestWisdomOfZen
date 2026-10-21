@@ -5,6 +5,7 @@ import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { useRef, useState, useEffect, useCallback } from "react"
 import { preload } from "react-dom"
 import { useRouter } from "next/navigation"
+import { COVER_PHOTO_ALT, SITE_NAME } from "@/lib/site"
 
 // A video is "ready" only once its whole duration is buffered, so playback can't stall
 // mid-scene. Deliberately derived from buffered/readyState rather than the
@@ -193,6 +194,18 @@ export function BookHero({
           visible for the imperceptible instant before the video paints. */}
       <div className="absolute inset-0 z-0 bg-black" />
 
+      {/* A real link to /acquire, visually hidden. The click-anywhere handler above is
+          invisible to crawlers — Google follows <a href>, it doesn't click — so without this
+          the homepage was a dead end that never led to /acquire. It also gives keyboard
+          users something to Tab to: Enter fires a click that bubbles up to handleClick, so
+          the video still plays; preventDefault only stops the link jumping straight there.
+          Deliberately not making the whole hero an <a>: Chrome would then pin the URL
+          bubble in the corner whenever the mouse is over the page, and iOS would open a
+          link preview on long-press. */}
+      <a href="/acquire" className="sr-only" onClick={(e) => e.preventDefault()}>
+        Enter {SITE_NAME}
+      </a>
+
       {/* Background image — ONLY the true fallback when no video is configured for this
           breakpoint. Deliberately never rendered underneath a video: video elements paint
           nothing until their first frame decodes, and this image loads/paints instantly, so
@@ -204,7 +217,7 @@ export function BookHero({
           {backgroundImage ? (
             <img
               src={urlFor(backgroundImage).width(1800).url()}
-              alt=""
+              alt={COVER_PHOTO_ALT}
               className="w-full h-full object-cover object-center"
             />
           ) : (

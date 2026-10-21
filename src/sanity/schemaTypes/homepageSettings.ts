@@ -17,10 +17,10 @@ export const homepageSettings = defineType({
     // ─── Site ────────────────────────────────────────────────────────────────
     defineField({
       name: 'siteTitle',
-      title: 'Browser Tab Title',
+      title: 'Browser Tab Title (unused)',
       type: 'string',
       group: 'site',
-      description: 'Text shown in the browser tab',
+      description: 'No longer used — page titles and search descriptions are set in code (src/lib/site.ts) so they always carry the book\'s full name.',
     }),
     defineField({
       name: 'siteFavicon',

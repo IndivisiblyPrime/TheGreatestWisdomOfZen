@@ -17,7 +17,9 @@ decision, say what replaced it and why rather than deleting the history.
 src/
 ├── app/
 │   ├── page.tsx                       # Homepage — fetches settings, renders BookHero
-│   ├── layout.tsx                     # Root layout (Geist font only)
+│   ├── layout.tsx                     # Root layout (Geist font; metadataBase + fallback title for search/sharing)
+│   ├── robots.ts                      # /robots.txt — allow all but /studio and /api/, points at the sitemap
+│   ├── sitemap.ts                     # /sitemap.xml — generated from PAGES in lib/site.ts
 │   ├── globals.css                    # Global styles + wipeFromLeft/fadeIn/slideInLeft keyframes
 │   ├── acquire/
 │   │   └── page.tsx                   # /acquire route — fetches settings, renders AcquireSection
@@ -35,6 +37,8 @@ src/
 │   │   └── revalidate/route.ts        # POST — Sanity webhook → revalidates /, /acquire, /more, /contact, /reviews
 │   └── studio/[[...tool]]/page.tsx    # Sanity Studio (singleton structure)
 ├── components/
+│   ├── JsonLd.tsx                     # <script type="application/ld+json"> for structured data
+│   ├── ViewportSync.tsx               # --app-h correction, see "Viewport height"
 │   └── sections/
 │       ├── BookHero.tsx               # Homepage: full-screen background image, pointer cursor everywhere, click → video (2x playback) → /acquire
 │       ├── NavBackground.tsx          # Shared layout: mobile-aware background image (desktop/mobile CSS-swap, same pattern as BookHero/AcquireSection) + fixed 80px brush stroke nav, current-page link underlined — used by /contact and /reviews
@@ -57,6 +61,7 @@ src/
 └── lib/
     ├── fonts.ts                       # Shared next/font instances — Fraunces (VARIABLE, opsz axis) + EB Garamond
     ├── theme.ts                       # "Ink & paper" design tokens as literal Tailwind class strings
+    ├── site.ts                        # Search & sharing: per-page titles/descriptions, link-preview card, structured data, book facts
     ├── types.ts                       # SiteSettings interface
     └── utils.ts                       # cn() utility
 ```
@@ -133,6 +138,7 @@ The root layout also sets `viewportFit: 'cover'` (lets the background photo run 
   └── BookHero ('use client')
         — fixed inset-x-0 top-0 h-[var(--app-h)] overflow-hidden overscroll-none (not relative h-screen — see "Mobile scroll-lock gotcha" below; not inset-0 either — see "Viewport height (--app-h)" below); shows backgroundImage on desktop (same image as /acquire) ONLY when no transition video is configured for that breakpoint — see "No-flash background/video layering" below
         — cursor is always pointer — whole screen is clickable
+        — contains a visually hidden `<a href="/acquire">` for crawlers and keyboard users; its click bubbles to the hero's handler so the video still plays — see "Search & sharing"
         — click → if transitionVideoUrl: fixed inset-0 z-50 video overlay, playbackRate set to 2x → onEnded navigates to /acquire
         — click → if no video: router.push('/acquire') (a plain hard cut — NOT a view transition, see "No white flash at the video → /acquire cut" below)
         — seamless transition: background image (when shown at all) on homepage matches /acquire on desktop, so video → /acquire is smooth
@@ -204,7 +210,7 @@ Five groups:
 
 | Group       | Fields |
 |-------------|--------|
-| Site        | `siteTitle` (string), `siteFavicon` (image) |
+| Site        | `siteTitle` (string, legacy/unused — page titles are set in `src/lib/site.ts`, see "Search & sharing"), `siteFavicon` (image) |
 | Hero        | `transitionVideo` (file, accept: video/*), `transitionVideoMobile` (file, accept: video/*, optional — falls back to `transitionVideo` under 768px) |
 | Buttons     | `buyButtonText` (default "Buy", legacy/unused — button text is hardcoded "Acquire" in `AcquireSection.tsx`), `buyButtonUrl` (url), `moreButtonText` (default "More", legacy/unused), `readOnlineButtonText` (default "Read Online", legacy/unused — /read-online disabled) |
 | More        | `exploreHeading` (default "Explore", legacy/unused), `bookDescription` (text, rows 6), `backgroundImage` (image, hotspot — also used on homepage), `backgroundImageMobile` (image, hotspot, optional — falls back to `backgroundImage` under 768px; used on the homepage, /acquire, /contact, and /reviews), `brushStrokeImage` (image). Group internally still named `more`; feeds the `/acquire` page. |
@@ -287,12 +293,63 @@ export interface SiteSettings {
   - **`navigateToAcquire` pairs its `requestAnimationFrame` with a `setTimeout` fallback**, because rAF is throttled or suspended entirely in a backgrounded tab; without it, switching tabs as the video ends could strand someone on the homepage forever. Whichever fires first wins, guarded by a `navigated` flag so only one push happens.
 - **Mobile breakpoint consistency across pages**: `/`, `/acquire`, `/contact`, and `/reviews` all use the identical `hidden md:block` / `md:hidden` dual-image CSS-swap, keyed off the same `backgroundImage`/`backgroundImageMobile` pair. The breakpoint is evaluated purely by the browser's CSS media query against current viewport width — never by JS or a server-side check — so a desktop browser resized narrow shows the mobile image identically everywhere, and navigating between pages at that width never flips back to the desktop image. `NavBackground` (`/contact`, `/reviews`) originally had no mobile variant at all and always rendered the desktop `backgroundImage` regardless of viewport — that inconsistency (mobile image on `/`/`/acquire`, desktop image on `/contact`/`/reviews`, at the same width) is what got fixed. There is deliberately no homepage-only mobile image field (a `startingImageMobile` field existed briefly and was removed) — the homepage's "opening" is always the transition video, so its pre-click still image doesn't need to differ from the rest of the site's.
 
+## Search & sharing (`src/lib/site.ts`)
+
+Everything here is invisible on the page — it's what Google, Bing and link previews (iMessage,
+Slack, social) read. Added 2026-10-21, when the site didn't appear in search at all for its own
+title. Verified with a pixel diff of the homepage against the previous production build at
+1440×900 and 390×844: 0 pixels changed.
+
+**What was wrong, and the fix for each:**
+
+- **Every `<title>` was "TGWOZ"** (and so was the homepage's meta description) — the Studio's
+  "Browser Tab Title" field held the acronym. Titles and descriptions now live in `PAGES` in
+  `site.ts`, in code, so a CMS edit can't silently reduce them to an acronym again. The Sanity
+  field is kept but marked unused. "TGWOZ" survives as the `alternateName` in the homepage's
+  WebSite structured data, which is how Google picks the site name it shows.
+- **The homepage was a dead end for crawlers.** The click-anywhere hero is a `div` with an
+  `onClick`, and Google follows `<a href>` — it never clicks. So it saw a page called "TGWOZ"
+  with no text and no way through to `/acquire`, the only page with the title, description and
+  Amazon link. `BookHero` now contains a visually hidden (`sr-only`) `<a href="/acquire">`. Its
+  `onClick` only calls `preventDefault()`; the click bubbles to the hero's `handleClick`, so
+  keyboard users (Tab, Enter) get the same video as a mouse click — they previously couldn't
+  enter the site at all. **Don't "simplify" this by turning the whole hero into an `<a>`:**
+  Chrome then pins the destination-URL bubble in the bottom-left corner the whole time the
+  mouse is over the page, and iOS opens a link preview on long-press.
+- **The homepage had no text.** `page.tsx` renders an `sr-only` `<h1>` (the title) and `<p>`
+  (the description). This is the title already printed on the book cover in the photo/video,
+  restated for screen readers — Google's spam policy explicitly exempts screen-reader-only
+  text, which is why it's kept to that rather than a keyword list.
+- **No robots.txt or sitemap** — now `src/app/robots.ts` and `src/app/sitemap.ts`. The sitemap
+  is generated from `PAGES`, so a page added there is listed automatically. Sitemap URLs match
+  the canonicals exactly (homepage without a trailing slash, as Next emits it).
+- **No link preview.** `pageMetadata()` adds Open Graph + Twitter card tags with a 1200×630
+  crop of `backgroundImage` (the hardcover on sand) from the Sanity CDN, as **JPEG q85**: the
+  source is a PNG, and a full-size PNG is heavy enough that some apps (WhatsApp) silently drop
+  the preview. ~53KB as served.
+- **Alt text**: the desktop background photo on `/acquire` (and `BookHero`'s no-video
+  fallback) has `COVER_PHOTO_ALT`. The mobile image has no book in it, so stays `alt=""`, as
+  do `BookHero`'s end-frame duplicates and `NavBackground`'s photo. If the background photo
+  in Sanity is ever replaced with one that doesn't show the book, update `COVER_PHOTO_ALT`.
+
+**Structured data** (`components/JsonLd.tsx`): `WebSite` on `/` (site name), `Book` on
+`/acquire` (ISBN, publisher, publication date, pages, hardcover, author "〇" as on Amazon,
+`sameAs` + `offers` → the Amazon listing). Book facts are hardcoded in `BOOK` — **keep the
+price in step with Amazon**; structured data that contradicts the page it describes is worse
+than none. This doesn't by itself earn a rich result; it ties the site, the ISBN and the
+listing together as one entity.
+
+**Not code, set up outside the repo:** Google Search Console (domain property, verified by a
+DNS TXT record at Namecheap — DNS is not on Vercel) and Bing Webmaster Tools (imported from
+Search Console), each with `https://thegreatestwisdomofzen.com/sitemap.xml` submitted.
+The `www.` → apex redirect should be a permanent 308 (Vercel → Settings → Domains), not 307.
+
 ## GROQ Queries
 
 Homepage (`page.tsx`) — includes `brushStrokeImage` (not rendered on the homepage itself) so `BookHero` can preload it for the `/acquire` handoff, see "No-flash video → /acquire handoff" above:
 ```groq
 *[_type == "homepageSettings"][0]{
-  siteTitle, siteFavicon,
+  siteFavicon,
   backgroundImage, backgroundImageMobile, brushStrokeImage,
   transitionVideo { asset-> { url } },
   transitionVideoMobile { asset-> { url } }
@@ -302,7 +359,7 @@ Homepage (`page.tsx`) — includes `brushStrokeImage` (not rendered on the homep
 Acquire page (`acquire/page.tsx`):
 ```groq
 *[_type == "homepageSettings"][0]{
-  siteTitle, siteFavicon,
+  siteFavicon,
   backgroundImage, backgroundImageMobile, brushStrokeImage,
   buyButtonText, buyButtonUrl,
   bookDescription
@@ -321,7 +378,7 @@ Read Online page (`read-online/page.tsx`) — DISABLED; `notFound()` is called b
 Contact page (`contact/page.tsx`) and Reviews page (`reviews/page.tsx`, identical query shape):
 ```groq
 *[_type == "homepageSettings"][0]{
-  siteTitle, siteFavicon,
+  siteFavicon,
   backgroundImage, backgroundImageMobile,
   brushStrokeImage
 }
@@ -337,4 +394,6 @@ Contact page (`contact/page.tsx`) and Reviews page (`reviews/page.tsx`, identica
 - **Upload mobile transition video**: Studio → Homepage Settings → Hero tab → Transition Video (Mobile) → Publish (optional; used under 768px wide)
 - **Modify schema**: Edit `homepageSettings.ts`, then `npx sanity@latest schema deploy`
 - **Deploy code changes**: `git push origin main` → Vercel auto-deploys
-- **Add a new page**: Create `src/app/<name>/page.tsx`, add a component in `sections/`, add fields to schema, add `revalidatePath('/<name>')` to `revalidate/route.ts`
+- **Add a new page**: Create `src/app/<name>/page.tsx`, add a component in `sections/`, add fields to schema, add `revalidatePath('/<name>')` to `revalidate/route.ts`, and add an entry to `PAGES` in `src/lib/site.ts` (gives it a title/description and puts it in the sitemap) — then `export generateMetadata` returning `pageMetadata(PAGES.<name>, settings)` like the other pages
+- **Change a page title or search description**: `PAGES` in `src/lib/site.ts` (not Sanity — the Studio's "Browser Tab Title" field is unused)
+- **Book price/details change on Amazon**: update `BOOK` in `src/lib/site.ts` — it's restated in the structured data on /acquire
