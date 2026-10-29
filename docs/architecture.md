@@ -343,6 +343,9 @@ listing together as one entity.
 DNS TXT record at Namecheap — DNS is not on Vercel) and Bing Webmaster Tools (imported from
 Search Console), each with `https://thegreatestwisdomofzen.com/sitemap.xml` submitted.
 The `www.` → apex redirect should be a permanent 308 (Vercel → Settings → Domains), not 307.
+`/more` uses `permanentRedirect()` (308). Until 2026-10-29 it used `redirect()`, which is a 307
+— temporary — despite this file describing it as permanent; search engines keep a URL behind a
+temporary redirect instead of transferring it to the destination.
 
 ## GROQ Queries
 
