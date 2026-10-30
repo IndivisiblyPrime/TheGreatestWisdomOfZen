@@ -342,7 +342,9 @@ listing together as one entity.
 **Not code, set up outside the repo:** Google Search Console (domain property, verified by a
 DNS TXT record at Namecheap — DNS is not on Vercel) and Bing Webmaster Tools (imported from
 Search Console), each with `https://thegreatestwisdomofzen.com/sitemap.xml` submitted.
-The `www.` → apex redirect should be a permanent 308 (Vercel → Settings → Domains), not 307.
+The `www.` → apex redirect is a permanent 308, set in Vercel → Settings → Domains (it was
+Vercel's default 307 until 2026-10-29). Search Console's sitemap box needs the full URL — a
+domain property has no prefix to resolve a bare `sitemap.xml` against.
 `/more` uses `permanentRedirect()` (308). Until 2026-10-29 it used `redirect()`, which is a 307
 — temporary — despite this file describing it as permanent; search engines keep a URL behind a
 temporary redirect instead of transferring it to the destination.
