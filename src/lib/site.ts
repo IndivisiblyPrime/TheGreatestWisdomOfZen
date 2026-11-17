@@ -26,7 +26,7 @@ export const PAGES = {
     path: "/acquire",
     title: "Acquire the Book · The Greatest Wisdom of Zen",
     description:
-      "The Greatest Wisdom of Zen: the complete guide to Zen wisdom, in 170 blank pages. Hardcover, available on Amazon.",
+      "The Greatest Wisdom of Zen: the complete guide to Zen wisdom, in 170 blank pages. Hardcover, available on Amazon. ISBN 9798994211014.",
   },
   reviews: {
     path: "/reviews",
@@ -52,6 +52,8 @@ export const COVER_PHOTO_ALT = "The Greatest Wisdom of Zen, hardcover, standing 
 export const BOOK = {
   amazonUrl: "https://www.amazon.com/dp/B0HFVZ1B26",
   isbn: "9798994211014",
+  /** As Amazon prints it — shown on /acquire. */
+  isbn13Display: "979-8994211014",
   author: "〇",
   publisher: "Neti Neti LLC",
   datePublished: "2026-08-18",

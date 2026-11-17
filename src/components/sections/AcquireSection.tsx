@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation"
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"
 import { urlFor } from "@/sanity/lib/image"
 import { fraunces, garamond } from "@/lib/fonts"
-import { inkCard, inkRule, inkHeading, inkBody, inkButton, inkNavLink, DISPLAY_OPSZ } from "@/lib/theme"
-import { COVER_PHOTO_ALT } from "@/lib/site"
+import { inkCard, inkRule, inkHeading, inkBody, inkButton, inkNavLink, inkMuted, DISPLAY_OPSZ } from "@/lib/theme"
+import { BOOK, COVER_PHOTO_ALT } from "@/lib/site"
 
 interface AcquireSectionProps {
   bookDescription?: string
@@ -133,6 +133,13 @@ export function AcquireSection({
           >
             Acquire
           </a>
+          {/* Colophon. Real, visible text on purpose: Google indexes page text, not the ISBN in
+              the Book structured data, so this is what makes an ISBN search find the site.
+              Don't hide it (sr-only / tiny / same-colour text is "hidden text" under Google's
+              spam policy). See "Search & sharing" in docs/architecture.md. */}
+          <p className={`${garamond.className} mt-6 text-[13px] tracking-[0.04em] ${inkMuted}`} style={buyAnim}>
+            {`ISBN ${BOOK.isbn13Display}`}
+          </p>
         </div>
       </div>
 
