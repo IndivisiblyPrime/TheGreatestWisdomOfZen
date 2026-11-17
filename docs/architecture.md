@@ -153,7 +153,7 @@ The root layout also sets `viewportFit: 'cover'` (lets the background photo run 
   └── AcquireSection ('use client')
         ├── Background image: ALWAYS immediately visible (no animation); fixed inset-0 (not absolute — see "Mobile scroll-lock gotcha" below); same desktop/mobile CSS-swap pattern as BookHero
         ├── sessionStorage key 'acquire-skip-anim': if set, everything shows immediately (no animation)
-        ├── Styling: "Ink & paper" (see Design System above). Card is `inkCard` + `p-6 md:p-9`; title is Fraunces 34px at `DISPLAY_OPSZ`; description is EB Garamond 19px/1.62; Acquire is `inkButton`; under it, an EB Garamond 13px `inkMuted` ISBN colophon sharing the button's reveal (see "Search & sharing").
+        ├── Styling: "Ink & paper" (see Design System above). Card is `inkCard` + `p-6 md:p-9`; title is Fraunces 34px at `DISPLAY_OPSZ`; description is EB Garamond 19px/1.62; Acquire is `inkButton`; under it, an EB Garamond 11px `inkMuted` ISBN colophon sharing the button's reveal (see "Search & sharing").
         ├── Width is PINNED at `max-w-lg` and must stay there — the card sits in the gap between the book and the branch in the background photo, so it may grow taller but never wider. The description was sized up to 19px for readability on that basis.
         ├── The content wrapper's `py-24 md:py-12` is load-bearing, not decorative: on a short phone (375×667) the card is taller than the viewport, and without it the flex centering pulls the card's top edge under the 80px nav and hides the title.
         ├── Content (title + hr + description + Acquire button): left-aligned text inside a centered max-w-lg block; title, description and Acquire button all share ONE identical reveal — `slideInLeft` 660ms at 1250ms (from the shared `TEXT_DURATION`/`TEXT_DELAY` constants) — so they slide in together as a single motion. The hr divider is the lone exception: `fadeIn` 500ms at 1700ms
@@ -340,11 +340,11 @@ than none. This doesn't by itself earn a rich result; it ties the site, the ISBN
 listing together as one entity.
 
 **The ISBN is also visible text on `/acquire`** — a small `inkMuted` colophon under the
-Acquire button ("ISBN 979-8994211014", from `BOOK.isbn13Display`), plus the bare 13 digits
-at the end of `/acquire`'s meta description. The structured data alone doesn't make the
+Acquire button (EB Garamond 11px, "ISBN 9798994211014" from `BOOK.isbn` — no dashes, so it
+matches the plain 13-digit search exactly), plus the same digits at the end of `/acquire`'s meta description. The structured data alone doesn't make the
 site turn up for an ISBN search: Google's results come from indexed page text, and JSON-LD
 isn't page text. It must stay genuinely visible — hiding it (sr-only, near-zero size,
-text coloured like the card) is the "hidden text" Google's spam policy penalises; the
+text coloured like the card — asked for once and declined) is the "hidden text" Google's spam policy penalises; the
 homepage's sr-only text is only safe because it restates the cover. Added 2026-11-17.
 
 **Not code, set up outside the repo:** Google Search Console (domain property, verified by a

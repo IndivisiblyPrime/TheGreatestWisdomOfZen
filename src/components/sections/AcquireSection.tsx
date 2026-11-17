@@ -137,8 +137,8 @@ export function AcquireSection({
               the Book structured data, so this is what makes an ISBN search find the site.
               Don't hide it (sr-only / tiny / same-colour text is "hidden text" under Google's
               spam policy). See "Search & sharing" in docs/architecture.md. */}
-          <p className={`${garamond.className} mt-6 text-[13px] tracking-[0.04em] ${inkMuted}`} style={buyAnim}>
-            {`ISBN ${BOOK.isbn13Display}`}
+          <p className={`${garamond.className} mt-5 text-[11px] tracking-[0.04em] ${inkMuted}`} style={buyAnim}>
+            {`ISBN ${BOOK.isbn}`}
           </p>
         </div>
       </div>
